@@ -8,6 +8,8 @@ Releases before `0.7.0` predate this file; see the git history and tags for thos
 
 ## [Unreleased]
 
+## [0.9.1]
+
 ### Fixed
 
 - Autocorrect no longer offers unrelated short lexicon entries as "corrections" for a token
@@ -28,6 +30,8 @@ Releases before `0.7.0` predate this file; see the git history and tags for thos
   behavior change.
 - The `।` sentence-ender is now named **dari** (its Bangla name) rather than "danda", in the README
   symbol table and the sanitizer comments. Terminology only; no behavior change.
+- Added `RELEASING.md` documenting the branch and release process; removed em-dashes from README
+  prose (house style). No API or behavior change.
 
 ## [0.9.0]
 

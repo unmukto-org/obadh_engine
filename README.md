@@ -35,7 +35,7 @@ Version history and breaking changes: [CHANGELOG.md](CHANGELOG.md).
 Use the Rust library crate for native integrations:
 
 ```toml
-obadh_engine = "0.9.0"
+obadh_engine = "0.9.1"
 ```
 
 The default feature set is empty. Native downstreams, such as the
@@ -46,10 +46,10 @@ Optional features:
 
 ```toml
 # CLI tools and artifact builders.
-obadh_engine = { version = "0.9.0", features = ["cli"] }
+obadh_engine = { version = "0.9.1", features = ["cli"] }
 
 # Browser/WASM bindings for the playground.
-obadh_engine = { version = "0.9.0", features = ["wasm"] }
+obadh_engine = { version = "0.9.1", features = ["wasm"] }
 ```
 
 Repository setup for development:
@@ -354,7 +354,7 @@ engine owns candidate generation, provenance, and ranking; auto-insert *policy*
 is the client's (see [Auto-insert policy](#auto-insert-policy)).
 
 ```toml
-obadh_engine = { version = "0.9.0", features = ["cabi"] }
+obadh_engine = { version = "0.9.1", features = ["cabi"] }
 ```
 
 Surface, all over opaque handles created by `*_open` / `*_new` and released by
