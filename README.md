@@ -38,8 +38,8 @@ Use the Rust library crate for native integrations:
 obadh_engine = "0.9.0"
 ```
 
-The default feature set is empty. Native downstreams — such as the
-[obadh-ios](https://github.com/nsssayom/obadh-ios) keyboard — do not pay for CLI
+The default feature set is empty. Native downstreams, such as the
+[obadh-ios](https://github.com/nsssayom/obadh-ios) keyboard, do not pay for CLI
 tooling or browser/WASM dependencies.
 
 Optional features:
@@ -200,14 +200,14 @@ Native tools can memory-map the FST; WASM loads the same compact bytes.
 The runtime returns ranked candidates for the active word. Each candidate
 carries the provenance a caller needs to rank, filter, or gate it:
 
-- `source` — the channel that produced it (exact, weighted edit, diacritic or
+- `source`: the channel that produced it (exact, weighted edit, diacritic or
   vowel-length rescue, roman repair, exact/fuzzy loanword, prefix or stem
   completion, phonetic skeleton, consonant confusion);
-- `edit_cost` — Bangla-side edit distance from the baseline;
-- `roman_repair_cost` — roman-side cost when the candidate came from a roman
+- `edit_cost`: Bangla-side edit distance from the baseline;
+- `roman_repair_cost`: roman-side cost when the candidate came from a roman
   repair; a one-key roman slip can be a large Bangla-side change but a small
   roman one;
-- `frequency` — the candidate word's lexicon frequency.
+- `frequency`: the candidate word's lexicon frequency.
 
 The Rust API exposes these on `FstCandidate` (`FstLexicon::suggest`); the C ABI
 exposes them through `obadh_autocorrect_suggest_detailed`.
@@ -215,29 +215,29 @@ exposes them through `obadh_autocorrect_suggest_detailed`.
 ### Auto-insert policy
 
 Whether to *silently apply* a correction is a client decision: it depends on the
-lexicon's frequency data and on product choices — protected words, tap-to-keep,
-how aggressive to be. The runtime supplies the signals; the client owns the
-policy. The reference policy keys every clause on an exposed field and splits on
-whether the baseline the user typed is itself a lexicon word —
-`obadh_autocorrect_word_frequency(baseline)`, `0` for a non-word.
+lexicon's frequency data and on product choices such as protected words,
+tap-to-keep, and how aggressive to be. The runtime supplies the signals; the
+client owns the policy. The reference policy keys every clause on an exposed field
+and splits on whether the baseline the user typed is itself a lexicon word, via
+`obadh_autocorrect_word_frequency(baseline)` (`0` for a non-word).
 
-**Non-word baseline** (`word_frequency(baseline) == 0`) — apply the top
+**Non-word baseline** (`word_frequency(baseline) == 0`): apply the top
 correction when:
 
-- `source` is a confident channel — weighted edit, diacritic, vowel-length,
-  exact roman repair, exact loanword, or a single consonant confusion; an
+- `source` is a confident channel (weighted edit, diacritic, vowel-length,
+  exact roman repair, exact loanword, or a single consonant confusion); an
   unrecognized `source` code is treated as not eligible;
-- the effective cost — `roman_repair_cost` if present, else `edit_cost` — is
+- the effective cost (`roman_repair_cost` if present, else `edit_cost`) is
   within tolerance;
 - the correction's `frequency` clears a floor;
 - the word is not user-protected.
 
-**Rare real-word baseline** (`word_frequency(baseline) > 0`) — the typed word is
+**Rare real-word baseline** (`word_frequency(baseline) > 0`): the typed word is
 real, so replace it only on a strong frequency signal:
 
 - `source` is a confident channel (as above);
-- the top correction's `frequency` exceeds `word_frequency(baseline)` by a ratio
-  — `মানুস` (49) → `মানুষ` (95278), `বন্দু` (25) → `বন্ধু` (21081) — so a
+- the top correction's `frequency` exceeds `word_frequency(baseline)` by a ratio.
+  For example `মানুস` (49) → `মানুষ` (95278) or `বন্দু` (25) → `বন্ধু` (21081): a
   much-more-common word overrides a rare dictionary entry, reaching the স/ষ, দ/ধ
   consonant-confusion class the non-word path cannot;
 - the effective cost is within a *looser* bound than the non-word path, since a
@@ -245,8 +245,8 @@ real, so replace it only on a strong frequency signal:
   Roman slip but a multi-edit Bangla change);
 - the word is not user-protected.
 
-Both frequencies — the correction's (`suggest_detailed`) and the baseline's
-(`word_frequency`) — read the one lexicon table, so the ratio is well-defined.
+Both frequencies, the correction's (`suggest_detailed`) and the baseline's
+(`word_frequency`), read the one lexicon table, so the ratio is well-defined.
 
 Inspect artifacts:
 
@@ -349,7 +349,7 @@ as iOS and Android keyboards. It is off by default; enabling it compiles the
 
 The [obadh-ios](https://github.com/nsssayom/obadh-ios) keyboard is the reference
 downstream: it links the `staticlib` and calls this ABI directly from Swift, and
-its integration needs drive the surface. The ABI is what a client builds on — the
+its integration needs drive the surface. The ABI is what a client builds on: the
 engine owns candidate generation, provenance, and ranking; auto-insert *policy*
 is the client's (see [Auto-insert policy](#auto-insert-policy)).
 
@@ -373,11 +373,11 @@ Conventions:
   result needs and copies only when the buffer fits. A caller passes a small
   stack scratch and reallocates only on overflow.
 - **String lists** are one buffer of `[u32 count]` then `[u32 len][utf8 bytes]`
-  records — no in-band delimiter, so any bytes and empty strings round-trip.
+  records with no in-band delimiter, so any bytes and empty strings round-trip.
 - **Detailed candidate records** (`obadh_autocorrect_suggest_detailed`) extend
   each record with `[u8 source][u16 edit_cost][u16 roman_repair_cost][u64 frequency]`.
-  `source` is a frozen, append-only code — treat an unrecognized value as not
-  auto-replaceable — and `roman_repair_cost` is `0xFFFF` for a native-side edit.
+  `source` is a frozen, append-only code (treat an unrecognized value as not
+  auto-replaceable), and `roman_repair_cost` is `0xFFFF` for a native-side edit.
 - **UTF-8.** Inputs are `(pointer, length)` byte spans; invalid UTF-8 makes the
   call a no-op. A handle is not shared across threads without external locking.
 
