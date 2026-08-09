@@ -15,6 +15,8 @@ Releases before `0.7.0` predate this file; see the git history and tags for thos
   rewritten to describe the full layered SDK (deterministic core + autocorrect + autosuggest +
   `cabi`) rather than only transliteration; a CHANGELOG pointer was added to the README. No API or
   behavior change.
+- The `।` sentence-ender is now named **dari** (its Bangla name) rather than "danda", in the README
+  symbol table and the sanitizer comments. Terminology only; no behavior change.
 
 ## [0.9.0]
 
