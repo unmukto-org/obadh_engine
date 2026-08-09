@@ -8,7 +8,7 @@ use serde::Serialize;
 
 use super::bangla::{
     differs_only_by_nasal_or_breath_mark, differs_only_by_vowel_length,
-    for_each_chandrabindu_variant,
+    for_each_chandrabindu_variant, has_bengali_letter,
 };
 use super::edit::weighted_edit_distance;
 use super::morphology::{stem_suffix_completions, StemSuffixCompletion};
@@ -204,21 +204,30 @@ impl<D: AsRef<[u8]>> FstLexicon<D> {
             });
         }
 
-        let levenshtein = UnicodeLevenshtein::new(baseline, options.max_distance);
-        let mut edit_stream = self.map.search(levenshtein).into_stream();
-        while let Some((key, frequency)) = edit_stream.next() {
-            let text = std::str::from_utf8(key).map_err(FstSuggestError::InvalidUtf8)?;
-            insert_fst_candidate(
-                &mut seeds,
-                text,
-                frequency,
-                FstCandidateSource::EditDistance,
-                baseline,
-                options.max_edit_cost,
-            );
-            if seeds.len() >= retrieval_limit {
-                truncated = true;
-                break;
+        // Edit-distance retrieval only makes sense for a word-like baseline. A token
+        // with no Bangla letter — punctuation, digits, symbols (`,` `।` `১` `ঁ`) — is not
+        // a misspelling of any lexicon word, so its edit neighbourhood is just the
+        // shortest, most frequent entries surfacing as noise (issue #34: `,` pulling in
+        // ও/এ/অং). The grounded channels above (exact, roman-repair, loanword) already
+        // captured anything real; prefix needs an entry that starts with the token and
+        // the skeleton/consonant channels need consonants, so none of them fire here.
+        if has_bengali_letter(baseline) {
+            let levenshtein = UnicodeLevenshtein::new(baseline, options.max_distance);
+            let mut edit_stream = self.map.search(levenshtein).into_stream();
+            while let Some((key, frequency)) = edit_stream.next() {
+                let text = std::str::from_utf8(key).map_err(FstSuggestError::InvalidUtf8)?;
+                insert_fst_candidate(
+                    &mut seeds,
+                    text,
+                    frequency,
+                    FstCandidateSource::EditDistance,
+                    baseline,
+                    options.max_edit_cost,
+                );
+                if seeds.len() >= retrieval_limit {
+                    truncated = true;
+                    break;
+                }
             }
         }
 
@@ -1107,6 +1116,38 @@ mod tests {
             .candidates
             .iter()
             .any(|candidate| candidate.text == "কেমন"));
+    }
+
+    #[test]
+    fn non_word_baselines_get_no_edit_distance_noise() {
+        // The short, high-frequency entries that leaked into the edit neighbourhood of
+        // a comma or a bare digit before the word-like gate (issue #34): every 1-2 char
+        // token is within edit distance of ও/এ/অং, so they surfaced as "corrections".
+        let lexicon = test_lexicon([
+            ("ও", 2_000_000),
+            ("এ", 900_000),
+            ("অং", 5_000),
+            ("কে", 78_000),
+            ("আমার", 50_000),
+        ]);
+        let options = || FstSuggestOptions {
+            max_distance: 2,
+            max_candidates: 32,
+            max_prefix_candidates: 16,
+            response_candidates: 16,
+            ..FstSuggestOptions::default()
+        };
+
+        // Punctuation, digits, and a lone chandrabindu carry no Bangla letter, so no
+        // lexicon word is a correction of them — the edit-distance channel stays silent.
+        for non_word in [",", "।", "?", "()", "১", "২০১১", "ঁ"] {
+            let result = lexicon.suggest(non_word, options()).expect("suggest");
+            assert!(result.candidates.is_empty(), "{non_word:?} got corrections");
+        }
+
+        // A real word still gets its neighbourhood (the exact entry at least).
+        let amar = lexicon.suggest("আমার", options()).expect("suggest");
+        assert!(amar.candidates.iter().any(|c| c.text == "আমার"));
     }
 
     #[test]
