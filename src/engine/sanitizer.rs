@@ -82,8 +82,8 @@ fn is_default_allowed_char(c: char) -> bool {
             c,
             '\u{0980}'
                 ..='\u{09FF}' // Bengali block
-                | '\u{0964}' // danda (।)
-                | '\u{0965}' // double danda (॥)
+                | '\u{0964}' // dari (।)
+                | '\u{0965}' // double dari (॥)
                 | '\u{200C}' // zero-width non-joiner
                 | '\u{200D}' // zero-width joiner
                 | ','

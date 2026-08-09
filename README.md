@@ -170,7 +170,7 @@ Representative deliberate signals:
 | <code>T``</code> | খণ্ড ত / ৎ |
 | `^` | chandrabindu |
 | `:` | bisarga |
-| `.` | danda, while decimal periods stay ASCII periods |
+| `.` | dari, while decimal periods stay ASCII periods |
 | `$` | taka sign |
 
 Rule sources live under `data/rules/` and are checked by tests.
