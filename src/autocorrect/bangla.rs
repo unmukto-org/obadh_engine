@@ -215,6 +215,24 @@ fn is_independent_vowel(ch: char) -> bool {
     )
 }
 
+/// A Bangla *letter*: an independent vowel or a consonant (including ৎ and the
+/// phota forms ড়/ঢ়/য়). Deliberately excludes the marks that are not letters on
+/// their own — chandrabindu/anusvar/bisarga, vowel signs, hasant — as well as
+/// digits and punctuation. This is the "is there a word here" test: a token made
+/// only of those non-letters is punctuation/number/symbol, not a misspelled word.
+pub(crate) fn is_bengali_letter(ch: char) -> bool {
+    is_independent_vowel(ch)
+        || matches!(
+            ch,
+            '\u{0995}'..='\u{09B9}' | '\u{09CE}' | '\u{09DC}'..='\u{09DD}' | '\u{09DF}'..='\u{09E1}'
+        )
+}
+
+/// Whether `text` contains at least one Bangla letter (see [`is_bengali_letter`]).
+pub(crate) fn has_bengali_letter(text: &str) -> bool {
+    text.chars().any(is_bengali_letter)
+}
+
 fn fold_base_consonant(ch: char) -> char {
     let ch = fold_aspiration(ch).unwrap_or(ch);
     match ch {
@@ -251,13 +269,26 @@ fn fold_aspiration(ch: char) -> Option<char> {
 mod tests {
     use super::{
         bangla_units, differs_only_by_nasal_or_breath_mark, differs_only_by_vowel_length,
-        for_each_chandrabindu_variant, phonetic_skeleton,
+        for_each_chandrabindu_variant, has_bengali_letter, phonetic_skeleton,
     };
 
     #[test]
     fn bangla_units_group_vowel_signs_and_conjuncts() {
         assert_eq!(bangla_units("কিরণ"), vec!["কি", "র", "ণ"]);
         assert_eq!(bangla_units("বিজ্ঞান"), vec!["বি", "জ্ঞা", "ন"]);
+    }
+
+    #[test]
+    fn has_bengali_letter_separates_words_from_non_letters() {
+        // A word has at least one vowel or consonant (incl. ৎ and phota forms).
+        for word in ["আমার", "ক", "অ", "য়", "ৎ", "কি?"] {
+            assert!(has_bengali_letter(word), "{word:?}");
+        }
+        // Punctuation, digits, and lone marks (chandrabindu/anusvar/bisarga/hasant/
+        // vowel sign) carry no letter — issue #34.
+        for non in [",", "।", "?", "১", "২০১১", "ঁ", "ং", "ঃ", "্", "া"] {
+            assert!(!has_bengali_letter(non), "{non:?}");
+        }
     }
 
     #[test]

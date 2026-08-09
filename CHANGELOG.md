@@ -8,6 +8,17 @@ Releases before `0.7.0` predate this file; see the git history and tags for thos
 
 ## [Unreleased]
 
+### Fixed
+
+- Autocorrect no longer offers unrelated short lexicon entries as "corrections" for a token
+  with no Bangla letter. Punctuation, digits, and bare symbols (`,` → ও/এ/অং, a lone `1`, `()`,
+  `^`) fall within edit distance of the shortest, most frequent words, so the edit-distance
+  channel was surfacing them as suggestions behind the correct baseline. It now runs only on a
+  word-like baseline, so a non-word token yields just its deterministic baseline through
+  `obadh_compose_suggestions` / `obadh_autocorrect_suggest_detailed`. Reported from obadh-macos
+  ([#34](https://github.com/nsssayom/obadh_engine/issues/34)). No ABI change; classification of a
+  token as word vs. punctuation/number stays the client's to make.
+
 ### Documentation
 
 - README + crate-root docs now name the [obadh-ios](https://github.com/nsssayom/obadh-ios) keyboard
@@ -15,6 +26,8 @@ Releases before `0.7.0` predate this file; see the git history and tags for thos
   rewritten to describe the full layered SDK (deterministic core + autocorrect + autosuggest +
   `cabi`) rather than only transliteration; a CHANGELOG pointer was added to the README. No API or
   behavior change.
+- The `।` sentence-ender is now named **dari** (its Bangla name) rather than "danda", in the README
+  symbol table and the sanitizer comments. Terminology only; no behavior change.
 
 ## [0.9.0]
 
