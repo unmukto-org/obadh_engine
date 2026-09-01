@@ -602,6 +602,22 @@ fn test_standalone_diacritic_markers_render_as_rule_signals() {
 }
 
 #[test]
+fn test_colon_is_literal_between_digits_and_bisarga_between_letters() {
+    let engine = ObadhEngine::new();
+
+    // A `:` between digits is a clock-time separator, kept literal like a decimal point.
+    assert_eq!(
+        engine.transliterate("9:45 10:30 12:34:56"),
+        "৯:৪৫ ১০:৩০ ১২:৩৪:৫৬"
+    );
+    // Next to a letter or at an edge it keeps its bisarga meaning.
+    assert_eq!(
+        engine.transliterate("du:kho a:b a:9 9:a :45 9:"),
+        "দুঃখ আঃব আঃ৯ ৯ঃআ ঃ৪৫ ৯ঃ"
+    );
+}
+
+#[test]
 fn test_explicit_hasant_marker_renders_as_a_rule_signal() {
     let engine = ObadhEngine::new();
 

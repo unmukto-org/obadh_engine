@@ -159,6 +159,33 @@ fn is_anusvar_ng_before_vowel_at(units: &[PhoneticUnit], index: usize) -> bool {
         )
 }
 
+/// A `:` bisarga directly between two numerals is a digit-group separator, not a
+/// bisarga: a clock time like `9:45`. Retag it as a plain symbol so it renders as a
+/// literal `:` between the Bengali digits, the way `.` stays literal in `3.14`. A
+/// `:` next to a letter keeps its bisarga meaning, so `du:kho` stays দুঃখ.
+pub(super) fn normalize_colon_between_numerals(units: &mut [PhoneticUnit]) {
+    for index in 0..units.len() {
+        if is_colon_between_numerals_at(units, index) {
+            units[index].unit_type = PhoneticUnitType::Symbol;
+        }
+    }
+}
+
+fn is_colon_between_numerals_at(units: &[PhoneticUnit], index: usize) -> bool {
+    index > 0
+        && index + 1 < units.len()
+        && units[index].unit_type == PhoneticUnitType::SpecialForm
+        && units[index].text == ":"
+        && is_numeral_text(&units[index - 1].text)
+        && is_numeral_text(&units[index + 1].text)
+}
+
+/// A unit whose text is all digits, ASCII or already-Bengali. Accepting Bengali
+/// digits keeps `9:45` -> `৯:৪৫` stable when its own output is transliterated again.
+fn is_numeral_text(text: &str) -> bool {
+    !text.is_empty() && text.chars().all(|character| character.is_numeric())
+}
+
 pub(super) fn normalize_non_conjunct_ra_ya_zwnj(units: &mut Vec<PhoneticUnit>) {
     let Some(first_match) = first_non_conjunct_ra_ya_zwnj(units) else {
         return;

@@ -28,3 +28,4 @@ This source-controlled corpus exercises rule signals, not memorized words. It is
 | Case fallback | `Biggan Ggan BhalO Khela Ga T D N Zya` | `বিজ্ঞান জ্ঞান ভালো খেলা গা ট ড ণ য্যা` | Unclaimed opposite-case rule signals fall back to the exact canonical signal; exact uppercase signals stay protected, and a stray `Z` folds to `z` (য). |
 | External alias rejection | `Z pph p,,ph` | `য পফ প্ফ` | A stray `Z` folds to `z` (য); `Z` stays literal only inside the `rZy` marker, not as a blanket external-layout import. Explicit hasant stays available. Foreign letters with a settled convention (`q`→ক, `x`→ক্স, `w`→ওয়) are adopted for their own reason, see the Foreign letters row. |
 | Symbols and numbers | `12.34 12.34. $` | `১২.৩৪ ১২.৩৪। ৳` | Decimal periods stay ASCII between number-bearing tokens. |
+| Clock-time colon | `9:45 du:kho` | `৯:৪৫ দুঃখ` | `:` stays a literal separator between digits (clock times); between letters it is bisarga. |
