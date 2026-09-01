@@ -8,6 +8,17 @@ Releases before `0.7.0` predate this file; see the git history and tags for thos
 
 ## [Unreleased]
 
+## [0.9.3] - 2026-09-01
+
+### Removed
+
+- Reverted the `gy` → জ্ঞ autocorrect route from 0.9.2. The জ্ঞ candidate was
+  generated for `gyan` but ranked below the runtime's 8-candidate response cap, so
+  the C ABI and WASM compose never surfaced it (it appeared only in the wider
+  `suggest-fst` dev pool). The জ্ঞ cluster stays reachable by the common spelling
+  (`biggan` → বিজ্ঞান). Surfacing it for the bare `gyan` spelling needs conjunct
+  inventory completion plus an invalid-conjunct response filter, which is deferred.
+
 ## [0.9.2] - 2026-09-01
 
 ### Added
