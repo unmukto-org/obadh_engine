@@ -8,6 +8,34 @@ Releases before `0.7.0` predate this file; see the git history and tags for thos
 
 ## [Unreleased]
 
+## [0.9.2] - 2026-09-01
+
+### Added
+
+- Autocorrect routes a bare `ng` before `j` to the palatal nasal-ja cluster ঞ্জ, so a
+  word spelled with the velar-nasal `ng` (`rongjon` for রঞ্জন) reaches ঞ্জ the way
+  `nj` / `NGj` do deterministically. It is FST-filtered, so it only surfaces a real ঞ্জ
+  word and never invents one.
+- Autocorrect offers the জ্ঞ (jna) conjunct spelling for `gy` input, since জ্ঞ is
+  commonly typed and pronounced "gy": `gyan` now surfaces জ্ঞান beside গ্যান. It is
+  FST-filtered, so a `gy` that is really a ya-phola (`bhagyo` → ভাগ্য) keeps its
+  deterministic গ্য first and the জ্ঞ candidate ranks far below the correct word.
+- A `:` between two digits stays a literal separator instead of the bisarga, for clock
+  times: `9:45` → ৯:৪৫, `12:34:56` → ১২:৩৪:৫৬. A `:` next to a letter or at a word edge
+  keeps its bisarga meaning (`du:kho` → দুঃখ). The render stays idempotent on its own
+  Bengali-digit output.
+
+### Fixed
+
+- A bare `ng` directly before a vowel now renders the velar nasal ঙ with the vowel as a
+  kar, matching `Ng` + vowel: `bhanga` → ভাঙা, `bangali` → বাঙালি, `rongin` → রঙিন. An
+  anusvar cannot carry a vowel, so the baseline previously emitted a loose independent
+  vowel (`nga` → ংআ). Anusvar before a consonant or at a word end (`bangla` → বাংলা,
+  `rong` → রং) and the `ngg` / `nggh` velar conjuncts are unchanged.
+- A stray `Z` now folds to য instead of leaking a literal Latin glyph (`namaZ` →
+  নামায). `Z` stays reserved only inside the narrow `rZy` non-conjunct ra-ya marker
+  (`rZy` → র‌্য).
+
 ## [0.9.1]
 
 ### Fixed
