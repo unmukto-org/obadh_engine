@@ -242,29 +242,26 @@ fn test_case_fallback_does_not_override_deliberate_uppercase_signals() {
     let engine = ObadhEngine::new();
 
     assert_eq!(
-        engine.transliterate("T D N S I U O Y M Zya q Q"),
-        "ট ড ণ শ ঈ ঊ ও য় ং Zয়া ক ক"
+        engine.transliterate("T D N S I U O Y M q Q"),
+        "ট ড ণ শ ঈ ঊ ও য় ং ক ক"
     );
 }
 
 #[test]
-fn test_unreserved_external_layout_aliases_are_not_imported_without_obadh_rule_reason() {
-    let tokenizer = Tokenizer::new();
-
-    // `Z` stays an unmapped marker (reserved for the rZ non-conjunct ra-ya path);
-    // it is not imported as a generic `z`. By contrast `q`/`Q`/`x`/`X` ARE mapped,
-    // but only because they carry a deliberate foreign-letter rule reason (qaf → ক,
-    // x → ক্স) — see `test_foreign_letter_aliases_map_to_bengali_convention`.
-    let units = tokenizer.tokenize_word("Z");
-    assert_eq!(units.len(), 1);
-    assert_eq!(units[0].text, "Z");
-    assert_eq!(units[0].unit_type, PhoneticUnitType::Unknown);
-
+fn test_reserved_z_folds_to_z_outside_the_ra_ya_marker() {
     let engine = ObadhEngine::new();
+
+    // `Z` is held out of case-folding at the trie so the narrow `rZy` non-conjunct
+    // ra-ya marker can claim it. A `Z` that no marker consumes has no other meaning,
+    // so a deliberate normalization folds it to `z` (য) instead of leaking a literal
+    // Latin glyph. `q`/`Q`/`x`/`X` map for their own foreign-letter reasons; see
+    // `test_foreign_letter_aliases_map_to_bengali_convention`.
     assert_eq!(
-        engine.transliterate("Z Zya gog jNG jn gg"),
-        "Z Zয়া গগ জ্ঞ জ্ঞ জ্ঞ"
+        engine.transliterate("Z Zya namaZ braZil gog jNG jn gg"),
+        "য য্যা নামায ব্রাযিল গগ জ্ঞ জ্ঞ জ্ঞ"
     );
+    // The rZy marker is untouched; a marker Z beside a stray Z resolves each in place.
+    assert_eq!(engine.transliterate("rZy rZya_Za"), "র\u{200C}্য র\u{200C}্যা_যা");
 }
 
 #[test]
@@ -1047,7 +1044,7 @@ fn test_non_conjunct_ra_ya_zwnj_signal_is_explicit_and_narrow() {
     assert_eq!(engine.transliterate("rrYa"), "র্যা");
     assert_ne!(engine.transliterate("rZya"), engine.transliterate("rrYa"));
 
-    assert_eq!(engine.transliterate("Zya kZya rZga"), "Zয়া কZয়া রZগা");
+    assert_eq!(engine.transliterate("Zya kZya rZga"), "য্যা কয্যা রযগা");
 }
 
 #[test]

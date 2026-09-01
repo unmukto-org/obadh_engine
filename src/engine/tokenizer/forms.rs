@@ -6,7 +6,7 @@ use super::long_iya::normalize_iyw_long_iya_signal;
 use super::normalization::{
     normalize_non_conjunct_ra_ya_zwnj, normalize_redundant_khanda_ta_hasant,
     normalize_redundant_reph_hasant, normalize_reph_and_vocalic_r,
-    normalize_velar_nasal_conjunct_aliases,
+    normalize_residual_reserved_z, normalize_velar_nasal_conjunct_aliases,
 };
 use super::{move_unit, PhoneticUnit, PhoneticUnitType, WordScanHints};
 
@@ -25,6 +25,9 @@ pub(super) fn identify_complex_forms(units: &mut Vec<PhoneticUnit>, scan_hints: 
     }
     if scan_hints.has_non_conjunct_ra_ya_zwnj_candidate() {
         normalize_non_conjunct_ra_ya_zwnj(units);
+    }
+    if scan_hints.has_reserved_z() {
+        normalize_residual_reserved_z(units);
     }
     if scan_hints.has_redundant_khanda_ta_hasant_candidate() {
         normalize_redundant_khanda_ta_hasant(units);

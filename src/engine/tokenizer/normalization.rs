@@ -163,6 +163,19 @@ pub(super) fn normalize_non_conjunct_ra_ya_zwnj(units: &mut Vec<PhoneticUnit>) {
     units.truncate(write);
 }
 
+/// Fold any `Z` left after the `rZy` marker pass into a plain `z` (য). `Z` is held
+/// out of case-folding so the narrow `rZy` non-conjunct ra-ya marker can claim it;
+/// a `Z` that no marker consumed has no other meaning, so it becomes `z` rather
+/// than leaking a literal Latin glyph into the output.
+pub(super) fn normalize_residual_reserved_z(units: &mut [PhoneticUnit]) {
+    for unit in units.iter_mut() {
+        if unit.unit_type == PhoneticUnitType::Unknown && unit.text == "Z" {
+            unit.text = String::from("z");
+            unit.unit_type = PhoneticUnitType::Consonant;
+        }
+    }
+}
+
 fn first_redundant_reph_hasant(units: &[PhoneticUnit]) -> Option<usize> {
     (0..units.len().saturating_sub(2)).find(|&index| is_redundant_reph_hasant_at(units, index))
 }

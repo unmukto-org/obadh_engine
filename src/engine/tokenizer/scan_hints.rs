@@ -8,6 +8,7 @@ pub(super) struct WordScanHints {
     has_velar_nasal_conjunct_alias_candidate: bool,
     has_long_iya_marker_candidate: bool,
     has_non_conjunct_ra_ya_zwnj_candidate: bool,
+    has_reserved_z: bool,
 }
 
 impl WordScanHints {
@@ -37,8 +38,11 @@ impl WordScanHints {
     }
 
     pub(super) fn observe_unknown_text(&mut self, text: &str, word: &str, byte_index: usize) {
-        if text == "Z" && is_non_conjunct_ra_ya_zwnj_marker_at(word, byte_index) {
-            self.has_non_conjunct_ra_ya_zwnj_candidate = true;
+        if text == "Z" {
+            self.has_reserved_z = true;
+            if is_non_conjunct_ra_ya_zwnj_marker_at(word, byte_index) {
+                self.has_non_conjunct_ra_ya_zwnj_candidate = true;
+            }
         }
     }
 
@@ -64,6 +68,10 @@ impl WordScanHints {
 
     pub(super) fn has_non_conjunct_ra_ya_zwnj_candidate(&self) -> bool {
         self.has_non_conjunct_ra_ya_zwnj_candidate
+    }
+
+    pub(super) fn has_reserved_z(&self) -> bool {
+        self.has_reserved_z
     }
 }
 

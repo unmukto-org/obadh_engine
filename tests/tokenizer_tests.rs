@@ -226,7 +226,6 @@ fn test_phonetic_tokenization_canonicalizes_safe_case_fallbacks() {
         ("O", PhoneticUnitType::Vowel),
         ("Y", PhoneticUnitType::Consonant),
         ("M", PhoneticUnitType::SpecialForm),
-        ("Z", PhoneticUnitType::Unknown),
     ] {
         let units = tokenizer.tokenize_word(input);
         assert_eq!(
@@ -238,6 +237,19 @@ fn test_phonetic_tokenization_canonicalizes_safe_case_fallbacks() {
             "{input} should keep its exact protected behavior"
         );
     }
+
+    // `Z` is not a trie case-fallback: it stays reserved so the narrow `rZy` marker
+    // can claim it, and a `Z` that no marker consumes is folded to `z` by a later
+    // normalization rather than leaking a literal glyph.
+    let z_units = tokenizer.tokenize_word("Z");
+    assert_eq!(
+        z_units
+            .iter()
+            .map(|unit| (unit.text.as_str(), unit.unit_type))
+            .collect::<Vec<_>>(),
+        vec![("z", PhoneticUnitType::Consonant)],
+        "a stray Z folds to z"
+    );
 }
 
 #[test]
