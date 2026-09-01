@@ -129,9 +129,14 @@ Bengali has its own numerals that are mapped directly from Latin numerals:
 
 Nasal input is deterministic and must preserve the user's intended spelling:
 
-- `ng` is anusvar:
+- `ng` is anusvar before a consonant or at a word end:
   - Signal: `bangla` → `বাংলা`
   - Signal: `songket` → `সংকেত`
+- `ng` before a vowel folds to the velar nasal ঙ and takes the vowel as a kar,
+  since an anusvar cannot carry a vowel, so it matches `Ng` + vowel:
+  - Signal: `bhanga` → `ভাঙা`
+  - Signal: `bangali` → `বাঙালি`
+  - Signal: `rongin` → `রঙিন`
 - `M` is the explicit anusvar escape:
   - Signal: `sMgo` → `সংগ`
   - Use it before `g`/`gh` when you want literal ংগ/ংঘ rather than the `ngg`/`nggh` shorthand.

@@ -6,6 +6,7 @@ pub(super) struct WordScanHints {
     has_redundant_reph_hasant_candidate: bool,
     has_redundant_khanda_ta_hasant_candidate: bool,
     has_velar_nasal_conjunct_alias_candidate: bool,
+    has_anusvar_ng_before_vowel_candidate: bool,
     has_long_iya_marker_candidate: bool,
     has_non_conjunct_ra_ya_zwnj_candidate: bool,
     has_reserved_z: bool,
@@ -27,6 +28,10 @@ impl WordScanHints {
 
         if previous.is_some_and(is_anusvar_ng_signal) && is_velar_nasal_conjunct_tail(unit) {
             self.has_velar_nasal_conjunct_alias_candidate = true;
+        }
+
+        if previous.is_some_and(is_anusvar_ng_signal) && is_vowel_unit(unit) {
+            self.has_anusvar_ng_before_vowel_candidate = true;
         }
 
         // `iyw` long-ঈয় signal: a `w` consonant directly after a `y`/`Y` consonant.
@@ -62,6 +67,10 @@ impl WordScanHints {
         self.has_velar_nasal_conjunct_alias_candidate
     }
 
+    pub(super) fn has_anusvar_ng_before_vowel_candidate(&self) -> bool {
+        self.has_anusvar_ng_before_vowel_candidate
+    }
+
     pub(super) fn has_long_iya_marker_candidate(&self) -> bool {
         self.has_long_iya_marker_candidate
     }
@@ -94,6 +103,13 @@ fn is_anusvar_ng_signal(unit: &PhoneticUnit) -> bool {
 fn is_velar_nasal_conjunct_tail(unit: &PhoneticUnit) -> bool {
     unit.unit_type == PhoneticUnitType::Consonant
         && matches!(unit.text.as_str(), "g" | "gh" | "Gh" | "GH")
+}
+
+fn is_vowel_unit(unit: &PhoneticUnit) -> bool {
+    matches!(
+        unit.unit_type,
+        PhoneticUnitType::Vowel | PhoneticUnitType::TerminatingVowel
+    )
 }
 
 fn is_ya_phola_signal(unit: &PhoneticUnit) -> bool {

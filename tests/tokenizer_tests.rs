@@ -171,12 +171,17 @@ fn test_phonetic_tokenization_uses_definition_rules() {
         assert_eq!(units[0].unit_type, unit_type);
     }
 
+    // `ng` before a vowel folds to the velar nasal ঙ, so it tokenizes as one
+    // consonant-with-vowel unit, identical to `Ng` + vowel.
     let units = tokenizer.tokenize_word("nga");
-    assert_eq!(units.len(), 2);
+    assert_eq!(units.len(), 1);
+    assert_eq!(units[0].text, "Nga");
+    assert_eq!(units[0].unit_type, PhoneticUnitType::ConsonantWithVowel);
+
+    // Before a consonant, `ng` stays the anusvar special form.
+    let units = tokenizer.tokenize_word("ngla");
     assert_eq!(units[0].text, "ng");
     assert_eq!(units[0].unit_type, PhoneticUnitType::SpecialForm);
-    assert_eq!(units[1].text, "a");
-    assert_eq!(units[1].unit_type, PhoneticUnitType::Vowel);
 
     let units = tokenizer.tokenize_word("k2");
     assert_eq!(

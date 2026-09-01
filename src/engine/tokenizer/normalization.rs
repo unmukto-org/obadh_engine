@@ -135,6 +135,30 @@ pub(super) fn normalize_velar_nasal_conjunct_aliases(units: &mut Vec<PhoneticUni
     units.truncate(write);
 }
 
+/// An `ng` anusvar directly before a vowel cannot be valid: an anusvar carries no
+/// vowel in Bangla, so the baseline emits a bare independent vowel instead. Render
+/// the `ng` as the velar nasal `Ng` so the vowel attaches to it as a kar. Only bare
+/// `ng` before a vowel is touched; `ng` before a consonant or at a word end stays
+/// anusvar, and `ngg`/`nggh` are already handled as the velar-nasal conjuncts.
+pub(super) fn normalize_anusvar_ng_before_vowel(units: &mut [PhoneticUnit]) {
+    for index in 0..units.len() {
+        if is_anusvar_ng_before_vowel_at(units, index) {
+            units[index].text = String::from("Ng");
+            units[index].unit_type = PhoneticUnitType::Consonant;
+        }
+    }
+}
+
+fn is_anusvar_ng_before_vowel_at(units: &[PhoneticUnit], index: usize) -> bool {
+    index + 1 < units.len()
+        && units[index].unit_type == PhoneticUnitType::SpecialForm
+        && units[index].text == "ng"
+        && matches!(
+            units[index + 1].unit_type,
+            PhoneticUnitType::Vowel | PhoneticUnitType::TerminatingVowel
+        )
+}
+
 pub(super) fn normalize_non_conjunct_ra_ya_zwnj(units: &mut Vec<PhoneticUnit>) {
     let Some(first_match) = first_non_conjunct_ra_ya_zwnj(units) else {
         return;

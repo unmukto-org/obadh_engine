@@ -618,11 +618,34 @@ fn test_vowels_after_dead_or_marked_consonants_render_independently() {
         "ক্আ ক্ই ক্ঈ ক্উ ক্এ ক্ও ক্ঐ ক্ঔ"
     );
     assert_eq!(
-        engine.transliterate("k^a k:a knga t``a rra"),
+        engine.transliterate("k^a k:a kMa t``a rra"),
         "কঁআ কঃআ কংআ ৎআ র্আ"
     );
 
     assert_eq!(engine.transliterate("ka^ kA^ k,,ka"), "কাঁ কাঁ ক্কা");
+}
+
+#[test]
+fn test_anusvar_ng_before_a_vowel_becomes_the_velar_nasal() {
+    let engine = ObadhEngine::new();
+
+    // A bare `ng` before a vowel cannot be anusvar (anusvar carries no vowel), so it
+    // renders as the velar nasal ঙ with the vowel as a kar, identical to `Ng` + vowel.
+    assert_eq!(
+        engine.transliterate("nga ngi ngI nge ngu ngO"),
+        "ঙা ঙি ঙী ঙে ঙু ঙো"
+    );
+    assert_eq!(
+        engine.transliterate("bhanga ranga bangali rongin"),
+        "ভাঙা রাঙা বাঙালি রঙিন"
+    );
+    // `ng` before a consonant or at a word end stays anusvar; `ngg` stays the ঙ্গ conjunct.
+    assert_eq!(
+        engine.transliterate("bangla rong ongko gongga"),
+        "বাংলা রং অংক গঙ্গা"
+    );
+    // `M` anusvar is not folded: it stays anusvar before a vowel, unlike bare `ng`.
+    assert_eq!(engine.transliterate("Ma kMa roM boMsho"), "ংআ কংআ রং বংশ");
 }
 
 #[test]
