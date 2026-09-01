@@ -337,6 +337,21 @@ fn push_ng_neighbor_repairs(input: &str, repairs: &mut Vec<NasalNeighborRepair>)
                 );
             }
         }
+        // `ng` immediately before `j`/`J` is the palatal nasal-ja cluster spelled
+        // with the velar-nasal `ng`; fold the `g` so `ngj` routes to `nj` (ঞ্জ),
+        // the same cluster `nj`/`NGj` produce deterministically.
+        if matches!(input.as_bytes().get(end), Some(b'j') | Some(b'J')) {
+            push_replaced_range(
+                repairs,
+                input,
+                start,
+                end,
+                "n",
+                2,
+                RomanRepairKind::PalatalNasalJaFromNg,
+            );
+        }
+
         search_start = end;
     }
 }
@@ -540,6 +555,15 @@ mod tests {
             repair.text == "jinjira"
                 && repair.cost == 2
                 && repair.kind == RomanRepairKind::PalatalNasalJaFromNg
+        }));
+    }
+
+    #[test]
+    fn repairs_lowercase_ng_before_ja_to_palatal_nasal_ja() {
+        let repairs = roman_repair_beam("rongjon", RomanRepairOptions::default());
+
+        assert!(repairs.iter().any(|repair| {
+            repair.text == "ronjon" && repair.kind == RomanRepairKind::PalatalNasalJaFromNg
         }));
     }
 
