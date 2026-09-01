@@ -39,6 +39,7 @@ pub enum RomanRepairKind {
     PalatalNasalJaFromNg,
     PalatalNasalJaFromNz,
     VelarNasalFromNg,
+    JnaConjunctFromGy,
 }
 
 impl RomanRepairKind {
@@ -51,6 +52,7 @@ impl RomanRepairKind {
             Self::PalatalNasalJaFromNg => "palatal_nasal_ja_from_ng",
             Self::PalatalNasalJaFromNz => "palatal_nasal_ja_from_nz",
             Self::VelarNasalFromNg => "velar_nasal_from_ng",
+            Self::JnaConjunctFromGy => "jna_conjunct_from_gy",
         }
     }
 }
@@ -107,6 +109,16 @@ pub fn roman_repair_beam(input: &str, options: RomanRepairOptions) -> Vec<RomanR
             repaired.text,
             repaired.cost,
             repaired.kind,
+        );
+    }
+
+    if let Some(repaired) = jna_conjunct_repair(input) {
+        push_repair(
+            &mut repairs,
+            options.max_repairs,
+            repaired,
+            2,
+            RomanRepairKind::JnaConjunctFromGy,
         );
     }
 
@@ -260,6 +272,18 @@ fn nasal_neighbor_repairs(input: &str) -> Vec<NasalNeighborRepair> {
     push_ng_neighbor_repairs(input, &mut repairs);
     push_nz_neighbor_repairs(input, &mut repairs);
     repairs
+}
+
+/// The জ্ঞ (jna) conjunct is spelled `gg`/`jn`/`NGj` but is commonly pronounced and
+/// typed `gy` (`gyan` for জ্ঞান). Offer the `gg` spelling so the FST can surface the
+/// real জ্ঞ word; a `gy` that is really a ya-phola (`bhagyo` -> ভাগ্য) yields no
+/// lexicon word and is dropped, so this never overrides the deterministic গ্য.
+fn jna_conjunct_repair(input: &str) -> Option<String> {
+    if input.contains("gy") {
+        Some(input.replace("gy", "gg"))
+    } else {
+        None
+    }
 }
 
 fn push_ng_neighbor_repairs(input: &str, repairs: &mut Vec<NasalNeighborRepair>) {
@@ -575,6 +599,15 @@ mod tests {
             repair.text == "jinjira"
                 && repair.cost == 2
                 && repair.kind == RomanRepairKind::PalatalNasalJaFromNz
+        }));
+    }
+
+    #[test]
+    fn repairs_gy_to_the_jna_conjunct_spelling() {
+        let repairs = roman_repair_beam("gyan", RomanRepairOptions::default());
+
+        assert!(repairs.iter().any(|repair| {
+            repair.text == "ggan" && repair.kind == RomanRepairKind::JnaConjunctFromGy
         }));
     }
 
