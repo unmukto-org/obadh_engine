@@ -618,6 +618,31 @@ fn test_colon_is_literal_between_digits_and_bisarga_between_letters() {
 }
 
 #[test]
+fn test_ya_phola_stacks_on_r_phola_conjuncts() {
+    let engine = ObadhEngine::new();
+
+    // A ya-phola composes onto an r-phola conjunct tail, so loanword clusters stack
+    // as one conjunct: ট্র + য = ট্র্য, giving ট্র্যাক (track).
+    assert_eq!(
+        engine.transliterate("TrYak Tryak krYak brYa strYaTeji"),
+        "ট্র্যাক ট্র্যাক ক্র্যাক ব্র্যা স্ত্র্যাটেজি"
+    );
+    // The enumerated triples (প্র্য/গ্র্য) and the l-phola derived path are unchanged.
+    assert_eq!(
+        engine.transliterate("pry gry plYa klYa blYa"),
+        "প্র্য গ্র্য প্ল্যা ক্ল্যা ব্ল্যা"
+    );
+    // Invariant: a standalone র still refuses ya-phola (রয়া, kept distinct from the
+    // reph-ya marker র‌্য), and rZy is untouched.
+    assert_eq!(engine.transliterate("ry rY rya rZy rZyab"), "রয় রয় রয়া র‌্য র‌্যাব");
+    // Ordinary consonant / conjunct ya-phola bases are unchanged.
+    assert_eq!(
+        engine.transliterate("kya protyek modhYo bhagyo"),
+        "ক্যা প্রত্যেক মধ্যো ভাগ্যো"
+    );
+}
+
+#[test]
 fn test_explicit_hasant_marker_renders_as_a_rule_signal() {
     let engine = ObadhEngine::new();
 

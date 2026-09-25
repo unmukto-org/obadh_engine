@@ -177,7 +177,7 @@ There's special handling for য-ফলা and ব-ফলা:
   - `bw` → `ব্ব` (regular `b` base + ba-phola marker)
   - Valid phola clusters may also be typed with an explicit boundary: `k,,y` → `ক্য`, `k,,w` → `ক্ব`, `m,,w,,r` → `ম্ব্র`
   - `mw` → `ম্ব`, `mwr` → `ম্ব্র`
-  - `y`/`Y` (য-ফলা) compose onto any consonant or conjunct base, so loanword clusters form too: `ply` → `প্ল্য`, `plYan` → `প্ল্যান`, `blYak` → `ব্ল্যাক`. The bases `r`/`R`/`Rh`/`Ng` refuse ya-phola (`rya` → `রয়া`), and a base already ending in a phola marker takes no further phola (`Swy` → `শ্বয়`)
+  - `y`/`Y` (য-ফলা) compose onto any consonant or conjunct base, so loanword clusters form too: `ply` → `প্ল্য`, `plYan` → `প্ল্যান`, `blYak` → `ব্ল্যাক`, `TrYak` → `ট্র্যাক`. A standalone `r`/`R`/`Rh`/`Ng` refuses ya-phola (`rya` → `রয়া`), but an r-phola tail inside a conjunct is not a standalone `r` and does take it (`krYak` → `ক্র্যাক`). A base already ending in a phola marker takes no further phola (`Swy` → `শ্বয়`)
   - `w` is the ব-ফলা marker only inside a valid conjunct cluster; standalone it is the ওয় glide, e.g. `waTar` → `ওয়াটার` (see Foreign-Sound Letters). Invalid explicit clusters remain decomposed
   - After a short-i-bearing consonant or conjunct, `iyw` is a deliberate long-ঈয় signal rather than a ব-ফলা command: `tiyw` → `তীয়`, `ktiYwta` → `ক্তীয়তা`
   - Lowercase `o` after that signal stays an inherent-vowel terminator (`kiywo` → `কীয়`); uppercase `O` gives visible ও-কার (`kiywO` → `কীয়ো`)

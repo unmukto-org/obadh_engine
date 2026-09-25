@@ -111,7 +111,17 @@ impl ConjunctDefinitions {
     /// Whether `base` is a renderable conjunct base whose final consonant accepts
     /// a ya-phola.
     fn base_takes_ya_phola(&self, base: &[&str]) -> bool {
-        base.last().is_some_and(|last| ya_phola_attaches_to(last)) && self.base_is_renderable(base)
+        let Some((last, rest)) = base.split_last() else {
+            return false;
+        };
+        // A ya-phola composes onto any real consonant base, including the tail of a
+        // conjunct (প্ল + য = প্ল্য). Standalone র refuses it (রয়া, kept distinct
+        // from reph-ya র‌্য), but an r-phola tail inside a multi-consonant conjunct
+        // is not a standalone র and does take the ya-phola (ট্র + য = ট্র্য, used by
+        // loanwords such as ট্র্যাক).
+        let takes = ya_phola_attaches_to(last)
+            || (!rest.is_empty() && canonical_conjunct_part(last) == "r");
+        takes && self.base_is_renderable(base)
     }
 
     /// Whether `base` renders on its own: a single consonant, or an enumerated
@@ -253,5 +263,21 @@ mod tests {
         for rule in CONJUNCT_RULES {
             assert_eq!(definitions.create_conjunct(rule.key()), Some(rule.value()));
         }
+    }
+
+    #[test]
+    fn derived_ya_phola_stacks_on_r_phola_conjunct_tail_not_standalone_r() {
+        let defs = ConjunctDefinitions::new();
+
+        // An r-phola tail inside a multi-consonant conjunct takes ya-phola
+        // (ট্র + য = ট্র্য, ক্র + য = ক্র্য, স্ত্র + য = স্ত্র্য).
+        assert!(defs.can_form_derived_conjunct_from_parts(&["T", "r", "y"]));
+        assert!(defs.can_form_derived_conjunct_from_parts(&["k", "r", "Y"]));
+        assert!(defs.can_form_derived_conjunct_from_parts(&["s", "t", "r", "y"]));
+        // A standalone র refuses ya-phola (রয়া, kept distinct from reph-ya র‌্য).
+        assert!(!defs.can_form_derived_conjunct_from_parts(&["r", "y"]));
+        // The l-phola tail still works; a base ending in a phola marker still refuses.
+        assert!(defs.can_form_derived_conjunct_from_parts(&["p", "l", "y"]));
+        assert!(!defs.can_form_derived_conjunct_from_parts(&["sh", "w", "y"]));
     }
 }

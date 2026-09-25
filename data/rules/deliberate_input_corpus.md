@@ -10,7 +10,7 @@ This source-controlled corpus exercises rule signals, not memorized words. It is
 | Khanda-ta reph | <code>rrt rrt`` rr,,t`` rrt``sa</code> | `র্ত র্ৎ র্ৎ র্ৎসা` | `rrt` remains র্ত; খণ্ড ত uses the explicit <code>t``</code> signal. |
 | Reph cluster | `rrkSh rrk,,Sh rrsk rrs,,ka` | `র্ক্ষ র্ক্ষ র্স্ক র্স্কা` | Reph composes over declared valid clusters, implicit or explicit. |
 | Phola markers | `ky k,,w zya bwa Rw` | `ক্য ক্ব য্যা ব্বা ড়ওয়` | `y`/`w` are phola markers after a consonant base; `Rw` cannot form ড়্ব, so `w` renders as the standalone ওয় glide. |
-| Productive ya-phola | `ply plYan blYak flYaT` | `প্ল্য প্ল্যান ব্ল্যাক ফ্ল্যাট` | ya-phola composes onto any conjunct base (not only listed clusters) for loanwords such as প্ল্যান/ব্ল্যাক. |
+| Productive ya-phola | `ply plYan blYak flYaT TrYak` | `প্ল্য প্ল্যান ব্ল্যাক ফ্ল্যাট ট্র্যাক` | ya-phola composes onto any conjunct base, including an r-phola tail (`TrYak` → ট্র্যাক for track), not only listed clusters. |
 | Foreign letters | `q qq x X w iraq box water baqq` | `ক ঁ ক্স ক্স ওয় ইরাক বক্স ওয়াতের বাঁ` | Foreign-sound letters map by settled convention: `q`→ক, `x`→ক্স, `w`→ওয় glide; `qq` is the চন্দ্রবিন্দু signal, resolved ahead of `q` by longest match. |
 | Base vs phola separation | `kz kb zoy zy bw` | `কয কব যয় য্য ব্ব` | `z`/`b` remain base letters; `y`/`w` become phola markers only through declared clusters. |
 | Nasal signals | `ngg sMgo songskrriti shongkha` | `ঙ্গ সংগ সংস্কৃতি শংখা` | `ngg` is velar conjunct shorthand; `M` preserves literal anusvar. |
