@@ -1,6 +1,6 @@
 {
   "name": "obadh-engine-web",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "description": "Web interface for the Obadh Engine - A Roman to Bengali transliteration engine",
   "scripts": {
     "build": "BROWSERSLIST_IGNORE_OLD_DATA=1 tailwindcss -i ./css/input.css -o ./css/styles.css --minify",

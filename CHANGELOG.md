@@ -8,6 +8,32 @@ Releases before `0.7.0` predate this file; see the git history and tags for thos
 
 ## [Unreleased]
 
+## [0.9.4] - 2026-09-25
+
+### Changed
+
+- The reph-ya loanword form র‍্য is now encoded with the Unicode-prescribed ZWJ
+  (U+200D) instead of ZWNJ. The marker scheme is orthogonal: after a leading র,
+  `Y` and `Z` are the ya-phola marker (`rY`/`rZ` → র‍্য, `rYab`/`rZab` → র‍্যাব),
+  while lowercase `y` stays the য় glide and composes after the marker
+  (`rZy` → র‍্যয়). This changes the shipped output of র‍্য words. The public API
+  and the C ABI are unchanged, so downstream consumers upgrade without recompiling.
+- The গ্ণ, ঙ্ক্ত and স্প্ল clusters are encoded as plain, joiner-free conjuncts.
+
+### Fixed
+
+- Productive ya-phola stacks on an r-phola conjunct tail, so loanword clusters
+  render correctly (`TrYak` → ট্র্যাক, `eksTrYak` → এক্সট্র্যাক). The leading-র
+  guard follows real conjunct segmentation, so `krY` stays ক্র্য.
+- `t` + `l` renders a live ত (কাতলা, পাতলা, মতলব, বোতল) instead of খণ্ড-ত. খণ্ড-ত
+  before a consonant stays reachable through the explicit khanda-ta signal.
+- The autosuggest open-vocabulary validator no longer lets a joiner slip a
+  hasant-before-kar sequence through.
+
+### Added
+
+- A curated English→Bangla loanword lexicon in the autocorrect dataset.
+
 ## [0.9.3] - 2026-09-01
 
 ### Removed
