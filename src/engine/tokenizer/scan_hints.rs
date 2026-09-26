@@ -45,6 +45,14 @@ impl WordScanHints {
         if is_ba_phola_w_signal(unit) && previous.is_some_and(is_ya_phola_signal) {
             self.has_long_iya_marker_candidate = true;
         }
+
+        // Implicit reph-ya marker: capital `Y` ya-phola directly after an `r`
+        // consonant (`rY` → র‍্য). The normalization pass applies the precise
+        // leading-র guard; this hint only decides whether that pass runs, so an
+        // over-eager trigger on `krY` is harmless (the pass declines it).
+        if is_capital_ya_phola_signal(unit) && previous.is_some_and(is_bare_ra_consonant) {
+            self.has_non_conjunct_ra_ya_zwnj_candidate = true;
+        }
     }
 
     pub(super) fn observe_unknown_text(&mut self, text: &str, word: &str, byte_index: usize) {
@@ -135,14 +143,21 @@ fn is_ya_phola_signal(unit: &PhoneticUnit) -> bool {
     unit.unit_type == PhoneticUnitType::Consonant && matches!(unit.text.as_str(), "y" | "Y")
 }
 
+fn is_capital_ya_phola_signal(unit: &PhoneticUnit) -> bool {
+    unit.unit_type == PhoneticUnitType::Consonant && unit.text == "Y"
+}
+
+fn is_bare_ra_consonant(unit: &PhoneticUnit) -> bool {
+    unit.unit_type == PhoneticUnitType::Consonant && unit.text == "r"
+}
+
 fn is_ba_phola_w_signal(unit: &PhoneticUnit) -> bool {
     unit.unit_type == PhoneticUnitType::Consonant && unit.text == "w"
 }
 
 fn is_non_conjunct_ra_ya_zwnj_marker_at(text: &str, byte_index: usize) -> bool {
-    let bytes = text.as_bytes();
-
-    byte_index > 0
-        && bytes.get(byte_index - 1) == Some(&b'r')
-        && matches!(bytes.get(byte_index + 1), Some(b'y') | Some(b'Y'))
+    // `Z` directly after `r` is the reph-ya marker (রZ → র‍্য), regardless of what
+    // follows. This only arms the normalization pass; the precise leading-র guard
+    // runs there, so an over-eager trigger is harmless.
+    byte_index > 0 && text.as_bytes().get(byte_index - 1) == Some(&b'r')
 }

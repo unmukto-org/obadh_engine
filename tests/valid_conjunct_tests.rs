@@ -525,7 +525,7 @@ fn is_bengali_source_char(c: char) -> bool {
 }
 
 fn is_contextual_khanda_ta_row(row: &SourceConjunctRow<'_>) -> bool {
-    if !matches!(row.key().as_str(), "tk" | "tkh" | "tp" | "tl" | "ts") {
+    if !matches!(row.key().as_str(), "tk" | "tkh" | "tp" | "ts") {
         return false;
     }
 

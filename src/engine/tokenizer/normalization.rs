@@ -1,4 +1,5 @@
-use super::{move_unit, PhoneticUnit, PhoneticUnitType};
+use super::{move_unit, reph_base_part, PhoneticUnit, PhoneticUnitType};
+use crate::definitions::conjuncts::ConjunctDefinitions;
 
 pub(super) fn normalize_reph_and_vocalic_r(units: &mut Vec<PhoneticUnit>) {
     let mut read = 0;
@@ -186,29 +187,48 @@ fn is_numeral_text(text: &str) -> bool {
     !text.is_empty() && text.chars().all(|character| character.is_numeric())
 }
 
-pub(super) fn normalize_non_conjunct_ra_ya_zwnj(units: &mut Vec<PhoneticUnit>) {
-    let Some(first_match) = first_non_conjunct_ra_ya_zwnj(units) else {
+pub(super) fn normalize_non_conjunct_ra_ya_zwnj(
+    units: &mut Vec<PhoneticUnit>,
+    conjuncts: &ConjunctDefinitions,
+) {
+    // Read-only pass: find every marker start against the original, unmutated
+    // units. The leading-র guard inspects preceding units, and the compacting
+    // pass below empties source slots as it advances, so detection must happen
+    // before any mutation.
+    let mut marker_starts: Vec<usize> = Vec::new();
+    let mut index = 0;
+    while index < units.len() {
+        if is_leading_ra_ya_marker_at(units, index, conjuncts) {
+            marker_starts.push(index);
+            index += 2;
+        } else {
+            index += 1;
+        }
+    }
+    if marker_starts.is_empty() {
         return;
-    };
+    }
 
-    let mut read = first_match;
-    let mut write = first_match;
-
+    // Apply pass: collapse each র + marker (Y/Z) into the reph-ya conjunct. A
+    // trailing lowercase `y` is the য় glide and composes after it (রZy → র‍্যয়).
+    let mut starts = marker_starts.into_iter().peekable();
+    let mut read = 0;
+    let mut write = 0;
     while read < units.len() {
-        if is_non_conjunct_ra_ya_zwnj_at(units, read) {
+        if starts.peek() == Some(&read) {
+            starts.next();
             units[write] = PhoneticUnit {
                 text: String::from("rZ,,y"),
                 unit_type: PhoneticUnitType::Conjunct,
                 position: units[read].position,
             };
-            read += 3;
+            read += 2;
             write += 1;
-            continue;
+        } else {
+            move_unit(units, read, write);
+            read += 1;
+            write += 1;
         }
-
-        move_unit(units, read, write);
-        read += 1;
-        write += 1;
     }
 
     units.truncate(write);
@@ -280,16 +300,99 @@ fn velar_nasal_conjunct_tail(text: &str) -> Option<&'static str> {
     }
 }
 
-fn first_non_conjunct_ra_ya_zwnj(units: &[PhoneticUnit]) -> Option<usize> {
-    (0..units.len().saturating_sub(2)).find(|&index| is_non_conjunct_ra_ya_zwnj_at(units, index))
+/// A syllable-leading র directly followed by a ya-phola *marker* — capital `Y`
+/// (a Consonant unit) or the reserved `Z` (an Unknown unit) — forms the reph-ya
+/// র‍্য. Lowercase `y` is the য় glide, not a marker (`ry` → রয়), so a trailing
+/// `y` composes after the marker (`rZy` / `rYy` → র‍্যয়). The leading guard keeps
+/// an r-phola conjunct tail on its productive ya-phola (`krY` → ক্র্য, `TrYak` →
+/// ট্র্যাক) and leaves the glide alone.
+fn is_leading_ra_ya_marker_at(
+    units: &[PhoneticUnit],
+    index: usize,
+    conjuncts: &ConjunctDefinitions,
+) -> bool {
+    if units[index].unit_type != PhoneticUnitType::Consonant || units[index].text != "r" {
+        return false;
+    }
+    let Some(next) = units.get(index + 1) else {
+        return false;
+    };
+    let is_marker = (next.unit_type == PhoneticUnitType::Consonant && next.text == "Y")
+        || (next.unit_type == PhoneticUnitType::Unknown && next.text == "Z");
+    is_marker && ra_leads_syllable(units, index, conjuncts)
 }
 
-fn is_non_conjunct_ra_ya_zwnj_at(units: &[PhoneticUnit], index: usize) -> bool {
-    index + 2 < units.len()
-        && units[index].unit_type == PhoneticUnitType::Consonant
-        && units[index].text == "r"
-        && units[index + 1].unit_type == PhoneticUnitType::Unknown
-        && units[index + 1].text == "Z"
-        && units[index + 2].unit_type == PhoneticUnitType::Consonant
-        && matches!(units[index + 2].text.as_str(), "y" | "Y")
+/// Whether র at `index` leads its own syllable (so a ya-phola marker forms the
+/// reph-ya র‍্য) instead of being the r-phola tail of a conjunct. র does NOT lead
+/// only when an explicit hasant binds it to the preceding consonant (T,,rY →
+/// ট্র্যাক) or when the whole preceding consonant *run* plus র forms a listed
+/// r-phola conjunct (ক্র, ট্র, স্ত্র). After a vowel, numeral, anusvar or any
+/// other boundary — or after a consonant run that does not join র (ন্র, or ক্ক·র
+/// where র stays standalone) — র starts a fresh syllable.
+fn ra_leads_syllable(
+    units: &[PhoneticUnit],
+    index: usize,
+    conjuncts: &ConjunctDefinitions,
+) -> bool {
+    if index == 0 {
+        return true;
+    }
+    let prev = &units[index - 1];
+    match prev.unit_type {
+        // Explicit hasant binds র to the preceding consonant (T,,rY → ট্র্যাক).
+        PhoneticUnitType::ConsonantWithHasant => false,
+        // Reph already sits over a consonant; র joins that consonant as an r-phola
+        // when they form a conjunct (rrk·rY → র্ক্র্য).
+        PhoneticUnitType::RephOverConsonant => reph_base_part(prev)
+            .map_or(true, |base| {
+                conjuncts.create_conjunct_from_parts(&[base, "r"]).is_none()
+            }),
+        // A preceding consonant run: segment it greedily (the same longest-match
+        // order the conjunct pass uses) and let র lead only when it starts a fresh
+        // segment. র joins the LAST segment when that segment plus র forms a
+        // conjunct (ksTr → ক্স + ট্র, so eksTrYak → এক্সট্র্যাক); otherwise the
+        // segment is closed and র leads (ক্ক·র → ক্কর‍্য, ন·র → নর‍্য).
+        PhoneticUnitType::Consonant => {
+            let mut run_start = index;
+            while run_start > 0
+                && units[run_start - 1].unit_type == PhoneticUnitType::Consonant
+            {
+                run_start -= 1;
+            }
+            let last_start = last_conjunct_segment_start(units, run_start, index, conjuncts);
+            let mut parts: Vec<&str> =
+                units[last_start..index].iter().map(|u| u.text.as_str()).collect();
+            parts.push("r");
+            conjuncts.create_conjunct_from_parts(&parts).is_none()
+        }
+        // Vowel, numeral, anusvar/symbol, or any other boundary: র leads.
+        _ => true,
+    }
+}
+
+/// Greedily segment the consonant range `[run_start, end)` into conjuncts (the
+/// same longest-match order the conjunct pass uses) and return the start index of
+/// the final segment — the consonants a following র could still attach to.
+fn last_conjunct_segment_start(
+    units: &[PhoneticUnit],
+    run_start: usize,
+    end: usize,
+    conjuncts: &ConjunctDefinitions,
+) -> usize {
+    let mut seg_start = run_start;
+    while seg_start < end {
+        let mut best_end = seg_start + 1;
+        let mut parts: Vec<&str> = vec![units[seg_start].text.as_str()];
+        for next in (seg_start + 1)..end {
+            parts.push(units[next].text.as_str());
+            if conjuncts.create_conjunct_from_parts(&parts).is_some() {
+                best_end = next + 1;
+            }
+        }
+        if best_end >= end {
+            break;
+        }
+        seg_start = best_end;
+    }
+    seg_start
 }

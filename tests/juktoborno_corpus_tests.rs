@@ -275,8 +275,11 @@ fn explicit_hasant_joins_every_consonant_pair() {
     }
 }
 
-/// Unicode core spec, ch. 12: dead ত renders as ৎ in every context *except*
-/// before ত, থ, ন, ব, ম, য, র — where it forms an ordinary ligature.
+/// Dead ত ligates before ত, থ, ন, ব, ম, য, র; before ক, খ, প, স it renders as
+/// খণ্ড-ত (উৎকর্ষ, উৎপল, বৎসর). ত + ল is *not* a licensed conjunct — single-
+/// morpheme words use a live ত (কাতলা, পাতলা, মতলব) — so `tl` renders standalone,
+/// never as ৎল; খণ্ড-ত before ল only crosses a morpheme boundary (সৎ+লোক) via the
+/// explicit `t,,l` signal.
 #[test]
 fn khanda_ta_follows_the_unicode_ligature_rule() {
     let engine = ObadhEngine::new();
@@ -290,13 +293,33 @@ fn khanda_ta_follows_the_unicode_ligature_rule() {
         assert!(!actual.contains(KHANDA_TA), "ত + {c2} must not use ৎ");
     }
 
-    for c2 in ["k", "kh", "p", "l", "s"] {
+    for c2 in ["k", "kh", "p", "s"] {
         let actual = engine.transliterate(&format!("t{c2}A"));
         assert!(
             actual.starts_with(KHANDA_TA),
             "ত + {c2} must use khanda ta: '{actual}'"
         );
     }
+
+    // ত + ল is not a licensed conjunct: it renders standalone (তলা). The
+    // dedicated খণ্ড-ত signal `t``` still produces ৎ before ল for morpheme
+    // boundaries (সৎ+লোক), while the general explicit-hasant `,,` gives an
+    // ordinary visible-hasant conjunct.
+    assert_eq!(
+        engine.transliterate("tlA"),
+        "তলা",
+        "ত + ল must render standalone, not as ৎল"
+    );
+    assert_eq!(
+        engine.transliterate("t``lA"),
+        "ৎলা",
+        "the khanda-ta signal t`` must still produce ৎ before ল"
+    );
+    assert_eq!(
+        engine.transliterate("t,,lA"),
+        "ত্লা",
+        "the general explicit-hasant ,, yields a visible-hasant conjunct"
+    );
 }
 
 // ------------------------------------------------------------ well-formedness

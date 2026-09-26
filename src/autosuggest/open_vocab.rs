@@ -222,11 +222,15 @@ pub fn validate_open_vocab_text(
             repeated = 1;
         }
 
-        if scalar == '\u{200c}' {
+        if scalar == '\u{200c}' || scalar == '\u{200d}' {
+            // Both joiners (ZWNJ and the reph-ya ZWJ, U+200D) follow the same
+            // well-formedness rule: never leading, trailing, or doubled.
             if index == 0 || index + 1 == char_len || previous_was_zwnj {
                 return rejected(char_len, AutosuggestOpenVocabRejectionKind::InvalidZwnj);
             }
-            previous_was_hasant = false;
+            // Preserve the pending-hasant state across a joiner: a hasant followed
+            // by a joiner and then a kar (ক + ্ + ZWJ + া) is still malformed. A
+            // joiner only legitimizes a following letter (handled below), not a mark.
             previous_was_zwnj = true;
             continue;
         }
@@ -634,7 +638,7 @@ mod tests {
     #[test]
     fn validator_accepts_valid_bengali_words_without_dictionary_lookup() {
         let policy = AutosuggestOpenVocabPolicy::default();
-        for word in ["গিয়েছিলাম", "রিয়াদ", "র\u{200c}্যাব", "করছিলাম"]
+        for word in ["গিয়েছিলাম", "রিয়াদ", "র\u{200d}্যাব", "করছিলাম"]
         {
             let report = validate_open_vocab_text(word, 1.0, policy);
             assert_eq!(report.rejection, None, "{word}");
@@ -663,6 +667,9 @@ mod tests {
             ("াকা", AutosuggestOpenVocabRejectionKind::StartsWithMark),
             ("ক্", AutosuggestOpenVocabRejectionKind::EndsWithHasant),
             ("ক্া", AutosuggestOpenVocabRejectionKind::MarkAfterHasant),
+            // A joiner between the hasant and the kar must not launder it.
+            ("ক্\u{200d}া", AutosuggestOpenVocabRejectionKind::MarkAfterHasant),
+            ("ক্\u{200c}া", AutosuggestOpenVocabRejectionKind::MarkAfterHasant),
             ("কককক", AutosuggestOpenVocabRejectionKind::RepeatedScalarRun),
         ];
         for (word, rejection) in cases {

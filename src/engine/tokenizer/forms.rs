@@ -31,7 +31,7 @@ pub(super) fn identify_complex_forms(units: &mut Vec<PhoneticUnit>, scan_hints: 
         normalize_colon_between_numerals(units);
     }
     if scan_hints.has_non_conjunct_ra_ya_zwnj_candidate() {
-        normalize_non_conjunct_ra_ya_zwnj(units);
+        normalize_non_conjunct_ra_ya_zwnj(units, conjunct_defs);
     }
     if scan_hints.has_reserved_z() {
         normalize_residual_reserved_z(units);

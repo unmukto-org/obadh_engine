@@ -160,7 +160,7 @@ Representative deliberate signals:
 | `jNG`, `jn`, `gg` | জ্ঞ paths |
 | `NGj`, `nj`, `nJ` | ঞ্জ paths |
 | `rr` + cluster | reph over a valid cluster |
-| `rZy` / `rZY` | non-conjunct ZWNJ-separated র‌্য form |
+| `rY` / `rZ` (also `rZy`) | reph-ya র‍্য marker after a leading র; RAB = `rYab`/`rZab`; a trailing `y` adds the য় glide (`rZy` → র‍্যয়) |
 | `y` / `Y` | য-ফলা after a consonant base (productive): `ply` -> `প্ল্য`, `plYan` -> `প্ল্যান`; standalone য় |
 | `w` | ব-ফলা after a consonant (`kw` -> `ক্ব`); standalone ওয় glide (`waTar` -> `ওয়াটার`) |
 | `q`, `qq` | ক (qaf): `iraq` -> `ইরাক`; `qq` -> চন্দ্রবিন্দু ঁ, resolved ahead of `q` by longest match (`baqq` -> `বাঁ`) |

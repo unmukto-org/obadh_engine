@@ -260,8 +260,12 @@ fn test_reserved_z_folds_to_z_outside_the_ra_ya_marker() {
         engine.transliterate("Z Zya namaZ braZil gog jNG jn gg"),
         "য য্যা নামায ব্রাযিল গগ জ্ঞ জ্ঞ জ্ঞ"
     );
-    // The rZy marker is untouched; a marker Z beside a stray Z resolves each in place.
-    assert_eq!(engine.transliterate("rZy rZya_Za"), "র\u{200C}্য র\u{200C}্যা_যা");
+    // The reph-ya marker consumes র + Z; a trailing lowercase y is the য় glide
+    // (rZy → র‍্যয়), while a stray Z that no marker claims still folds to য.
+    assert_eq!(
+        engine.transliterate("rZy rZya_Za"),
+        "র\u{200D}্যয\u{09BC} র\u{200D}্যয\u{09BC}া_যা"
+    );
 }
 
 #[test]
@@ -632,9 +636,9 @@ fn test_ya_phola_stacks_on_r_phola_conjuncts() {
         engine.transliterate("pry gry plYa klYa blYa"),
         "প্র্য গ্র্য প্ল্যা ক্ল্যা ব্ল্যা"
     );
-    // Invariant: a standalone র still refuses ya-phola (রয়া, kept distinct from the
-    // reph-ya marker র‌্য), and rZy is untouched.
-    assert_eq!(engine.transliterate("ry rY rya rZy rZyab"), "রয় রয় রয়া র‌্য র‌্যাব");
+    // Lowercase `ry` is the রয় glide; capital `rY`/`rZ` are the reph-ya র‍্য marker,
+    // so rYab / rZab compose to র‍্যাব.
+    assert_eq!(engine.transliterate("ry rY rZ rYab rZab"), "রয় র‍্য র‍্য র‍্যাব র‍্যাব");
     // Ordinary consonant / conjunct ya-phola bases are unchanged.
     assert_eq!(
         engine.transliterate("kya protyek modhYo bhagyo"),
@@ -1077,7 +1081,7 @@ fn test_non_conjunct_ra_ya_zwnj_signal_is_explicit_and_narrow() {
     let tokenizer = Tokenizer::new();
     let engine = ObadhEngine::new();
 
-    for input in ["rZy", "rZY"] {
+    for input in ["rZ", "rY"] {
         let units = tokenizer.tokenize_word(input);
         assert_eq!(
             units
@@ -1085,11 +1089,11 @@ fn test_non_conjunct_ra_ya_zwnj_signal_is_explicit_and_narrow() {
                 .map(|unit| (unit.text.as_str(), unit.unit_type))
                 .collect::<Vec<_>>(),
             vec![("rZ,,y", PhoneticUnitType::Conjunct)],
-            "{input} should canonicalize to the narrow non-conjunct ra-ya signal"
+            "{input} should canonicalize to the reph-ya marker"
         );
     }
 
-    for input in ["rZya", "rZYa"] {
+    for input in ["rZa", "rYa"] {
         let units = tokenizer.tokenize_word(input);
         assert_eq!(
             units
@@ -1097,18 +1101,30 @@ fn test_non_conjunct_ra_ya_zwnj_signal_is_explicit_and_narrow() {
                 .map(|unit| (unit.text.as_str(), unit.unit_type))
                 .collect::<Vec<_>>(),
             vec![("rZ,,ya", PhoneticUnitType::ConjunctWithVowel)],
-            "{input} should accept the existing y/Y phola marker spelling"
+            "{input} should attach the vowel to the reph-ya marker"
         );
     }
 
-    assert_eq!(
-        engine.transliterate("rZy rZya rZyab rZyam rZya^da"),
-        "র\u{200C}্য র\u{200C}্যা র\u{200C}্যাব র\u{200C}্যাম র\u{200C}্যাঁদা"
-    );
+    // The RAB word types as rZab or rYab.
+    assert_eq!(engine.transliterate("rZab rYab"), "র\u{200D}্যাব র\u{200D}্যাব");
+    // Lowercase y is the য় glide and composes after the marker: rZy / rYy compose.
+    assert_eq!(engine.transliterate("rZy rYy rZyab"), "র\u{200D}্যয\u{09BC} র\u{200D}্যয\u{09BC} র\u{200D}্যয\u{09BC}াব");
     assert_eq!(engine.transliterate("rrYa"), "র্যা");
     assert_ne!(engine.transliterate("rZya"), engine.transliterate("rrYa"));
 
-    assert_eq!(engine.transliterate("Zya kZya rZga"), "য্যা কয্যা রযগা");
+    assert_eq!(engine.transliterate("Zya kZya"), "য্যা কয্যা");
+
+    // Edge cases: a second marker later in the word (compaction-safe), র after a
+    // full conjunct that it does not join (ক্ক·র), and non-consonant boundaries
+    // (numeral, anusvar) all keep the marker leading.
+    assert_eq!(engine.transliterate("rYaTrYak"), "র\u{200D}্যাট্র্যাক");
+    assert_eq!(engine.transliterate("kkrYa"), "ক্কর\u{200D}্যা");
+    assert_eq!(engine.transliterate("1rYab"), "১র\u{200D}্যাব");
+    assert_eq!(engine.transliterate("angrYab"), "আংর\u{200D}্যাব");
+    // Segmentation: র attaches to the actual last sub-cluster (ক্স + ট্র, so
+    // extract → এক্সট্র্যাক্ট), and a reph base takes the r-phola (র্ক + র → র্ক্র).
+    assert_eq!(engine.transliterate("eksTrYakT"), "এক্সট্র্যাক্ট");
+    assert_eq!(engine.transliterate("rrkrYa"), "র্ক্র্যা");
 }
 
 #[test]

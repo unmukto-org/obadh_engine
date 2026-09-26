@@ -23,9 +23,9 @@ This source-controlled corpus exercises rule signals, not memorized words. It is
 | Repeated vowel freedom | `a A aa i I ii e E ee o O oo u U uu kaa kee kii koo kuu kU uuupintocala` | `আ আ আআ ই ঈ ইই এ এ এএ অ ও অঅ উ ঊ উউ কাআ কেএ কিই কঅ কুউ কূ উউউপিন্তচালা` | Doubled lowercase vowels are not aliases; repeated signals remain repeated for deliberate invented strings. |
 | Vowel sequences | `kai kau kia kio keo` | `কাই কাউ কিয়া কিও কেও` | Documented vowel sequences compose as rule units, not guessed spellings. |
 | Marked vowel boundary | `k,,i k^a k:a` | `ক্ই কঁআ কঃআ` | Vowels after explicit hasant, chandrabindu, or bisarga start independently. |
-| Non-conjunct ra-ya | `rZyab rrYa Zya kZya` | `র‌্যাব র্যা য্যা কয্যা` | `rZy` is a narrow ZWNJ signal; a stray `Z` folds to `z` (য). |
+| Non-conjunct ra-ya | `rZab rrYa Zya kZya` | `র‍্যাব র্যা য্যা কয্যা` | `rZ`/`rY` are the reph-ya markers; a stray `Z` folds to `z` (য). |
 | Aspirated alias composition | `KhA KHy Chya jhya fya acCHHa` | `খা খ্য ছ্যা ঝ্যা ফ্যা আচ্ছা` | Accepted aspirated aliases canonicalize into ordinary rule components before vowel/conjunct handling. |
 | Case fallback | `Biggan Ggan BhalO Khela Ga T D N Zya` | `বিজ্ঞান জ্ঞান ভালো খেলা গা ট ড ণ য্যা` | Unclaimed opposite-case rule signals fall back to the exact canonical signal; exact uppercase signals stay protected, and a stray `Z` folds to `z` (য). |
-| External alias rejection | `Z pph p,,ph` | `য পফ প্ফ` | A stray `Z` folds to `z` (য); `Z` stays literal only inside the `rZy` marker, not as a blanket external-layout import. Explicit hasant stays available. Foreign letters with a settled convention (`q`→ক, `x`→ক্স, `w`→ওয়) are adopted for their own reason, see the Foreign letters row. |
+| External alias rejection | `Z pph p,,ph` | `য পফ প্ফ` | A stray `Z` folds to `z` (য); `Z` stays literal only inside the `rZ`/`rY` reph-ya marker, not as a blanket external-layout import. Explicit hasant stays available. Foreign letters with a settled convention (`q`→ক, `x`→ক্স, `w`→ওয়) are adopted for their own reason, see the Foreign letters row. |
 | Symbols and numbers | `12.34 12.34. $` | `১২.৩৪ ১২.৩৪। ৳` | Decimal periods stay ASCII between number-bearing tokens. |
 | Clock-time colon | `9:45 du:kho` | `৯:৪৫ দুঃখ` | `:` stays a literal separator between digits (clock times); between letters it is bisarga. |

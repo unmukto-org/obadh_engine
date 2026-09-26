@@ -116,7 +116,7 @@ impl ConjunctDefinitions {
         };
         // A ya-phola composes onto any real consonant base, including the tail of a
         // conjunct (প্ল + য = প্ল্য). Standalone র refuses it (রয়া, kept distinct
-        // from reph-ya র‌্য), but an r-phola tail inside a multi-consonant conjunct
+        // from reph-ya র‍্য), but an r-phola tail inside a multi-consonant conjunct
         // is not a standalone র and does take the ya-phola (ট্র + য = ট্র্য, used by
         // loanwords such as ট্র্যাক).
         let takes = ya_phola_attaches_to(last)
@@ -274,7 +274,7 @@ mod tests {
         assert!(defs.can_form_derived_conjunct_from_parts(&["T", "r", "y"]));
         assert!(defs.can_form_derived_conjunct_from_parts(&["k", "r", "Y"]));
         assert!(defs.can_form_derived_conjunct_from_parts(&["s", "t", "r", "y"]));
-        // A standalone র refuses ya-phola (রয়া, kept distinct from reph-ya র‌্য).
+        // A standalone র refuses ya-phola (রয়া, kept distinct from reph-ya র‍্য).
         assert!(!defs.can_form_derived_conjunct_from_parts(&["r", "y"]));
         // The l-phola tail still works; a base ending in a phola marker still refuses.
         assert!(defs.can_form_derived_conjunct_from_parts(&["p", "l", "y"]));

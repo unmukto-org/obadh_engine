@@ -163,8 +163,8 @@ fn test_lenient_transliteration_cleans_then_uses_direct_rendering() {
         "আমি ১২.৩৪ টাকা।"
     );
     assert_eq!(
-        engine.transliterate_lenient("rZyab😀 rrkSh 1.a2"),
-        "র‌্যাব র্ক্ষ ১।আ২"
+        engine.transliterate_lenient("rYab😀 rrkSh 1.a2"),
+        "র‍্যাব র্ক্ষ ১।আ২"
     );
 
     let cleaned = engine.sanitize("ami 12.34 Taka.").unwrap();

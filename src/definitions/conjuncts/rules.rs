@@ -48,7 +48,7 @@ pub(super) const CONJUNCT_RULES: &[ConjunctRule] = &[
     ConjunctRule("khy", "খ্য"),
     ConjunctRule("khY", "খ্য"),
     ConjunctRule("khr", "খ্র"),
-    ConjunctRule("gN", "গ্‌ণ"),
+    ConjunctRule("gN", "গ্ণ"),
     ConjunctRule("gdh", "গ্ধ"),
     ConjunctRule("gdhy", "গ্ধ্য"),
     ConjunctRule("gdhr", "গ্ধ্র"),
@@ -66,7 +66,7 @@ pub(super) const CONJUNCT_RULES: &[ConjunctRule] = &[
     ConjunctRule("ghY", "ঘ্য"),
     ConjunctRule("ghr", "ঘ্র"),
     ConjunctRule("Ngk", "ঙ্ক"),
-    ConjunctRule("Ngkt", "ঙ্‌ক্ত"),
+    ConjunctRule("Ngkt", "ঙ্ক্ত"),
     ConjunctRule("Ngky", "ঙ্ক্য"),
     ConjunctRule("NgkY", "ঙ্ক্য"),
     ConjunctRule("NgkSh", "ঙ্ক্ষ"),
@@ -176,7 +176,11 @@ pub(super) const CONJUNCT_RULES: &[ConjunctRule] = &[
     ConjunctRule("tY", "ত্য"),
     ConjunctRule("tr", "ত্র"),
     ConjunctRule("try", "ত্র্য"),
-    ConjunctRule("tl", "ৎল"),
+    // ত + ল is deliberately NOT a licensed conjunct. Single-morpheme words are
+    // written with a live ত (কাতলা, পাতলা, মতলব, বোতল, আতলামি), so `tl` renders
+    // standalone (ত + ল) via the ordinary unattested-pair path. খণ্ড-ত before ল
+    // only occurs across a morpheme boundary (সৎ+লোক, বিদ্যুৎ+লাইন) and is typed
+    // with the dedicated khanda-ta signal `t``l`.
     ConjunctRule("ts", "ৎস"),
     ConjunctRule("thw", "থ্ব"),
     ConjunctRule("thy", "থ্য"),
@@ -445,7 +449,7 @@ pub(super) const CONJUNCT_RULES: &[ConjunctRule] = &[
     ConjunctRule("snY", "স্ন্য"),
     ConjunctRule("sp", "স্প"),
     ConjunctRule("spr", "স্প্র"),
-    ConjunctRule("spl", "স্প্‌ল"),
+    ConjunctRule("spl", "স্প্ল"),
     ConjunctRule("sf", "স্ফ"),
     ConjunctRule("sph", "স্ফ"),
     ConjunctRule("sw", "স্ব"),

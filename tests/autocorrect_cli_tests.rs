@@ -584,7 +584,7 @@ fn autocorrect_cli_promotes_palatal_nasal_ja_roman_repair() {
     assert!(suggest.status.success(), "stderr: {}", stderr(&suggest));
 
     let json = json_stdout(&suggest);
-    assert_eq!(json["obadh_output"], "জিংইরা");
+    assert_eq!(json["obadh_output"], "জিঙিরা");
 
     let candidates = json["candidates"].as_array().unwrap();
     assert_eq!(candidates[0]["text"], "জিঞ্জিরা");
@@ -690,7 +690,7 @@ fn autocorrect_cli_promotes_strong_velar_ng_over_low_frequency_exact_artifact() 
     let lexicon_tsv = workspace.path("lexicon.tsv");
     let artifact = workspace.path("obadh.bn.fst");
 
-    fs::write(&lexicon_tsv, "জংই\t1\nজঙ্গি\t938\n").expect("lexicon fixture should write");
+    fs::write(&lexicon_tsv, "জঙি\t1\nজঙ্গি\t938\n").expect("lexicon fixture should write");
 
     let build = run_obadh_autocorrect([
         "build-fst-lexicon",
@@ -715,7 +715,7 @@ fn autocorrect_cli_promotes_strong_velar_ng_over_low_frequency_exact_artifact() 
     assert!(suggest.status.success(), "stderr: {}", stderr(&suggest));
 
     let json = json_stdout(&suggest);
-    assert_eq!(json["obadh_output"], "জংই");
+    assert_eq!(json["obadh_output"], "জঙি");
 
     let candidates = json["candidates"].as_array().unwrap();
     assert_eq!(candidates[0]["text"], "জঙ্গি");
@@ -759,13 +759,19 @@ fn autocorrect_cli_prefers_corpus_strong_ng_candidate_over_rare_velar_variant() 
     assert!(suggest.status.success(), "stderr: {}", stderr(&suggest));
 
     let json = json_stdout(&suggest);
-    assert_eq!(json["obadh_output"], "রংইন");
+    assert_eq!(json["obadh_output"], "রঙিন");
 
     let candidates = json["candidates"].as_array().unwrap();
     assert_eq!(candidates[0]["text"], "রঙিন");
-    assert_eq!(candidates[0]["source"], "fst_roman_repair_exact");
-    assert_eq!(candidates[0]["roman_repair"], "roNgin");
-    assert_eq!(candidates[0]["roman_repair_kind"], "velar_nasal_from_ng");
+    // রঙিন is now the baseline itself, so it wins as an exact corpus hit rather
+    // than via a velar-nasal repair — and still outranks the rare velar variant.
+    assert_eq!(candidates[0]["source"], "fst_exact");
+    let rongin_rank = candidate_rank(candidates, "রঙিন").expect("রঙিন should be returned");
+    let ronggin_rank = candidate_rank(candidates, "রঙ্গিন").expect("রঙ্গিন should be returned");
+    assert!(
+        rongin_rank < ronggin_rank,
+        "the strong corpus রঙিন should outrank the rare velar variant রঙ্গিন"
+    );
 }
 
 #[test]
@@ -803,7 +809,7 @@ fn autocorrect_cli_promotes_high_frequency_velar_ng_with_long_i_variant() {
     assert!(suggest.status.success(), "stderr: {}", stderr(&suggest));
 
     let json = json_stdout(&suggest);
-    assert_eq!(json["obadh_output"], "সংইত");
+    assert_eq!(json["obadh_output"], "সঙিত");
 
     let candidates = json["candidates"].as_array().unwrap();
     assert_eq!(candidates[0]["text"], "সঙ্গীত");
@@ -850,7 +856,7 @@ fn autocorrect_cli_keeps_palatal_nasal_repair_lower_trust_than_stronger_edit() {
     assert!(suggest.status.success(), "stderr: {}", stderr(&suggest));
 
     let json = json_stdout(&suggest);
-    assert_eq!(json["obadh_output"], "সংইত");
+    assert_eq!(json["obadh_output"], "সঙিত");
 
     let candidates = json["candidates"].as_array().unwrap();
     let songit_rank = candidate_rank(candidates, "সংগীত").expect("সংগীত should be returned");

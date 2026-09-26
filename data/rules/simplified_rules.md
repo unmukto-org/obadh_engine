@@ -197,13 +197,13 @@ Letters with no native Bengali phoneme map to their settled convention instead o
 - `x` → `ক্স`: `box` → `বক্স`, `fix` → `ফিক্স`
 - `w` standalone → `ওয়` glide (`waTar` → `ওয়াটার`); after a consonant base it is the ব-ফলা marker (`kw` → `ক্ব`)
 
-### Non-Conjunct র‌্য Signal
+### Reph-ya `র‍্য` Marker
 
-The source conjunct notes distinguish true conjunct `র্য` from the ZWNJ-separated `র‌্য` form used in loanword spellings such as `র‌্যাব`:
+The reph-ya loanword form `র‍্য` (distinct from the reph conjunct `র্য`) is marked by `Y` or `Z` after a leading `র`. Lowercase `y` stays the `য়` glide and composes after the marker:
 
-- `rrYa` → `র্যা` (conjunct `র্য` plus vowel)
-- `rZya` / `rZYa` → `র‌্যা` (`র` + U+200C + hasant + `য` plus vowel)
-- `rZyab` → `র‌্যাব`
-- `rZya^da` → `র‌্যাঁদা`
+- `rrYa` → `র্যা` (reph conjunct `র্য` plus vowel)
+- `rY` / `rZ` → `র‍্য` (`র` + U+200D + hasant + `য`)
+- `rYa` / `rZa` → `র‍্যা`; `rYab` / `rZab` → `র‍্যাব` (the RAB word)
+- `rZy` / `rYy` → `র‍্যয়` (marker `র‍্য` plus the `য়` glide)
 
 `Z` is intentionally narrow here. It is not a general compatibility ya-phola alias and does not rewrite unrelated sequences such as `Zya` or `kZya`.

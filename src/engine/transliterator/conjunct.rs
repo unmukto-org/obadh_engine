@@ -10,7 +10,10 @@ impl Transliterator {
 
     fn conjunct_component(&self, part: &str) -> Option<&'static str> {
         match part {
-            "rZ" => Some("র\u{200C}"),
+            // Reph-ya loanword form র‍্য. The joiner is ZWJ (U+200D), the
+            // Unicode-prescribed encoding for this form (র‍্যাব, র‍্যান্ডম),
+            // distinct from reph-ya র্য and the র + য় glide রয়.
+            "rZ" => Some("র\u{200D}"),
             "y" | "Y" => Some("য"),
             "w" => Some("ব"),
             _ => consonant_value(part),

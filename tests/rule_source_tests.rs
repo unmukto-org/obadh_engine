@@ -214,7 +214,7 @@ fn documented_consonant_table_matches_runtime_rules() {
 
 #[test]
 fn deliberate_input_contract_documents_non_conjunct_ra_ya_zwnj_source_note() {
-    let zwnj_ra_ya = "র\u{200C}\u{09CD}য";
+    let zwnj_ra_ya = "র\u{200D}\u{09CD}য";
 
     assert!(
         CONJUNCT_RULES_DOC.contains(zwnj_ra_ya),
