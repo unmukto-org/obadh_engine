@@ -440,6 +440,22 @@ Fresh source checkouts should use `./init.sh`. Runtime applications should pin
 an engine crate version and a compatible data commit/tag, then bundle only the
 artifacts needed by that target.
 
+The dated loanword source audit lives in
+`data/autocorrect/lexicons/loanwords/verified_expansion_2026-10-09.json`.
+It records published Bangla usage, pinned localization message IDs, corpus counts,
+and linguistic curation decisions. `address` maps to অ্যাড্রেস. The runtime TSV
+and categorized metadata are updated together for audited entries; the rebuilt
+FST is also bundled in the playground.
+
+Verify the dataset and its shipped native/WASM suggestions:
+
+```bash
+cargo build --features cli --bin obadh-autocorrect
+node tools/autocorrect/verify_loanword_dataset.mjs
+# Optional: also retrieve and validate the pinned localization snapshots.
+node tools/autocorrect/verify_loanword_dataset.mjs --verify-sources
+```
+
 For iOS, the downstream [`obadh-ios`](https://github.com/nsssayom/obadh-ios) package should bundle autocorrect FSTs, the
 c64 n-gram, the generator manifest, and a compiled Core ML model. Corpora, raw
 TSVs, training checkpoints, and builder outputs should not ship inside the
@@ -534,8 +550,8 @@ deliberately wants unsupported characters removed before transliteration.
 | transliteration sample average | `0.002815 ms` |
 | Bangla FST entries | `845,461` |
 | Bangla FST bytes | `8,847,897` |
-| English loanword keys | `1,776` |
-| English loanword FST bytes | `89,427` |
+| English loanword keys | `1,852` |
+| English loanword FST bytes | `93,324` |
 | optimized WASM | about `280 KB` |
 | autosuggest n-gram artifact | `25,195,978` bytes |
 | autosuggest c64 candidate artifact | `29,486,274` bytes |

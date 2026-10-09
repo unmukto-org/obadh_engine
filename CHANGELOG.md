@@ -10,6 +10,12 @@ Releases before `0.7.0` predate this file; see the git history and tags for thos
 
 ### Added
 
+- Two source-audited loanword batches add 74 spelling pairs, including Amazon,
+  Walmart, Starbucks, pyramid, category, antivirus, metadata, broadband, widget,
+  and workflow. The audit records published Bangla usage, pinned localization
+  message IDs, corpus evidence, and spelling decisions. Verification checks
+  reproducible artifacts, native/WASM parity, and visible suggestions; an optional
+  source check fetches and validates pinned localization snapshots.
 - `ok` and `okay` loanwords mapping to ওকে, with rebuilt lexicon artifacts.
 - Exact ASCII emoticon suggestions across Rust, CLI, WASM, and the C ABI, using
   322 aliases from the pinned, MIT-licensed `wooorm/emoticon` dataset. Both
@@ -31,6 +37,8 @@ Releases before `0.7.0` predate this file; see the git history and tags for thos
 
 ### Fixed
 
+- Kept the canonical `address` → অ্যাড্রেস loanword mapping; the proposed এড্রেস
+  variant is excluded. The existing `dress` → ড্রেস mapping is retained.
 - Playground suggestions for the previous input are hidden when the active
   input changes. Committing an emoji preserves it in the composer.
 - Long inspector content scrolls within bounded panels; whitespace tokens have
