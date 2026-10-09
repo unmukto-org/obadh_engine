@@ -17,10 +17,12 @@ The engine's pre-research base is `96a3bcc5839c51f75f5010283e60120af7ec9e03`.
 
 The private archive is [nsssayom/obadh-model-runs](https://github.com/nsssayom/obadh-model-runs).
 Its `manifest.json` is authoritative: `status: complete` means every compressed
-Git LFS part was downloaded from GitHub and SHA-256 verified. Until that status,
-the archive is in progress and local originals must be retained. After completion
-and an independent restore check, the owner requests removal of local model-run
-payloads to recover disk space. The small backup checkout and this documentation
+Git LFS part was successfully uploaded and its pointer matches the recorded
+SHA-256 and size. Source-file hashes are checked during archive creation. Until
+completion, local originals must be retained. The owner requests removal of local
+model-run payloads after the full archive is published. Full read-back downloads
+and fresh-checkout restore tests are not prerequisites; the owner asked to stop
+that redundant verification. The small backup checkout and this documentation
 remain. Do not assume `~/Dev/obadh-model-runs` still exists when resuming.
 
 The archive covers all three original folders:
@@ -46,7 +48,8 @@ batch passes. Use `--batch ID` to restore selected independent batches; inspect
 `manifest.json` to find their file lists. A full restore needs the original tree's
 space plus roughly 4 GiB of staging, rather than a second complete LFS copy.
 Archive construction is resumable using its `archive.py`; its README gives the
-exact command and failure recovery route. Never delete unverified originals.
+exact command and failure recovery route. Never delete originals before their
+complete private archive has been successfully published.
 
 ## Selected artifacts
 
