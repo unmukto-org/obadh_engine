@@ -1315,6 +1315,28 @@ fn suggest(
     config: AutocorrectConfig,
     response_candidates: usize,
 ) -> SuggestReport {
+    if let Some(result) = obadh_engine::emoticon_suggestions(input, response_candidates) {
+        let candidates = result
+            .candidates
+            .into_iter()
+            .map(|candidate| SuggestCandidate {
+                text: candidate.text,
+                source: candidate.source.as_str(),
+                edit_cost: 0,
+                frequency: 0,
+                score: 0,
+                features: [0; AUTOCORRECT_FEATURE_DIM],
+            })
+            .collect::<Vec<_>>();
+        return SuggestReport {
+            input: input.to_owned(),
+            obadh_output: result.baseline,
+            replacement: None,
+            candidate_count: result.candidate_count,
+            returned_candidates: candidates.len(),
+            candidates,
+        };
+    }
     let engine = AutocorrectEngine::with_config(lexicon_model, config);
     let obadh = ObadhEngine::new();
     let request = obadh.autocorrect_request(input);

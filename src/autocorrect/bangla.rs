@@ -63,13 +63,22 @@ pub(crate) fn unit_similarity(left: &str, right: &str) -> u16 {
         return 0;
     }
 
+    // Only the attached vowel/nasal marks may change at the discounted cost.
+    // Preserve hasants, joiners and nukta: they distinguish consonant bases.
+    let is_base = |ch: &char| {
+        *ch == '\u{09BC}' || !matches!(unit_class(*ch), UnitClass::VowelSign | UnitClass::NasalMark)
+    };
     let left_tail = left.chars().last().map(unit_class);
     let right_tail = right.chars().last().map(unit_class);
-    if left_tail == right_tail && matches!(left_tail, Some(UnitClass::VowelSign)) {
-        return 1;
-    }
-    if matches!(left_tail, Some(UnitClass::NasalMark))
-        || matches!(right_tail, Some(UnitClass::NasalMark))
+    let discounted_marks = (left_tail == Some(UnitClass::VowelSign)
+        && right_tail == Some(UnitClass::VowelSign))
+        || left_tail == Some(UnitClass::NasalMark)
+        || right_tail == Some(UnitClass::NasalMark);
+    if discounted_marks
+        && left
+            .chars()
+            .filter(is_base)
+            .eq(right.chars().filter(is_base))
     {
         return 1;
     }

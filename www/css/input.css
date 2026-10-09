@@ -14,11 +14,11 @@
 /* Custom fonts */
 @layer base {
   html {
-    font-family: 'Poppins', system-ui, sans-serif;
+    font-family: 'Schibsted Grotesk', system-ui, sans-serif;
   }
   
   .font-bengali {
-    font-family: 'Hind Siliguri', sans-serif;
+    font-family: 'Anek Bangla', sans-serif;
   }
 }
 

@@ -5,28 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>অবাধ খেলাঘর | Obadh Playground</title>
   <meta name="description" content="A modern Roman to Bengali transliteration engine">
-  <meta name="theme-color" content="#4F46E5">
-  <link rel="icon" href="data:,">
+  <meta name="theme-color" content="#061a22">
+  <link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
 
-  <!-- Preload fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+  <link rel="stylesheet" href="assets/fonts/fonts.css">
   <!-- Tailwind CSS CDN -->
   <!-- <script src="https://cdn.tailwindcss.com"></script> -->
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/playground.css">
   
   <!-- Syntax Highlighting for JSON -->
-  <link id="hljs-light-theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
-  <link id="hljs-dark-theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/json.min.js"></script>
 
   <!-- Initialize Alpine.js data -->
   <script>
+    // Apply the saved theme before the body paints, avoiding a light-mode flash.
+    try {
+      const savedTheme = localStorage.getItem('theme');
+      document.documentElement.classList.toggle('dark', savedTheme === 'dark' ||
+        (savedTheme === null && window.matchMedia('(prefers-color-scheme: dark)').matches));
+    } catch { /* Storage may be unavailable; Alpine still applies the theme. */ }
     const AUTOCORRECT_FEED_DISPLAY_LIMIT = 5;
     const AUTOCORRECT_CONTEXT_POOL_LIMIT = 12;
     const AUTOSUGGEST_CONTEXT_PRIOR_LIMIT = 64;
@@ -94,8 +95,12 @@
         romanTokenLog: [],
         composerTextSize: 30,
         inspectorView: 'candidates',
-        inspectorWidth: 420,
-        isResizing: false,
+        inspectorOpen: false,
+        settingsOpen: false,
+        ribbonProbe: '',
+        ribbonSelectedText: null,
+        copyNotice: '',
+        clearedText: null,
         
         init() {
           // Set up debounced transliteration
@@ -103,7 +108,6 @@
           
           // Load dark mode preference
           this.loadThemePreference();
-          this.loadInspectorPreference();
           this.loadComposerPreference();
           
           // Check if WASM is already loaded
@@ -170,6 +174,8 @@
         },
         
         clearText() {
+          this.clearedText = this.inputText || this.clearedText;
+          this.ribbonSelectedText = null;
           this.inputText = '';
           this.romanTokenLog = [];
           this.clearAutosuggestSession();
@@ -188,19 +194,6 @@
           this.draftText = '';
         },
         
-        toggleRawOutput() {
-          // Toggle the raw output display
-          this.showRawOutput = !this.showRawOutput;
-          
-          // Ensure the code blocks are updated when raw output is shown
-          if (this.showRawOutput) {
-            this.$nextTick(() => {
-              this.updateCodeBlocks();
-            });
-          }
-          
-        },
-        
         updateCodeBlocks() {
           try {
             // Format the JSON nicely
@@ -210,7 +203,9 @@
               if (codeEl) {
                 codeEl.textContent = jsonString;
                 codeEl.removeAttribute('data-highlighted');
-                hljs.highlightElement(codeEl);
+                if (typeof hljs !== 'undefined') {
+                  hljs.highlightElement(codeEl);
+                }
               }
             }
           } catch (err) {
@@ -241,12 +236,6 @@
           localStorage.setItem('theme', this.darkMode ? 'dark' : 'light');
         },
 
-        loadInspectorPreference() {
-          const savedWidth = Number(localStorage.getItem('inspectorWidth'));
-          if (Number.isFinite(savedWidth) && savedWidth >= 320 && savedWidth <= 720) {
-            this.inspectorWidth = savedWidth;
-          }
-        },
 
         isMobileViewport() {
           return window.matchMedia && window.matchMedia('(max-width: 639px)').matches;
@@ -277,43 +266,7 @@
           return `font-size: ${size}px; line-height: ${Math.round(size * 1.55)}px`;
         },
 
-        workspaceGridStyle() {
-          return `--inspector-width: ${this.inspectorWidth}px`;
-        },
 
-        startResize(event) {
-          if (window.innerWidth < 1024) {
-            return;
-          }
-
-          const workspace = event.currentTarget.closest('[data-workspace]');
-          if (!workspace) {
-            return;
-          }
-
-          event.preventDefault();
-          this.isResizing = true;
-          const bounds = workspace.getBoundingClientRect();
-          const minWidth = 320;
-          const maxWidth = Math.min(720, Math.max(minWidth, bounds.width - 420));
-          const previousUserSelect = document.body.style.userSelect;
-          document.body.style.userSelect = 'none';
-
-          const onPointerMove = (moveEvent) => {
-            const nextWidth = bounds.right - moveEvent.clientX;
-            this.inspectorWidth = Math.round(Math.min(maxWidth, Math.max(minWidth, nextWidth)));
-          };
-
-          const stopResize = () => {
-            this.isResizing = false;
-            document.body.style.userSelect = previousUserSelect;
-            localStorage.setItem('inspectorWidth', String(this.inspectorWidth));
-            window.removeEventListener('pointermove', onPointerMove);
-          };
-
-          window.addEventListener('pointermove', onPointerMove);
-          window.addEventListener('pointerup', stopResize, { once: true });
-        },
 
         formatDuration(ms) {
           if (ms === null || ms === undefined || Number.isNaN(Number(ms))) {
@@ -348,15 +301,13 @@
           ];
         },
 
-        lineCount(text) {
-          if (!text) {
-            return 0;
-          }
-          return text.split(/\r\n|\r|\n/).length;
-        },
-
         formatInteger(value) {
           return Number(value || 0).toLocaleString('en-US');
+        },
+
+        visibleTokenText(text) {
+          const whitespace = {' ': '␠', '\t': '⇥', '\r': '␍', '\n': '↵'};
+          return String(text ?? '').replace(/[ \t\r\n]/g, (character) => whitespace[character]);
         },
 
         formatBytes(bytes) {
@@ -377,7 +328,7 @@
         },
 
         startResourceSampler() {
-          if (this.runtimeResourceTimer) {
+          if (!this.inspectorOpen || this.runtimeResourceTimer) {
             return;
           }
           this.updateRuntimeResources();
@@ -395,13 +346,14 @@
         resourceSummaryRows() {
           const resources = this.runtimeResources || {};
           const rows = [
-            ['WASM', this.formatBytes(resources.wasmLinearMemoryBytes), 'exact'],
+            ['WASM memory', this.formatBytes(resources.wasmLinearMemoryBytes), 'exact'],
+            ['Lexicon entries', this.formatInteger(this.autocorrectStats?.entries), 'model'],
             ['Heap', resources.browserHeapAvailable ? this.formatBytes(resources.browserHeapUsedBytes) : 'n/a', resources.browserHeapAvailable ? 'browser' : 'unavailable'],
-            ['Next', resources.autosuggestModelBytes ? this.formatBytes(resources.autosuggestModelBytes) : '—', 'asset'],
-            ['AI', this.formatDuration(resources.autosuggestLastLatencyMs), 'last'],
+            ['Next-word model', resources.autosuggestModelBytes ? this.formatBytes(resources.autosuggestModelBytes) : '—', 'asset'],
+            ['Last prediction', this.formatDuration(resources.autosuggestLastLatencyMs), 'last'],
           ];
           if (resources.autosuggestPersonalSnapshotBytes > 40) {
-            rows.push(['Personal', this.formatBytes(resources.autosuggestPersonalSnapshotBytes), 'local']);
+            rows.push(['Personal vocabulary', this.formatBytes(resources.autosuggestPersonalSnapshotBytes), 'local']);
           }
           return rows;
         },
@@ -410,7 +362,62 @@
           return (this.autocorrectResult?.candidates || []).slice(0, AUTOCORRECT_CONTEXT_POOL_LIMIT);
         },
 
+        ribbonRows() {
+          const draft = this.draftOutput();
+          const rows = draft
+            ? this.contextualCorrectionFeedRows().map((candidate) => ({...candidate, kind: 'autocorrect'}))
+            : this.autosuggestFeedRows();
+          return (draft ? [{text: draft, source: 'literal'}, ...rows] : rows).slice(0, AUTOCORRECT_FEED_DISPLAY_LIMIT);
+        },
+
+        ribbonSelectedIndex() {
+          const index = this.ribbonRows().findIndex((row) => row.text === this.ribbonSelectedText);
+          return Math.max(0, index);
+        },
+
+        moveRibbonSelection(delta) {
+          const rows = this.ribbonRows();
+          if (rows.length < 2) return;
+          const index = (this.ribbonSelectedIndex() + delta + rows.length) % rows.length;
+          this.ribbonSelectedText = rows[index].text;
+          this.$nextTick(() => {
+            this.$refs?.candidateRibbon?.querySelector('[aria-pressed="true"]')?.scrollIntoView({block: 'nearest', inline: 'nearest'});
+          });
+        },
+
+        toggleInspector() {
+          this.inspectorOpen = !this.inspectorOpen;
+          if (this.inspectorOpen) {
+            this.startResourceSampler();
+          } else {
+            window.clearInterval(this.runtimeResourceTimer);
+            this.runtimeResourceTimer = null;
+          }
+          if (!this.inspectorOpen) {
+            this.inspectorView = 'candidates';
+            this.setMode('simple');
+          }
+        },
+
+        async copyComposer() {
+          try {
+            await navigator.clipboard.writeText(this.inputText);
+            this.copyNotice = 'Copied';
+          } catch {
+            this.copyNotice = 'Copy unavailable. Select the text and copy it.';
+          }
+        },
+
+        undoClear() {
+          if (this.clearedText === null) return;
+          this.inputText = this.clearedText;
+          this.clearedText = null;
+          this.doTransliterate();
+          this.$nextTick(() => this.restoreInputFocus(this.inputText.length));
+        },
+
         correctionFeedRows(limit = AUTOCORRECT_FEED_DISPLAY_LIMIT) {
+          if (this.autocorrectResult?.roman_input !== this.autocorrectProbeInput()) return [];
           const draft = this.draftOutput();
           const seen = new Set(draft ? [draft] : []);
           const rows = [];
@@ -462,17 +469,6 @@
           }));
         },
 
-        activeFeedRows() {
-          if (this.draftText) {
-            return this.contextualCorrectionFeedRows().map((candidate) => ({
-              ...candidate,
-              kind: 'autocorrect',
-            }));
-          }
-
-          return this.autosuggestFeedRows();
-        },
-
         activeProbeRange() {
           const input = this.activeInputElement();
           let end = input && Number.isFinite(input.selectionStart)
@@ -488,6 +484,15 @@
           }
 
           let start = end;
+          while (start > 0 && !/\s/.test(this.inputText[start - 1])) {
+            start -= 1;
+          }
+          const intact = this.inputText.slice(start, end);
+          if (window.obadhaWasm?.emoticonEmoji?.(intact)) {
+            return { start, end, text: intact };
+          }
+
+          start = end;
           while (start > 0 && this.isRomanTokenChar(this.inputText[start - 1])) {
             start -= 1;
           }
@@ -620,6 +625,9 @@
           if (!probe || !this.wasmLoaded || !window.obadhaWasm) {
             return '';
           }
+          if (window.obadhaWasm.emoticonEmoji?.(probe)) {
+            return probe;
+          }
           if (this.autocorrectResult?.roman_input === probe && this.autocorrectResult?.obadh_output) {
             return this.autocorrectResult.obadh_output;
           }
@@ -630,18 +638,9 @@
           this.draftText = this.computeDraftOutput();
         },
 
-        recommendedCommitCandidate() {
-          const candidate = this.correctionFeedRows()[0];
-          if (!candidate) {
-            return null;
-          }
-          if (candidate.source === 'fst_prefix_completion' || candidate.source === 'fst_stem_suffix_completion') {
-            return null;
-          }
-          return candidate;
-        },
-
         handleComposerInput() {
+          this.copyNotice = '';
+          this.ribbonSelectedText = null;
           if (this.inputText === '') {
             this.clearResult();
             return;
@@ -652,7 +651,21 @@
         },
 
         handleComposerKeydown(event) {
-          if (event.shiftKey || event.altKey || event.ctrlKey || event.metaKey || event.isComposing) {
+          if (event.altKey || event.ctrlKey || event.metaKey || event.isComposing) {
+            return;
+          }
+
+          if (this.activeProbeRange() && this.ribbonRows().length > 1 &&
+              (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key) || event.key === 'Tab')) {
+            event.preventDefault();
+            this.moveRibbonSelection(['ArrowLeft', 'ArrowUp'].includes(event.key) || (event.key === 'Tab' && event.shiftKey) ? -1 : 1);
+            return;
+          }
+          if (event.shiftKey) return;
+          if (event.key === 'Enter' && this.activeProbeRange()) {
+            event.preventDefault();
+            const candidate = this.ribbonRows()[this.ribbonSelectedIndex()];
+            this.commitActiveDraft(candidate, false, '\n');
             return;
           }
 
@@ -665,7 +678,7 @@
             }
 
             event.preventDefault();
-            this.commitActiveDraft(null, false, '।');
+            this.commitActiveDraft(this.ribbonRows()[this.ribbonSelectedIndex()], false, '।');
             return;
           }
 
@@ -678,7 +691,7 @@
             }
 
             event.preventDefault();
-            this.commitDeterministicDraft(true);
+            this.commitSelectedDraft(true);
           }
         },
 
@@ -688,12 +701,12 @@
             return;
           }
 
-          const recommended = candidate || this.recommendedCommitCandidate();
-          const replacement = recommended?.text || this.draftOutput() || range.text;
+          const selected = candidate || this.ribbonRows()[this.ribbonSelectedIndex()];
+          const replacement = selected?.text || this.draftOutput() || range.text;
           const before = this.inputText.slice(0, range.start);
           const after = this.inputText.slice(range.end);
           const separator = appendSpace ? ' ' : '';
-          this.recordRomanToken(range.text, replacement, recommended?.source || 'deterministic');
+          this.recordRomanToken(range.text, replacement, selected?.source || 'deterministic');
           this.learnAutosuggestCommit(replacement, null, this.isSentenceBoundarySuffix(suffix));
           this.inputText = `${before}${replacement}${suffix}${separator}${after}`;
           this.doTransliterate();
@@ -705,12 +718,13 @@
           });
         },
 
-        commitDeterministicDraft(appendSpace = false) {
+        commitSelectedDraft(appendSpace = false) {
           const output = this.draftOutput();
           if (!output) {
             return;
           }
-          this.commitActiveDraft({ text: output }, appendSpace);
+          const candidate = this.ribbonRows()[this.ribbonSelectedIndex()];
+          this.commitActiveDraft(candidate || { text: output }, appendSpace);
         },
 
         recordRomanToken(roman, output, source) {
@@ -938,7 +952,7 @@
           const before = this.inputText.slice(0, start);
           const after = this.inputText.slice(end);
           const leading = before && !/\s$/.test(before) ? ' ' : '';
-          const trailing = after && !/^\s/.test(after) ? ' ' : ' ';
+          const trailing = ' ';
           const replacement = `${leading}${candidate.text}${trailing}`;
 
           this.learnAutosuggestCommit(candidate.text, candidate.token_id || null, false);
@@ -981,6 +995,12 @@
         },
 
         candidateSourceLabel(source) {
+          if (source === 'emoticon_exact') {
+            return 'emoji';
+          }
+          if (source === 'literal') {
+            return 'keep';
+          }
           if (source === 'no_change') {
             return 'keep';
           }
@@ -1021,6 +1041,11 @@
         },
 
         refreshAutocorrect() {
+          const activeProbe = this.autocorrectProbeInput();
+          if (activeProbe !== this.ribbonProbe) {
+            this.ribbonProbe = activeProbe;
+            this.ribbonSelectedText = null;
+          }
           if (!this.autocorrectLoaded || !window.obadhAutocorrect) {
             this.autocorrectResult = null;
             this.refreshDraftText();
@@ -1052,6 +1077,9 @@
         },
 
         applyContextPriorsToAutocorrect(result) {
+          if (result?.candidates?.some((candidate) => candidate.source === 'emoticon_exact')) {
+            return result;
+          }
           if (!result?.candidates?.length || !this.autosuggestLoaded || !window.obadhAutosuggest) {
             return result;
           }
@@ -1137,31 +1165,9 @@
         },
         
         applyTheme() {
-          if (this.darkMode) {
-            document.documentElement.classList.add('dark');
-            document.getElementById('hljs-light-theme').disabled = true;
-            document.getElementById('hljs-dark-theme').disabled = false;
-            
-            // Re-highlight any visible code blocks
-            if (this.showRawOutput) {
-              this.$nextTick(() => {
-                hljs.highlightAll();
-              });
-            }
-          } else {
-            document.documentElement.classList.remove('dark');
-            document.getElementById('hljs-light-theme').disabled = false;
-            document.getElementById('hljs-dark-theme').disabled = true;
-            
-            // Re-highlight any visible code blocks
-            if (this.showRawOutput) {
-              this.$nextTick(() => {
-                hljs.highlightAll();
-              });
-            }
-          }
+          document.documentElement.classList.toggle('dark', this.darkMode);
         },
-        
+
         doTransliterate() {
           if (!this.wasmLoaded || !window.obadhaWasm) {
             console.warn('WASM not loaded yet, cannot transliterate');
@@ -1177,7 +1183,7 @@
           try {
             if (this.mode === 'simple') {
               // Use the simple transliteration method for better performance
-              const output = window.obadhaWasm.transliterate(this.inputText);
+              const output = this.transliterateComposerText(this.inputText);
               this.result = {
                 input: this.inputText,
                 output: output,
@@ -1214,6 +1220,17 @@
             };
             this.autocorrectResult = null;
           }
+        },
+
+        transliterateComposerText(text) {
+          // Keep committed emoji and literal emoticon choices in the composer.
+          // The core inspector still uses the strict transliteration API.
+          return text.split(/(\s+)/).map((part) => {
+            if (!part || /^\s+$/.test(part) || window.obadhaWasm.emoticonEmoji?.(part)) {
+              return part;
+            }
+            return window.obadhaWasm.transliterate(part);
+          }).join('');
         }
       }));
     });
@@ -1222,508 +1239,150 @@
   <!-- Alpine.js CDN -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   
-  <style>
-    /* JSON code block styles */
-    .dark pre code.hljs {
-      background-color: #1f2937;
-      color: #e5e7eb;
-    }
-    
-    /* Toggle switch styles */
-    .toggle-switch {
-      position: relative;
-      display: inline-block;
-      width: 48px;
-      height: 24px;
-    }
-    
-    .toggle-switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-    
-    .toggle-slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #ccc;
-      transition: .4s;
-      border-radius: 24px;
-    }
-    
-    .toggle-slider:before {
-      position: absolute;
-      content: "";
-      height: 18px;
-      width: 18px;
-      left: 3px;
-      bottom: 3px;
-      background-color: white;
-      transition: .4s;
-      border-radius: 50%;
-    }
-    
-    input:checked + .toggle-slider {
-      background-color: #22c55e;
-    }
-    
-    input:checked + .toggle-slider:before {
-      transform: translateX(24px);
-    }
-    
-    .dark input:not(:checked) + .toggle-slider {
-      background-color: #4b5563;
-    }
 
-    .workspace-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      gap: 1rem;
-    }
-
-    .workspace-resizer {
-      display: none;
-    }
-
-    .output-surface {
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-    }
-
-    @media (min-width: 1024px) {
-      .workspace-grid {
-        grid-template-columns: minmax(0, 1fr) 10px minmax(320px, var(--inspector-width, 420px));
-        align-items: stretch;
-        gap: 0.75rem;
-      }
-
-      .workspace-resizer {
-        display: flex;
-      }
-    }
-  </style>
 </head>
-<body class="bg-slate-50 text-slate-950 dark:bg-gray-950 dark:text-gray-100">
-  <div x-data="obadh" class="min-h-screen flex flex-col">
-    <div x-show="!wasmLoaded" class="fixed inset-0 bg-white dark:bg-gray-950 z-50 flex flex-col items-center justify-center">
-      <div class="animate-spin rounded-full h-14 w-14 border-t-2 border-b-2 border-primary-600"></div>
-      <p class="mt-4 text-gray-700 dark:text-gray-300 font-medium">Loading Obadh Engine</p>
-      <p x-show="loadingError" class="mt-2 text-red-500 text-sm" x-text="loadingError"></p>
-      <button
-        x-show="loadingError"
-        @click="retryInitialization()"
-        class="mt-4 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors">
-        Retry
-      </button>
-    </div>
-
-    <header class="border-b border-slate-200 bg-white/90 backdrop-blur dark:border-gray-800 dark:bg-gray-950/90">
-      <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
-        <div class="min-w-0">
-          <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <h1 class="font-bengali text-3xl font-bold leading-none text-primary-600">অবাধ</h1>
-            <span class="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-gray-400">Playground</span>
-            <span class="rounded-full border border-primary-200 bg-primary-50 px-2.5 py-1 text-xs font-semibold text-primary-700 dark:border-primary-900 dark:bg-primary-950 dark:text-primary-300">
-              v<span x-text="version">0.6.0</span>
-            </span>
-          </div>
-          <p class="mt-2 hidden max-w-2xl text-sm text-slate-600 dark:text-gray-400 sm:block">Deterministic Roman to Bangla transliteration core.</p>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <button
-            @click="toggleDarkMode"
-            class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 transition-colors hover:text-slate-950 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:text-white"
-            aria-label="Toggle theme">
-            <svg x-show="!darkMode" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-            </svg>
-            <svg x-show="darkMode" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
-          </button>
-
-          <a href="https://github.com/nsssayom/obadh_engine" target="_blank" class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 transition-colors hover:text-slate-950 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:text-white" aria-label="GitHub repository">
-            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
-            </svg>
-          </a>
-        </div>
+<body>
+  <svg class="icon-sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="icon-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V4H4v12h4"/></symbol>
+    <symbol id="icon-save" viewBox="0 0 24 24"><path d="M12 3v12m-4-4 4 4 4-4M4 16v5h16v-5"/></symbol>
+    <symbol id="icon-clear" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14M10 11v6m4-6v6"/></symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="10" cy="18" r="2"/></symbol>
+    <symbol id="icon-inspect" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M14 4v16m-8-8 2 2-2 2"/></symbol>
+    <symbol id="icon-theme" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4v16"/></symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+    <symbol id="icon-external" viewBox="0 0 24 24"><path d="M14 4h6v6m0-6-9 9M10 4H4v16h16v-6"/></symbol>
+  </svg>
+  <div x-data="obadh" class="app-shell" @keydown.escape.window="settingsOpen = false">
+    <header class="app-header">
+      <a class="brand" href="https://obadh.unmukto.org" target="_blank" rel="noopener noreferrer" aria-label="Obadh website">
+        <img src="assets/brand/icon.svg" width="36" height="36" alt="">
+        <span class="brand-name" lang="bn">অবাধ</span><span class="brand-divider"></span><span class="brand-context">Playground</span>
+      </a>
+      <div class="header-actions">
+        <span class="engine-status" role="status"><span class="status-dot" :class="wasmLoaded ? 'ready' : ''"></span><span x-text="wasmLoaded ? 'Ready' : 'Loading engine…'"></span></span>
+        <button class="icon-button" @click="toggleDarkMode" aria-label="Toggle theme" :aria-pressed="darkMode"><svg class="ui-icon"><use href="#icon-theme"/></svg></button>
+        <a class="icon-button" href="https://github.com/unmukto-org/obadh_engine" target="_blank" rel="noopener noreferrer" aria-label="Source on GitHub"><svg class="ui-icon"><use href="#icon-external"/></svg></a>
       </div>
     </header>
-
-    <main class="flex-grow px-4 py-5 sm:px-6 lg:px-8">
-      <div class="mx-auto max-w-7xl">
-        <div class="mb-4 hidden flex-col gap-3 sm:flex sm:flex-row sm:items-center sm:justify-between">
-          <div class="min-w-0">
-            <div class="text-sm font-semibold text-slate-800 dark:text-gray-100">Composer</div>
-            <p class="mt-1 text-xs text-slate-500 dark:text-gray-500">Type Roman, press Space to commit Bangla, or choose from the ribbon.</p>
-          </div>
-
-          <div class="flex gap-2">
-            <button
-              @click="downloadTextFile"
-              class="inline-flex flex-1 items-center justify-center rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-100 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 sm:flex-none">
-              Save .txt
-            </button>
-            <button
-              @click="clearText"
-              class="inline-flex flex-1 items-center justify-center rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-100 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 sm:flex-none">
-              Clear
-            </button>
-          </div>
-        </div>
-
-        <div data-workspace class="workspace-grid" :style="workspaceGridStyle()">
-          <section class="min-w-0 space-y-4">
-            <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
-              <div class="flex items-center justify-between border-b border-slate-200 px-4 py-3 dark:border-gray-800">
-                <label for="composer-text" class="text-sm font-semibold text-slate-800 dark:text-gray-100"><span class="sm:hidden">Composer</span><span class="hidden sm:inline">Bangla Composer</span></label>
-                <div class="flex gap-3 text-xs text-slate-500 dark:text-gray-400">
-                  <span><span x-text="lineCount(inputText)">0</span> lines</span>
-                  <span><span x-text="inputText.length">0</span> chars</span>
-                </div>
-              </div>
-
-              <div
-                class="border-b border-slate-200 bg-slate-50/90 px-3 py-2 dark:border-gray-800 dark:bg-gray-950/75">
-                <div class="flex items-stretch gap-2 overflow-x-auto pb-2">
-                  <div
-                    data-ribbon-default
-                    x-show="draftText"
-                    class="flex min-w-[7rem] flex-none cursor-default select-none items-center justify-center rounded-md border border-primary-300 bg-primary-50 px-3 py-2 text-center shadow-[inset_3px_0_0_rgb(79_70_229)] dark:border-primary-900 dark:bg-primary-950 dark:shadow-[inset_3px_0_0_rgb(129_140_248)]"
-                    aria-label="Deterministic Obadh output">
-                    <span class="min-w-0">
-                      <span class="font-bengali block truncate text-lg font-semibold leading-6 text-primary-950 dark:text-primary-100" x-text="draftText"></span>
-                      <span class="mt-0.5 block truncate text-[10px] font-semibold uppercase tracking-wide text-primary-700 dark:text-primary-300">obadh</span>
-                    </span>
-                  </div>
-
-                  <template x-for="candidate in activeFeedRows()" :key="'feed-' + candidate.text + candidate.source">
-                    <button
-                      data-ribbon-candidate
-                      type="button"
-                      @click="commitFeedCandidate(candidate)"
-                      class="group flex min-w-[7rem] flex-1 items-center justify-center rounded-md border border-slate-200 bg-white px-3 py-2 text-center transition-colors hover:border-primary-300 hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-primary-700 dark:hover:bg-primary-950 dark:focus:ring-offset-gray-950">
-                      <span class="min-w-0">
-                        <span class="font-bengali block truncate text-lg font-semibold leading-6 text-slate-950 dark:text-gray-100" x-text="candidate.text"></span>
-                        <span class="mt-0.5 block truncate text-[10px] font-semibold uppercase tracking-wide text-slate-500 group-hover:text-primary-700 dark:text-gray-500 dark:group-hover:text-primary-300" x-text="candidateFeedLabel(candidate)"></span>
-                      </span>
-                    </button>
-                  </template>
-                </div>
-              </div>
-
-              <textarea
-                id="composer-text"
-                x-ref="composerText"
-                x-model="inputText"
-                @keydown="handleComposerKeydown($event)"
-                @input="handleComposerInput()"
-                @click="refreshAutocorrect()"
-                @keyup="refreshAutocorrect()"
-                :style="composerTextStyle()"
-                class="font-bengali block min-h-[58vh] w-full resize-y border-0 bg-transparent p-4 text-2xl leading-10 text-slate-950 placeholder:text-slate-400 focus:ring-0 dark:text-gray-100 dark:placeholder:text-gray-600 sm:text-3xl sm:leading-[3rem]"
-                rows="12"
-                spellcheck="false"
-                placeholder="Start typing..."
-              ></textarea>
-
-              <div class="border-t border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-500">
-                <div class="hidden flex-col gap-3 sm:flex sm:flex-row sm:items-center sm:justify-between">
-                  <span>Space commits the Obadh draft. Ribbon buttons replace only the active draft.</span>
-                  <span x-show="draftText">Draft → <span class="font-bengali text-slate-800 dark:text-gray-200" x-text="draftText"></span></span>
-                </div>
-                <div class="flex flex-col gap-3 sm:mt-3 sm:flex-row sm:items-center sm:justify-between">
-                  <label class="flex items-center gap-3">
-                    <span class="font-semibold text-slate-600 dark:text-gray-400"><span class="sm:hidden">Size</span><span class="hidden sm:inline">Text size</span></span>
-                    <input
-                      type="range"
-                      min="20"
-                      max="44"
-                      step="1"
-                      x-model.number="composerTextSize"
-                      @input="saveComposerPreference"
-                      class="w-40 accent-primary-600">
-                    <span class="w-10 text-right font-mono" x-text="composerTextSize + 'px'"></span>
-                  </label>
-                  <button
-                    type="button"
-                    @click="showRomanDebug = !showRomanDebug"
-                    class="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-100 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800"
-                    x-text="showRomanDebug ? (isMobileViewport() ? 'Hide' : 'Hide Roman tokens') : (isMobileViewport() ? 'Tokens' : 'Show Roman tokens')"></button>
-                </div>
-                <div x-show="showRomanDebug" class="mt-3">
-                  <textarea
-                    readonly
-                    :value="romanDebugText()"
-                    class="block min-h-32 w-full resize-y rounded-md border border-slate-200 bg-white p-3 font-mono text-sm leading-6 text-slate-950 placeholder:text-slate-400 focus:ring-0 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100 dark:placeholder:text-gray-600"
-                    placeholder="Roman tokens will appear after commits"></textarea>
+    <main class="playground-main">
+      <div x-cloak x-show="loadingError" class="runtime-error" role="alert"><span x-text="loadingError"></span><button class="tool-button" @click="retryInitialization()">Retry</button></div>
+      <div x-cloak x-show="autocorrectError || autosuggestError" class="runtime-error" role="status"><span x-text="autocorrectError || autosuggestError"></span><span>You can still type with the core engine.</span></div>
+      <div data-workspace class="workspace-grid" :class="inspectorOpen ? 'with-inspector' : ''">
+        <section class="composer-panel" aria-label="Bangla composer">
+          <div class="composer-toolbar">
+            <span class="composer-label">Your text</span>
+            <div class="composer-actions">
+              <button class="tool-button" @click="copyComposer()" :disabled="!inputText" aria-label="Copy text"><svg class="ui-icon"><use href="#icon-copy"/></svg><span>Copy</span></button>
+              <button class="tool-button" @click="downloadTextFile()" :disabled="!inputText" aria-label="Save text file"><svg class="ui-icon"><use href="#icon-save"/></svg><span>Save</span></button>
+              <button class="tool-button" @click="clearText()" :disabled="!inputText" aria-label="Clear text"><svg class="ui-icon"><use href="#icon-clear"/></svg><span>Clear</span></button>
+              <button class="icon-button inspector-toggle" @click="toggleInspector()" :aria-expanded="inspectorOpen" aria-controls="playground-inspector" aria-label="Toggle inspector" title="Inspector"><svg class="ui-icon"><use href="#icon-inspect"/></svg></button>
+              <div class="settings-anchor" @click.outside="settingsOpen = false">
+                <button class="icon-button" @click="settingsOpen = !settingsOpen" :aria-expanded="settingsOpen" aria-controls="composer-settings" aria-label="Editor settings"><svg class="ui-icon"><use href="#icon-settings"/></svg></button>
+                <div id="composer-settings" class="settings-panel" x-cloak x-show="settingsOpen">
+                  <h2>Editor settings</h2>
+                  <label for="text-size">Text size <span x-text="composerTextSize + 'px'"></span></label>
+                  <input id="text-size" type="range" min="20" max="44" step="1" x-model.number="composerTextSize" @input="saveComposerPreference()">
+                  <label class="settings-check"><input type="checkbox" x-model="showRomanDebug">Show Roman history</label>
+                  <p>Arrow keys or Tab select a suggestion. Space or Enter commits it.</p>
                 </div>
               </div>
             </div>
-            <div class="grid grid-cols-2 gap-2 sm:hidden">
-              <button
-                type="button"
-                @click="downloadTextFile"
-                aria-label="Save as text file"
-                class="inline-flex h-11 items-center justify-center rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-100 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800">
-                Save
-              </button>
-              <button
-                type="button"
-                @click="clearText"
-                class="inline-flex h-11 items-center justify-center rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-100 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800">
-                Clear
-              </button>
-            </div>
-          </section>
-
-          <div
-            class="workspace-resizer items-stretch justify-center rounded-md transition-colors hover:bg-primary-100 dark:hover:bg-primary-950"
-            :class="isResizing ? 'bg-primary-200 dark:bg-primary-900' : ''"
-            @pointerdown="startResize($event)"
-            aria-hidden="true">
-            <div class="my-3 w-px rounded-full bg-slate-300 dark:bg-gray-700"></div>
           </div>
-
-          <aside class="min-w-0 rounded-lg border border-slate-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900 lg:sticky lg:top-5 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
-            <div class="border-b border-slate-200 px-4 py-3 dark:border-gray-800">
-              <div class="flex items-center justify-between gap-3">
-                <h2 class="text-sm font-semibold text-slate-800 dark:text-gray-100">Inspector</h2>
-                <span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 dark:bg-gray-800 dark:text-gray-300" x-text="mode === 'simple' ? 'live' : mode"></span>
-              </div>
-              <div class="mt-3 grid grid-cols-2 gap-2 text-xs">
-                <div class="rounded-md bg-slate-50 p-2 dark:bg-gray-950">
-                  <div class="text-slate-500 dark:text-gray-500">Engine</div>
-                  <div class="font-semibold text-slate-900 dark:text-gray-100">v<span x-text="version">0.6.0</span></div>
-                </div>
-                <div class="rounded-md bg-slate-50 p-2 dark:bg-gray-950">
-                  <div class="text-slate-500 dark:text-gray-500">WASM</div>
-                  <div class="font-semibold" :class="wasmLoaded ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600'" x-text="wasmLoaded ? 'ready' : 'loading'"></div>
-                </div>
-              </div>
-
-              <div class="mt-3 grid grid-cols-2 gap-2 text-xs">
-                <button
-                  @click="setMode('simple'); inspectorView = 'candidates'"
-                  :class="mode === 'simple' ? 'border-primary-300 bg-primary-50 text-primary-800 dark:border-primary-800 dark:bg-primary-950 dark:text-primary-200' : 'border-slate-200 bg-white text-slate-600 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300'"
-                  class="rounded-md border px-2 py-2 text-left font-semibold transition-colors">
-                  Live
+          <label class="sr-only" for="composer-text">Bangla composer</label>
+          <div class="candidate-lane">
+            <div x-ref="candidateRibbon" class="candidate-ribbon" role="group" aria-label="Candidate suggestions">
+              <template x-for="(candidate, index) in ribbonRows()" :key="candidate.text + candidate.source">
+                <button type="button" data-ribbon-candidate :data-ribbon-default="index === 0 ? '' : null"
+                  class="candidate-cell" :class="index === ribbonSelectedIndex() ? 'selected' : ''"
+                  :aria-pressed="index === ribbonSelectedIndex()" :title="candidate.text"
+                  @mousedown.prevent @click="ribbonSelectedText = candidate.text; commitFeedCandidate(candidate)">
+                  <span lang="bn" x-text="candidate.text"></span>
                 </button>
-                <button
-                  @click="setMode('debug'); inspectorView = 'timing'"
-                  :class="mode === 'debug' ? 'border-primary-300 bg-primary-50 text-primary-800 dark:border-primary-800 dark:bg-primary-950 dark:text-primary-200' : 'border-slate-200 bg-white text-slate-600 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300'"
-                  class="rounded-md border px-2 py-2 text-left font-semibold transition-colors">
-                  Debug
-                </button>
-                <button
-                  @click="setMode('verbose'); inspectorView = 'tokens'"
-                  :class="mode === 'verbose' ? 'border-primary-300 bg-primary-50 text-primary-800 dark:border-primary-800 dark:bg-primary-950 dark:text-primary-200' : 'border-slate-200 bg-white text-slate-600 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300'"
-                  class="rounded-md border px-2 py-2 text-left font-semibold transition-colors">
-                  Tokens
-                </button>
-                <button
-                  @click="setMode('verbose'); inspectorView = 'json'; showRawOutput = true; $nextTick(() => updateCodeBlocks())"
-                  :class="inspectorView === 'json' ? 'border-primary-300 bg-primary-50 text-primary-800 dark:border-primary-800 dark:bg-primary-950 dark:text-primary-200' : 'border-slate-200 bg-white text-slate-600 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300'"
-                  class="rounded-md border px-2 py-2 text-left font-semibold transition-colors">
-                  JSON
-                </button>
-              </div>
-
-              <div class="mt-3 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
-                <template x-for="row in resourceSummaryRows()" :key="row[0]">
-                  <div class="rounded-md bg-slate-50 px-2 py-2 dark:bg-gray-950">
-                    <div class="truncate text-[10px] font-semibold uppercase tracking-wide text-slate-400 dark:text-gray-600" x-text="row[0]"></div>
-                    <div class="truncate font-mono font-semibold text-slate-950 dark:text-gray-100" x-text="row[1]"></div>
-                    <div class="truncate font-mono text-[9px] uppercase tracking-wide text-slate-400 dark:text-gray-700" x-text="row[2]"></div>
-                  </div>
+              </template>
+              <span x-show="ribbonRows().length === 0" class="ribbon-placeholder">Suggestions appear as you type</span>
+            </div>
+          </div>
+          <textarea id="composer-text" x-ref="composerText" x-model="inputText"
+            @keydown="handleComposerKeydown($event)" @input="handleComposerInput()"
+            @click="refreshAutocorrect()" @keyup="refreshAutocorrect()"
+            :style="composerTextStyle()" :disabled="!wasmLoaded"
+            class="composer-editor" rows="9" spellcheck="false" aria-describedby="composer-help"
+            placeholder="এখানে লিখুন…"></textarea>
+          <div class="composer-footer">
+            <span id="composer-help"><kbd>Space</kbd> to commit <span class="desktop-hint">· <kbd>Tab</kbd> to choose</span></span>
+            <span class="text-count" x-text="inputText.length + ' characters'"></span>
+          </div>
+          <div class="composer-notice" role="status" x-cloak x-show="copyNotice || (clearedText !== null && !inputText)">
+            <span x-text="copyNotice"></span><button class="text-button" x-show="clearedText !== null && !inputText" @click="undoClear()">Undo clear</button>
+          </div>
+          <div x-cloak x-show="showRomanDebug" class="roman-history"><label for="roman-history">Roman history</label><textarea id="roman-history" readonly :value="romanDebugText()" placeholder="Committed Roman tokens appear here"></textarea></div>
+        </section>
+        <aside id="playground-inspector" x-cloak x-show="inspectorOpen" class="inspector-panel" aria-labelledby="inspector-title">
+          <div class="inspector-chrome">
+            <div class="inspector-heading"><div><h2 id="inspector-title">Inspector</h2><p>Engine <span x-text="version"></span></p></div><button class="icon-button" @click="toggleInspector()" aria-label="Close inspector"><svg class="ui-icon"><use href="#icon-close"/></svg></button></div>
+            <nav class="inspector-tabs" aria-label="Inspector views">
+              <button @click="setMode('simple'); inspectorView = 'candidates'" :aria-pressed="inspectorView === 'candidates'">Candidates</button>
+              <button @click="setMode('debug'); inspectorView = 'timing'" :aria-pressed="inspectorView === 'timing'">Timing</button>
+              <button @click="setMode('verbose'); inspectorView = 'tokens'" :aria-pressed="inspectorView === 'tokens'">Tokens</button>
+              <button @click="setMode('verbose'); inspectorView = 'json'; showRawOutput = true; $nextTick(() => updateCodeBlocks())" :aria-pressed="inspectorView === 'json'">JSON</button>
+            </nav>
+          </div>
+          <div class="inspector-body" tabindex="0" aria-label="Inspector details">
+            <section x-show="inspectorView === 'candidates'" class="inspector-view">
+              <div class="inspect-probe"><span class="inspect-label">Input</span><code x-text="autocorrectResult?.roman_input || autocorrectProbeInput() || '—'"></code><span class="inspect-meta" x-show="autocorrectResult" x-text="formatDuration(autocorrectResult?.elapsed_ms)"></span></div>
+              <p class="inspect-empty" x-show="!autocorrectResult">Type a word to see its alternatives.</p>
+              <div class="inspect-section-heading" x-show="autocorrectResult"><h3>Alternatives</h3><span class="inspect-count" x-text="candidateRows().length"></span></div>
+              <div class="inspect-candidates">
+                <template x-for="(candidate, index) in candidateRows()" :key="candidate.text + candidate.source">
+                  <article class="inspect-candidate">
+                    <div class="inspect-candidate-main"><span class="inspect-rank" x-text="index + 1"></span><span class="inspect-word output-surface" lang="bn" x-text="candidate.text"></span><span class="inspect-badge" x-show="candidate.text === autocorrectResult?.obadh_output">Baseline</span></div>
+                    <div class="inspect-candidate-meta"><span x-text="candidate.source"></span><details x-show="candidate.source !== 'emoticon_exact'" class="inspect-ranking"><summary>Ranking</summary><dl class="inspect-facts"><div><dt>Score</dt><dd x-text="candidate.score"></dd></div><div><dt>Edit cost</dt><dd x-text="candidate.edit_cost"></dd></div><div><dt>Frequency</dt><dd x-text="formatInteger(candidate.frequency)"></dd></div></dl></details></div>
+                  </article>
                 </template>
               </div>
-            </div>
-
-            <div class="space-y-5 p-4">
-              <section x-show="inspectorView === 'candidates'">
-                <div class="mb-3 flex items-center justify-between">
-                  <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-gray-400">Autocorrect Lab</h3>
-                  <div class="flex items-center gap-2">
-                    <span
-                      class="rounded-full px-2.5 py-1 text-xs font-semibold"
-                      :class="autocorrectLoaded ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300'"
-                      x-text="autocorrectLoaded ? (autocorrectStats?.artifact_kind || 'lexicon') : 'offline'"></span>
-                    <span
-                      class="rounded-full px-2.5 py-1 text-xs font-semibold"
-                      :class="autosuggestLoaded ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300'"
-                      x-text="autosuggestLoaded ? (autosuggestStats?.artifact_kind || 'next') : 'no next'"></span>
-                  </div>
-                </div>
-
-                <div x-show="autocorrectError" class="mb-3 rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200" x-text="autocorrectError"></div>
-                <div x-show="autosuggestError" class="mb-3 rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200" x-text="autosuggestError"></div>
-
-                <div class="grid grid-cols-2 gap-2 text-xs">
-                  <div class="rounded-md bg-slate-50 p-2 dark:bg-gray-950">
-                    <div class="text-slate-500 dark:text-gray-500">Entries</div>
-                    <div class="font-semibold text-slate-900 dark:text-gray-100" x-text="autocorrectStats ? formatInteger(autocorrectStats.entries) : '0'"></div>
-                  </div>
-                  <div class="rounded-md bg-slate-50 p-2 dark:bg-gray-950">
-                    <div class="text-slate-500 dark:text-gray-500">Probe</div>
-                    <div class="truncate font-mono font-semibold text-slate-900 dark:text-gray-100" x-text="autocorrectResult?.roman_input || autocorrectProbeInput() || '—'"></div>
-                  </div>
-                </div>
-
-                <div x-show="autocorrectResult" class="mt-3 space-y-3">
-                  <div class="rounded-md bg-slate-50 p-3 dark:bg-gray-950">
-                    <div class="flex items-center justify-between gap-3 text-xs text-slate-500 dark:text-gray-500">
-                      <span>Obadh</span>
-                      <span x-text="formatDuration(autocorrectResult?.elapsed_ms)"></span>
-                    </div>
-                    <div class="font-bengali output-surface mt-1 text-2xl leading-8 text-slate-950 dark:text-gray-100" x-text="autocorrectResult?.obadh_output || ''"></div>
-                  </div>
-
-                  <div x-show="autocorrectResult?.replacement" class="rounded-md border border-emerald-200 bg-emerald-50 p-3 dark:border-emerald-900 dark:bg-emerald-950">
-                    <div class="flex items-center justify-between gap-3 text-xs text-emerald-700 dark:text-emerald-300">
-                      <span>Replacement</span>
-                      <span x-text="autocorrectResult?.replacement?.score"></span>
-                    </div>
-                    <div class="font-bengali output-surface mt-1 text-2xl leading-8 text-emerald-950 dark:text-emerald-100" x-text="autocorrectResult?.replacement?.text || ''"></div>
-                  </div>
-
-                  <div class="max-h-96 space-y-2 overflow-y-auto pr-1">
-                    <template x-for="candidate in candidateRows()" :key="candidate.text + candidate.source">
-                      <div class="rounded-md border border-slate-200 p-3 dark:border-gray-800">
-                        <div class="flex items-start justify-between gap-3">
-                          <div class="min-w-0">
-                            <div class="font-bengali output-surface text-xl leading-7 text-slate-950 dark:text-gray-100" x-text="candidate.text"></div>
-                            <div class="mt-1 font-mono text-xs text-slate-500 dark:text-gray-500" x-text="candidateSourceLabel(candidate.source)"></div>
-                          </div>
-                          <div class="text-right font-mono text-xs text-slate-500 dark:text-gray-500">
-                            <div><span x-text="candidate.score"></span></div>
-                            <div>e<span x-text="candidate.edit_cost"></span></div>
-                          </div>
-                        </div>
-                        <div class="mt-2 flex items-center justify-between gap-3 text-xs text-slate-500 dark:text-gray-500">
-                          <span>freq <span x-text="formatInteger(candidate.frequency)"></span></span>
-                          <span x-show="candidate.text === autocorrectResult?.obadh_output">baseline</span>
-                        </div>
-                      </div>
-                    </template>
-                  </div>
-                </div>
-
-                <div x-show="autocorrectLoaded && !autocorrectResult" class="mt-3 rounded-md bg-slate-50 p-3 text-sm text-slate-500 dark:bg-gray-950 dark:text-gray-500">No active probe</div>
-
-                <div x-show="autosuggestResult" class="mt-3 rounded-md border border-slate-200 p-3 dark:border-gray-800">
-                  <div class="flex items-center justify-between gap-3 text-xs text-slate-500 dark:text-gray-500">
-                    <span>Next word</span>
-                    <span x-text="formatDuration(autosuggestResult?.elapsed_ms)"></span>
-                  </div>
-                  <div class="mt-3 space-y-2">
-                    <template x-for="candidate in autosuggestFeedRows()" :key="'next-' + candidate.text + candidate.token_id">
-                      <button
-                        type="button"
-                        @click="commitAutosuggestCandidate(candidate)"
-                        class="flex w-full items-center justify-between gap-3 rounded-md border border-slate-200 px-3 py-2 text-left transition-colors hover:border-primary-300 hover:bg-primary-50 dark:border-gray-800 dark:hover:border-primary-700 dark:hover:bg-primary-950">
-                        <span class="font-bengali output-surface text-xl leading-7 text-slate-950 dark:text-gray-100" x-text="candidate.text"></span>
-                        <span class="font-mono text-xs text-slate-500 dark:text-gray-500" x-text="candidate.score"></span>
-                      </button>
-                    </template>
-                  </div>
-                </div>
-
-                <div class="mt-3 border-t border-slate-200 pt-3 dark:border-gray-800">
-                  <button
-                    @click="showLexiconEditor = !showLexiconEditor"
-                    class="text-xs font-semibold uppercase tracking-wide text-primary-700 dark:text-primary-300"
-                    x-text="showLexiconEditor ? 'Hide TSV Override' : 'TSV Override'"></button>
-                  <div x-show="showLexiconEditor" class="mt-3 space-y-2">
-                    <textarea
-                      x-model="labLexiconText"
-                      class="block min-h-72 w-full resize-y rounded-md border border-slate-200 bg-transparent p-3 font-bengali text-base leading-7 text-slate-950 placeholder:text-slate-400 focus:ring-0 dark:border-gray-800 dark:text-gray-100 dark:placeholder:text-gray-600"
-                      spellcheck="false"
-                      placeholder="শব্দ&#9;100"
-                    ></textarea>
-                    <button
-                      @click="buildLabLexicon"
-                      class="inline-flex items-center justify-center rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-700">
-                      Load TSV
-                    </button>
-                  </div>
-                </div>
+              <section x-show="autosuggestResult && autosuggestFeedRows().length" class="inspect-next">
+                <div class="inspect-section-heading"><h3>Next word</h3><span class="inspect-meta" x-text="formatDuration(autosuggestResult?.elapsed_ms)"></span></div>
+                <template x-for="candidate in autosuggestFeedRows()" :key="'next-' + candidate.text + candidate.token_id">
+                  <button type="button" @click="commitAutosuggestCandidate(candidate)" class="inspect-next-candidate" :title="'Score: ' + candidate.score"><span class="inspect-word output-surface" lang="bn" x-text="candidate.text"></span><span aria-hidden="true">↗</span></button>
+                </template>
               </section>
-
-              <section x-show="inspectorView === 'timing' || mode === 'debug'">
-                <div class="mb-2 flex items-center justify-between">
-                  <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-gray-400">Timing</h3>
-                  <span class="text-xs text-slate-500 dark:text-gray-500" x-show="result.performance" x-text="formatDuration(result.performance?.total_ms)"></span>
-                </div>
-                <div x-show="result.performance" class="space-y-2">
-                  <template x-for="row in performanceRows()" :key="row[0]">
-                    <div class="flex items-center justify-between gap-4 text-sm">
-                      <span class="text-slate-600 dark:text-gray-400" :class="row[0] === 'Total' ? 'font-semibold text-slate-900 dark:text-gray-100' : ''" x-text="row[0]"></span>
-                      <span class="font-mono text-slate-900 dark:text-gray-100" x-text="formatDuration(row[1])"></span>
-                    </div>
-                  </template>
-                </div>
-                <p x-show="!result.performance" class="text-sm text-slate-500 dark:text-gray-500">Live path uses direct transliteration.</p>
-              </section>
-
-              <section x-show="inspectorView === 'json' && mode !== 'simple' && inputText !== ''">
-                <div class="flex items-center justify-between">
-                  <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-gray-400">Raw JSON</h3>
-                  <label class="toggle-switch">
-                    <input type="checkbox" @click="toggleRawOutput" :checked="showRawOutput">
-                    <span class="toggle-slider"></span>
-                  </label>
-                </div>
-                <pre x-show="showRawOutput" class="mt-3 max-h-80 overflow-auto rounded-md bg-slate-950 p-3 text-xs text-slate-100"><code class="language-json" x-ref="jsonCodeInspector"></code></pre>
-              </section>
-
-              <section x-show="inspectorView === 'tokens' && mode === 'verbose' && result.token_analysis && result.token_analysis.length > 0">
-                <h3 class="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-gray-400">Token Analysis</h3>
-                <div class="space-y-3">
-                  <template x-for="(token, index) in result.token_analysis" :key="index">
-                    <div class="rounded-md border border-slate-200 p-3 dark:border-gray-800">
-                      <div class="grid grid-cols-[88px_minmax(0,1fr)] gap-y-1 text-xs">
-                        <div class="text-slate-500 dark:text-gray-500">Content</div>
-                        <div class="font-mono text-slate-900 dark:text-gray-100 output-surface" x-text="token.content"></div>
-                        <div class="text-slate-500 dark:text-gray-500">Position</div>
-                        <div class="text-slate-900 dark:text-gray-100" x-text="token.position"></div>
-                        <div class="text-slate-500 dark:text-gray-500">Type</div>
-                        <div class="text-slate-900 dark:text-gray-100" x-text="token.type"></div>
-                        <div class="text-slate-500 dark:text-gray-500">Output</div>
-                        <div class="font-bengali text-slate-900 dark:text-gray-100 output-surface" x-text="token.transliterated ?? ''"></div>
-                      </div>
-
-                      <div x-show="token.phonetic_units && token.phonetic_units.length > 0" class="mt-3 border-l-2 border-primary-200 pl-3 dark:border-primary-900">
-                        <template x-for="(unit, unitIndex) in token.phonetic_units" :key="unitIndex">
-                          <div class="grid grid-cols-[minmax(0,1fr)_96px_52px] gap-2 py-1 text-xs">
-                            <div class="font-mono text-slate-900 dark:text-gray-100" x-text="unit.text"></div>
-                            <div class="truncate text-slate-500 dark:text-gray-500" x-text="unit.type"></div>
-                            <div class="text-right text-slate-400 dark:text-gray-600" x-text="unit.position"></div>
-                          </div>
-                        </template>
-                      </div>
-                    </div>
-                  </template>
-                </div>
-              </section>
-            </div>
-          </aside>
-        </div>
+              <details class="inspect-disclosure" :open="showLexiconEditor" @toggle="showLexiconEditor = $el.open">
+                <summary>Custom lexicon</summary>
+                <div class="inspect-lexicon"><label for="custom-lexicon">Bangla word and frequency, separated by a tab.</label><textarea id="custom-lexicon" x-model="labLexiconText" spellcheck="false" placeholder="শব্দ&#9;100"></textarea><button @click="buildLabLexicon" class="inspect-primary-button">Load TSV</button></div>
+              </details>
+            </section>
+            <section x-show="inspectorView === 'timing'" class="inspector-view">
+              <div x-show="result.performance">
+                <div class="inspect-metric"><span class="inspect-label">Total processing time</span><strong x-text="formatDuration(result.performance?.total_ms)"></strong></div>
+                <div class="inspect-section-heading"><h3>Processing stages</h3></div>
+                <dl class="inspect-timings"><template x-for="row in performanceRows().filter(row => row[0] !== 'Total')" :key="row[0]"><div><div class="inspect-timing-value"><dt x-text="row[0]"></dt><dd x-text="formatDuration(row[1])"></dd></div><div class="inspect-timing-track" aria-hidden="true"><span :style="{width: Math.min(100, Math.max(0, (Number(row[1]) || 0) / (Number(result.performance?.total_ms) || 1) * 100)) + '%'}"></span></div></div></template></dl>
+                <p class="inspect-note">Core engine timings for the current text. Suggestion lookup is measured separately.</p>
+              </div>
+              <p class="inspect-empty" x-show="!result.performance">Type some text to measure processing time.</p>
+            </section>
+            <section x-show="inspectorView === 'tokens'" class="inspector-view">
+              <p class="inspect-empty" x-show="!result.token_analysis?.length">Type a Roman word to inspect its tokens.</p>
+              <div class="inspect-section-heading" x-show="result.token_analysis?.length"><h3>Token analysis</h3><span class="inspect-count" x-text="result.token_analysis?.length || 0"></span></div>
+              <div class="inspect-token-list"><template x-for="(token, index) in result.token_analysis || []" :key="index">
+                <article class="inspect-token">
+                  <div class="inspect-token-heading"><span class="inspect-label" x-text="'Token ' + (index + 1)"></span><span class="inspect-badge" x-text="token.type"></span></div>
+                  <div class="inspect-token-conversion"><code class="output-surface" x-text="token.type === 'Whitespace' ? visibleTokenText(token.content) : token.content"></code><span class="inspect-arrow" aria-hidden="true">→</span><span class="inspect-word output-surface" lang="bn" x-text="token.type === 'Whitespace' ? visibleTokenText(token.transliterated) : (token.transliterated ?? '—')"></span></div>
+                  <span class="inspect-meta" x-text="'Position ' + token.position"></span>
+                  <details class="inspect-units" x-show="token.phonetic_units?.length"><summary>Phonetic units <span class="inspect-count" x-text="token.phonetic_units?.length || 0"></span></summary><table><thead><tr><th>Unit</th><th>Type</th><th>Position</th></tr></thead><tbody><template x-for="(unit, unitIndex) in token.phonetic_units || []" :key="unitIndex"><tr><td><code x-text="unit.text"></code></td><td x-text="unit.type"></td><td x-text="unit.position"></td></tr></template></tbody></table></details>
+                </article>
+              </template></div>
+            </section>
+            <section x-show="inspectorView === 'json'" class="inspector-view">
+              <p class="inspect-empty" x-show="!inputText">Type some text to inspect the engine response.</p>
+              <div x-show="inputText"><div class="inspect-section-heading"><h3>Engine response</h3><span class="inspect-meta">JSON</span></div><pre class="inspect-json" tabindex="0" aria-label="Engine response JSON"><code class="language-json" x-ref="jsonCodeInspector"></code></pre></div>
+            </section>
+            <details class="inspect-disclosure resource-details"><summary>Runtime resources</summary><dl class="inspect-facts"><template x-for="row in resourceSummaryRows()" :key="row[0]"><div><dt x-text="row[0]"></dt><dd x-text="row[1]"></dd></div></template></dl></details>
+          </div>
+        </aside>
       </div>
     </main>
 
-    <footer class="border-t border-slate-200 bg-white py-3 dark:border-gray-800 dark:bg-gray-950">
-      <div class="mx-auto flex max-w-7xl flex-col gap-1 px-4 text-xs text-slate-500 dark:text-gray-500 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-        <span>Obadh Engine v<span x-text="version">0.6.0</span></span>
-        <span class="hidden sm:inline">Deterministic core, no word dictionary in runtime.</span>
-      </div>
-    </footer>
+    <footer class="app-footer"><span>Obadh Engine <span x-text="version"></span></span><a href="https://obadh.unmukto.org/guide" target="_blank" rel="noopener noreferrer">Typing guide ↗</a></footer>
   </div>
 
   <!-- WASM loader and main JavaScript -->

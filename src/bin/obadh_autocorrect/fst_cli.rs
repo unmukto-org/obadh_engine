@@ -139,6 +139,24 @@ pub fn suggest_fst(
     max_prefix_candidates: usize,
     response_candidates: usize,
 ) -> Result<FstSuggestReport, Box<dyn std::error::Error>> {
+    if let Some(result) = obadh_engine::emoticon_suggestions(input, response_candidates) {
+        return Ok(FstSuggestReport {
+            input: input.to_owned(),
+            obadh_output: result.baseline,
+            roman_repairs: Vec::new(),
+            exact_frequency: result.exact_frequency,
+            max_distance: result.max_distance,
+            max_edit_cost: result.max_edit_cost,
+            candidate_count: result.candidate_count,
+            returned_candidates: result.returned_candidates,
+            truncated: result.truncated,
+            candidates: result
+                .candidates
+                .into_iter()
+                .map(fst_suggest_candidate)
+                .collect(),
+        });
+    }
     let obadh = ObadhEngine::new();
     let obadh_output = obadh.transliterate(input);
     let mut repair_records = fst_roman_repairs(input, &obadh, &obadh_output);

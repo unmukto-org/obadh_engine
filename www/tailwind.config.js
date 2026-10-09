@@ -5,23 +5,28 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        gray: {
+          50: '#f3f8f7', 100: '#eaf5f4', 200: '#d8e9e9', 300: '#c2d6da',
+          400: '#a8c0c5', 500: '#93afb7', 600: '#89a7b0', 700: '#345d6c',
+          800: '#24434d', 900: '#0a2530', 950: '#061a22',
+        },
         primary: {
-          50: '#eef2ff',
-          100: '#e0e7ff',
-          200: '#c7d2fe',
-          300: '#a5b4fc',
-          400: '#818cf8',
-          500: '#6366f1',
-          600: '#4f46e5',
-          700: '#4338ca',
-          800: '#3730a3',
-          900: '#312e81',
-          950: '#1e1b4b',
+          50: '#effaf9',
+          100: '#d8f1ee',
+          200: '#b3e4de',
+          300: '#80d5cc',
+          400: '#3cbfbc',
+          500: '#28b3ae',
+          600: '#188783',
+          700: '#146c6d',
+          800: '#16506f',
+          900: '#103f50',
+          950: '#0a2530',
         },
       },
       fontFamily: {
-        sans: ['Poppins', 'sans-serif'],
-        bengali: ['"Hind Siliguri"', 'sans-serif'],
+        sans: ['"Schibsted Grotesk"', 'system-ui', 'sans-serif'],
+        bengali: ['"Anek Bangla"', 'sans-serif'],
       }
     }
   },

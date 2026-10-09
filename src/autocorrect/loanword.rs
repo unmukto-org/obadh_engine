@@ -6,6 +6,8 @@ use std::fmt;
 use fst::automaton::Automaton;
 use fst::{IntoStreamer, Streamer};
 
+use super::edit_row::BoundedEditRow;
+
 const LOANWORD_MAGIC: &[u8; 8] = b"OBLNW001";
 const HEADER_LEN: usize = 24;
 const RANGE_LEN: usize = 8;
@@ -251,31 +253,17 @@ impl<D: AsRef<[u8]>> LoanwordLexicon<D> {
             return Ok(suggestions);
         }
 
-        if max_distance >= 1 {
-            for swapped in adjacent_transpositions(english) {
-                self.push_suggestions_for_key(
-                    &swapped,
-                    1,
-                    LoanwordSuggestionKind::Transposition,
-                    &mut suggestions,
-                    &mut seen,
-                )?;
-            }
-        }
-
-        let automaton = AsciiLevenshtein::new(english, max_distance);
-        let mut stream = self.map.search(automaton).into_stream();
-        while let Some((key, _range_index)) = stream.next() {
+        // Retrieve and score with the same OSA distance. A Levenshtein filter
+        // loses candidates containing two swaps or a swap plus another edit.
+        let automaton = AsciiOsa::new(english, max_distance);
+        let mut stream = self.map.search_with_state(automaton).into_stream();
+        while let Some((key, _range_index, state)) = stream.next() {
             let candidate_key =
                 std::str::from_utf8(key).map_err(|_| LoanwordArtifactError::InvalidUtf8)?;
             if candidate_key == english {
                 continue;
             }
-            let Some(edit_cost) =
-                bounded_osa_distance(english.as_bytes(), candidate_key.as_bytes(), max_distance)
-            else {
-                continue;
-            };
+            let edit_cost = u16::from(state.row[english.len()]);
             if edit_cost == 0 || edit_cost > max_distance as u16 {
                 continue;
             }
@@ -507,30 +495,6 @@ pub fn default_loanword_fuzzy_distance(input: &str) -> u32 {
     }
 }
 
-fn adjacent_transpositions(input: &str) -> Vec<String> {
-    let bytes = input.as_bytes();
-    if bytes.len() < 2 {
-        return Vec::new();
-    }
-
-    let mut swaps = Vec::with_capacity(bytes.len().saturating_sub(1));
-    let mut seen = BTreeSet::<String>::new();
-    for index in 0..bytes.len() - 1 {
-        if bytes[index] == bytes[index + 1] {
-            continue;
-        }
-        let mut swapped = bytes.to_vec();
-        swapped.swap(index, index + 1);
-        let Ok(swapped) = String::from_utf8(swapped) else {
-            continue;
-        };
-        if seen.insert(swapped.clone()) {
-            swaps.push(swapped);
-        }
-    }
-    swaps
-}
-
 fn is_adjacent_transposition(left: &str, right: &str) -> bool {
     if left.len() != right.len() || left == right {
         return false;
@@ -552,121 +516,72 @@ fn is_adjacent_transposition(left: &str, right: &str) -> bool {
     )
 }
 
-fn bounded_osa_distance(left: &[u8], right: &[u8], max_distance: u32) -> Option<u16> {
-    let max_distance = max_distance as usize;
-    if left.len().abs_diff(right.len()) > max_distance {
-        return None;
-    }
-
-    let rows = left.len() + 1;
-    let columns = right.len() + 1;
-    let mut matrix = vec![0_usize; rows * columns];
-    let index = |row: usize, column: usize| row * columns + column;
-
-    for row in 0..rows {
-        matrix[index(row, 0)] = row;
-    }
-    for column in 0..columns {
-        matrix[index(0, column)] = column;
-    }
-
-    for row in 1..rows {
-        let mut row_min = usize::MAX;
-        for column in 1..columns {
-            let substitution_cost = usize::from(left[row - 1] != right[column - 1]);
-            let mut cost = matrix[index(row - 1, column)]
-                .saturating_add(1)
-                .min(matrix[index(row, column - 1)].saturating_add(1))
-                .min(matrix[index(row - 1, column - 1)].saturating_add(substitution_cost));
-            if row > 1
-                && column > 1
-                && left[row - 1] == right[column - 2]
-                && left[row - 2] == right[column - 1]
-            {
-                cost = cost.min(matrix[index(row - 2, column - 2)].saturating_add(1));
-            }
-            matrix[index(row, column)] = cost;
-            row_min = row_min.min(cost);
-        }
-        if row_min > max_distance {
-            return None;
-        }
-    }
-
-    let distance = matrix[index(left.len(), right.len())];
-    (distance <= max_distance).then_some(distance as u16)
+// Optimal string alignment distance: each adjacent transposition is one edit,
+// and a substring cannot participate in two overlapping transpositions.
+#[derive(Debug, Clone)]
+struct AsciiOsa<'q> {
+    query: &'q [u8],
+    distance: u8,
 }
 
 #[derive(Debug, Clone)]
-struct AsciiLevenshtein {
-    query: Vec<u8>,
-    distance: usize,
+struct AsciiOsaState {
+    row: BoundedEditRow,
+    previous_row: BoundedEditRow,
+    previous_byte: Option<u8>,
 }
 
-#[derive(Debug, Clone)]
-struct AsciiLevenshteinState {
-    row: Vec<usize>,
-}
-
-impl AsciiLevenshtein {
-    fn new(query: &str, distance: u32) -> Self {
+impl<'q> AsciiOsa<'q> {
+    fn new(query: &'q str, distance: u32) -> Self {
+        debug_assert!(distance <= LOANWORD_FUZZY_MAX_DISTANCE);
         Self {
-            query: query.as_bytes().to_vec(),
-            distance: distance as usize,
+            query: query.as_bytes(),
+            distance: distance as u8,
         }
-    }
-
-    fn start_row(&self) -> Vec<usize> {
-        (0..=self.query.len()).collect()
-    }
-
-    fn accept_byte(&self, row: &[usize], byte: u8) -> Vec<usize> {
-        let mut next = Vec::with_capacity(self.query.len() + 1);
-        next.push(row[0].saturating_add(1));
-        for (index, query_byte) in self.query.iter().enumerate() {
-            let substitution_cost = usize::from(*query_byte != byte);
-            let substitution = row[index].saturating_add(substitution_cost);
-            let deletion = row[index + 1].saturating_add(1);
-            let insertion = next[index].saturating_add(1);
-            next.push(
-                substitution
-                    .min(deletion)
-                    .min(insertion)
-                    .min(self.distance + 1),
-            );
-        }
-        next
     }
 }
 
-impl Automaton for AsciiLevenshtein {
-    type State = AsciiLevenshteinState;
+impl Automaton for AsciiOsa<'_> {
+    type State = AsciiOsaState;
 
     fn start(&self) -> Self::State {
-        AsciiLevenshteinState {
-            row: self.start_row(),
+        let row = BoundedEditRow::initial(self.query.len(), self.distance + 1);
+        AsciiOsaState {
+            previous_row: row.clone(),
+            row,
+            previous_byte: None,
         }
     }
 
     fn is_match(&self, state: &Self::State) -> bool {
-        state
-            .row
-            .last()
-            .is_some_and(|distance| *distance <= self.distance)
+        state.row[self.query.len()] <= self.distance
     }
 
     fn can_match(&self, state: &Self::State) -> bool {
-        state
-            .row
-            .iter()
-            .copied()
-            .min()
-            .is_some_and(|distance| distance <= self.distance)
+        state.row.iter().any(|cost| *cost <= self.distance)
     }
 
     fn accept(&self, state: &Self::State, byte: u8) -> Self::State {
-        AsciiLevenshteinState {
-            row: self.accept_byte(&state.row, byte),
+        let ceiling = self.distance + 1;
+        let mut row = BoundedEditRow::with_capacity(self.query.len() + 1);
+        row.push((state.row[0] + 1).min(ceiling));
+        for (index, query_byte) in self.query.iter().enumerate() {
+            let substitution = state.row[index] + u8::from(*query_byte != byte);
+            let deletion = state.row[index + 1] + 1;
+            let insertion = row[index] + 1;
+            let mut cost = substitution.min(deletion).min(insertion);
+            if index > 0
+                && state.previous_byte == Some(*query_byte)
+                && self.query[index - 1] == byte
+            {
+                cost = cost.min(state.previous_row[index - 1] + 1);
+            }
+            row.push(cost.min(ceiling));
+        }
+        AsciiOsaState {
+            row,
+            previous_row: state.row.clone(),
+            previous_byte: Some(byte),
         }
     }
 }
@@ -768,10 +683,127 @@ impl From<fst::Error> for LoanwordArtifactError {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::BTreeMap;
+
+    use fst::{IntoStreamer, Streamer};
+
     use super::{
-        build_loanword_bytes, LoanwordEntry, LoanwordLexicon, LoanwordSearchOptions,
+        build_loanword_bytes, AsciiOsa, LoanwordEntry, LoanwordLexicon, LoanwordSearchOptions,
         LoanwordSuggestionKind,
     };
+
+    #[test]
+    fn fuzzy_lookup_retrieves_combined_transposition_edits() {
+        let lexicon =
+            LoanwordLexicon::from_entries([LoanwordEntry::new("keyboard", "কীবোর্ড", 16)]).unwrap();
+        for (query, distance, kind) in [
+            ("ekyboard", 1, LoanwordSuggestionKind::Transposition),
+            ("keyborad", 1, LoanwordSuggestionKind::Transposition),
+            ("ekyborad", 2, LoanwordSuggestionKind::Fuzzy),
+            ("ekyboarx", 2, LoanwordSuggestionKind::Fuzzy),
+            ("ekyboardx", 2, LoanwordSuggestionKind::Fuzzy),
+        ] {
+            let suggestions = lexicon
+                .suggestions(query, LoanwordSearchOptions::for_input(query))
+                .unwrap();
+            let first = suggestions
+                .first()
+                .expect("valid OSA correction should be retrieved");
+            assert_eq!(first.english, "keyboard", "{query}");
+            assert_eq!(first.edit_cost, distance, "{query}");
+            assert_eq!(first.kind, kind, "{query}");
+        }
+        assert!(lexicon
+            .suggestions(
+                "ekyborad",
+                LoanwordSearchOptions {
+                    max_distance: 1,
+                    ..LoanwordSearchOptions::for_input("ekyborad")
+                }
+            )
+            .unwrap()
+            .is_empty());
+    }
+
+    // Independent, uncapped matrix oracle. It deliberately shares neither row
+    // storage nor pruning with the production automaton.
+    fn reference_osa(left: &[u8], right: &[u8]) -> u16 {
+        let mut matrix = vec![vec![0_u16; right.len() + 1]; left.len() + 1];
+        for (index, row) in matrix.iter_mut().enumerate() {
+            row[0] = index as u16;
+        }
+        for (index, cell) in matrix[0].iter_mut().enumerate() {
+            *cell = index as u16;
+        }
+        for i in 1..=left.len() {
+            for j in 1..=right.len() {
+                let mut cost = (matrix[i - 1][j] + 1)
+                    .min(matrix[i][j - 1] + 1)
+                    .min(matrix[i - 1][j - 1] + u16::from(left[i - 1] != right[j - 1]));
+                if i > 1 && j > 1 && left[i - 1] == right[j - 2] && left[i - 2] == right[j - 1] {
+                    cost = cost.min(matrix[i - 2][j - 2] + 1);
+                }
+                matrix[i][j] = cost;
+            }
+        }
+        matrix[left.len()][right.len()]
+    }
+
+    fn assert_osa_search_matches_reference(words: &[String]) {
+        let map = fst::Map::from_iter(words.iter().map(|word| (word.as_bytes(), 1))).unwrap();
+        for query in words {
+            for limit in 0..=2 {
+                let mut stream = map
+                    .search_with_state(AsciiOsa::new(query, limit))
+                    .into_stream();
+                let mut actual = BTreeMap::new();
+                while let Some((key, _, state)) = stream.next() {
+                    actual.insert(key.to_vec(), u16::from(state.row[query.len()]));
+                }
+                let expected = words
+                    .iter()
+                    .filter_map(|word| {
+                        let distance = reference_osa(query.as_bytes(), word.as_bytes());
+                        (u32::from(distance) <= limit).then(|| (word.as_bytes().to_vec(), distance))
+                    })
+                    .collect::<BTreeMap<_, _>>();
+                assert_eq!(actual, expected, "query={query:?}, limit={limit}");
+            }
+        }
+    }
+
+    #[test]
+    fn osa_fst_retrieval_and_costs_match_exhaustive_reference() {
+        let mut words = vec![String::new()];
+        let mut level = vec![String::new()];
+        for _ in 0..4 {
+            level = level
+                .iter()
+                .flat_map(|prefix| ['a', 'b', 'c'].map(|ch| format!("{prefix}{ch}")))
+                .collect();
+            words.extend(level.iter().cloned());
+        }
+        words.sort();
+        assert_eq!(
+            reference_osa(b"ca", b"abc"),
+            3,
+            "OSA is not unrestricted Damerau distance"
+        );
+        assert_osa_search_matches_reference(&words);
+    }
+
+    #[test]
+    fn osa_heap_fallback_matches_reference_across_inline_boundary() {
+        let mut words = Vec::new();
+        for len in [31, 32, 33, 64] {
+            let prefix = "a".repeat(len - 4);
+            for suffix in ["abcd", "badc", "bacx", "bac", "bacdx"] {
+                words.push(format!("{prefix}{suffix}"));
+            }
+        }
+        words.sort();
+        assert_osa_search_matches_reference(&words);
+    }
 
     #[test]
     fn exact_lookup_preserves_multiple_bangla_variants() {

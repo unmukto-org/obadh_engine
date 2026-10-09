@@ -8,6 +8,54 @@ Releases before `0.7.0` predate this file; see the git history and tags for thos
 
 ## [Unreleased]
 
+### Added
+
+- Two source-audited loanword batches add 74 spelling pairs, including Amazon,
+  Walmart, Starbucks, pyramid, category, antivirus, metadata, broadband, widget,
+  and workflow. The audit records published Bangla usage, pinned localization
+  message IDs, corpus evidence, and spelling decisions. Verification checks
+  reproducible artifacts, native/WASM parity, and visible suggestions; an optional
+  source check fetches and validates pinned localization snapshots.
+- `ok` and `okay` loanwords mapping to ওকে, with rebuilt lexicon artifacts.
+- Exact ASCII emoticon suggestions across Rust, CLI, WASM, and the C ABI, using
+  322 aliases from the pinned, MIT-licensed `wooorm/emoticon` dataset. Both
+  noseless and nosed forms work (`:)` / `:-)` → 😃, `:D` / `:-D` → 😄).
+  Compose returns the literal first and its emoji as an explicit alternative;
+  the deterministic transliteration core is unchanged. Emoticon alternatives
+  have the append-only candidate source code `11` (`emoticon_exact`).
+- Playground Copy, Save, reversible Clear, text-size settings, and an optional
+  Roman history view.
+
+### Changed
+
+- FST edit searches use capped byte-sized rows stored inline for short queries,
+  with a heap fallback for longer input. Loanword searches retrieve and score
+  adjacent transpositions with one OSA automaton instead of separate swap probes
+  and a quadratic scoring matrix.
+- Simplified the playground around its editor with shared Obadh branding,
+  locally hosted fonts, consistent light and dark themes, and responsive sizing.
+- The candidate ribbon follows the macOS client: compact cells, wrapping arrow
+  and Tab navigation, and Space or Enter to commit the selected candidate.
+- Reworked the collapsible Inspector with expandable ranking and phonetic-unit
+  details, timing bars, runtime resources, and JSON syntax highlighting.
+
+### Fixed
+
+- Loanword fuzzy lookup now retrieves combinations of two adjacent swaps or a
+  swap plus another edit within the configured distance limit.
+- Weighted Bangla edit costs saturate at `u16::MAX` instead of overflowing on
+  long input. Vowel and nasal discounts require the same consonant base, keeping
+  hasants, joiners, and nukta distinct. A suffix-truncated fuzzy loanword stays
+  below a closer Bangla edit.
+- WASM autosuggest scratch buffers reserve their requested total capacity from
+  the current length, avoiding unexpected allocations when limits grow.
+- Kept the canonical `address` → অ্যাড্রেস loanword mapping; the proposed এড্রেস
+  variant is excluded. The existing `dress` → ড্রেস mapping is retained.
+- Playground suggestions for the previous input are hidden when the active
+  input changes. Committing an emoji preserves it in the composer.
+- Long inspector content scrolls within bounded panels; whitespace tokens have
+  visible markers rather than blank conversion rows.
+
 ## [0.9.4] - 2026-09-25
 
 ### Changed
