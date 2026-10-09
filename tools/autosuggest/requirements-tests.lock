@@ -1,0 +1,8 @@
+# Portable CPU contract tests. Core ML remains a macOS-only export dependency.
+# Install the CPU torch wheel first in Linux CI; +cpu satisfies this version.
+torch==2.6.0
+numpy==1.26.4
+onnx==1.23.1
+onnxruntime==1.30.0
+tokenizers==0.22.2
+regex==2026.9.29

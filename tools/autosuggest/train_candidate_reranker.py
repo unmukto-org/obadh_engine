@@ -24,6 +24,7 @@ from torch import nn
 from torch.nn import functional as F
 
 from tools.autosuggest.common import BOS_ID, PAD_ID, UNK_ID
+from tools.corpus.provenance import neural_training_provenance, sha256_file
 from tools.autosuggest.eval_ngram_lm import (
     Candidate,
     NgramLm,
@@ -737,6 +738,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", type=Path, required=True)
     parser.add_argument("--corpus-dir", type=Path, default=Path("data/autosuggest/corpus"))
+    parser.add_argument("--validation-corpus-dir", type=Path)
     parser.add_argument("--source", action="append", dest="sources")
     parser.add_argument("--pool-size", type=int, default=16)
     parser.add_argument("--context-window", type=int, default=16)
@@ -748,7 +750,7 @@ def main() -> None:
     parser.add_argument("--train-skip-sentences-per-source", type=int, default=0)
     parser.add_argument("--train-max-sentences-per-source", type=int, default=100_000)
     parser.add_argument("--train-max-examples-per-source", type=int, default=80_000)
-    parser.add_argument("--eval-skip-sentences-per-source", type=int, default=100_000)
+    parser.add_argument("--eval-skip-sentences-per-source", type=int)
     parser.add_argument("--eval-max-sentences-per-source", type=int, default=25_000)
     parser.add_argument("--eval-max-examples-per-source", type=int, default=30_000)
     parser.add_argument("--embedding-dim", type=int, default=64)
@@ -770,6 +772,9 @@ def main() -> None:
     parser.add_argument("--log-every-targets", type=int, default=250_000)
     args = parser.parse_args()
 
+    data_provenance = neural_training_provenance(args.model, args.corpus_dir, args.validation_corpus_dir)
+    if args.eval_skip_sentences_per_source is None:
+        args.eval_skip_sentences_per_source = 0 if args.validation_corpus_dir else 100_000
     random.seed(args.seed)
     torch.manual_seed(args.seed)
     lm = NgramLm(args.model)
@@ -796,7 +801,7 @@ def main() -> None:
     )
     eval_set = collect_examples(
         lm,
-        args.corpus_dir,
+        args.validation_corpus_dir or args.corpus_dir,
         sources,
         args.eval_skip_sentences_per_source,
         args.eval_max_sentences_per_source,
@@ -833,8 +838,10 @@ def main() -> None:
     )
     final_eval = evaluate_model(model, eval_set, device)
     report = {
+        "data_provenance": data_provenance,
         "artifact": {
             "path": str(args.model),
+            "sha256": sha256_file(args.model),
             "bytes": len(lm.bytes),
             "vocab_size": lm.vocab_size,
             "max_context_order": lm.max_context_order,

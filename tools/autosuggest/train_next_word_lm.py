@@ -12,10 +12,12 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import random
 import time
 from collections import Counter
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from datetime import datetime
 from pathlib import Path
 
 import torch
@@ -23,6 +25,10 @@ from torch import nn
 from torch.nn import functional as F
 
 from tools.autosuggest.common import BOS_ID, PAD_ID, UNK_ID
+from tools.autosuggest.checkpoints import atomic_torch_save, capture_rng, restore_rng
+from tools.corpus.provenance import (
+    neural_training_provenance, sha256_file, verify_checkpoint_provenance,
+)
 from tools.autosuggest.eval_ngram_lm import (
     NgramLm,
     iter_eval_sentence_tokens,
@@ -43,6 +49,7 @@ class ExampleSet:
     eligible_targets: int
     examples_by_source: dict[str, int]
     scanned_sentences_by_source: dict[str, int]
+    total_targets_by_source: dict[str, int] = field(default_factory=dict)
 
     @property
     def size(self) -> int:
@@ -80,6 +87,8 @@ class NextWordLm(nn.Module):
         dropout: float,
         transformer_layers: int,
         transformer_heads: int,
+        transformer_padding_mode: str = "unmasked-v0",
+        transformer_initialization: str = "legacy-v0",
     ) -> None:
         super().__init__()
         if architecture not in ("gru", "transformer"):
@@ -91,6 +100,12 @@ class NextWordLm(nn.Module):
         self.context_len = context_len
         self.embedding_dim = embedding_dim
         self.architecture = architecture
+        if transformer_padding_mode not in ("unmasked-v0", "masked-v1"):
+            raise ValueError("unsupported transformer padding contract")
+        self.transformer_padding_mode = transformer_padding_mode
+        if transformer_initialization not in ("legacy-v0", "independent-v1"):
+            raise ValueError("unsupported transformer initialization contract")
+        self.transformer_initialization = transformer_initialization
         self.token_embedding = nn.Embedding(vocab_size, embedding_dim, padding_idx=PAD_ID)
         self.position_embedding = nn.Embedding(context_len, embedding_dim)
         if architecture == "gru":
@@ -116,13 +131,27 @@ class NextWordLm(nn.Module):
                 batch_first=True,
                 norm_first=True,
             )
-            self.encoder = nn.TransformerEncoder(encoder_layer, num_layers=transformer_layers)
+            self.encoder = nn.TransformerEncoder(
+                encoder_layer, num_layers=transformer_layers, enable_nested_tensor=False,
+            )
             self.output_projection = nn.LayerNorm(embedding_dim)
         self.dropout = nn.Dropout(dropout)
         self.output_bias = nn.Parameter(torch.zeros(vocab_size))
         nn.init.normal_(self.token_embedding.weight, mean=0.0, std=0.02)
         with torch.no_grad():
             self.token_embedding.weight[PAD_ID].zero_()
+        if architecture == "transformer" and transformer_initialization == "independent-v1":
+            # Keep word/position scales comparable and independently initialize
+            # cloned encoder layers. Checkpoints retain their initialization ID.
+            nn.init.normal_(self.position_embedding.weight, mean=0.0, std=0.02)
+            for layer in self.encoder.layers:
+                for module in layer.modules():
+                    if isinstance(module, nn.Linear):
+                        nn.init.normal_(module.weight, mean=0.0, std=0.02)
+                        if module.bias is not None:
+                            nn.init.zeros_(module.bias)
+                nn.init.normal_(layer.self_attn.in_proj_weight, mean=0.0, std=0.02)
+                nn.init.zeros_(layer.self_attn.in_proj_bias)
 
     def forward(self, contexts: torch.Tensor) -> torch.Tensor:
         hidden = self.encode_context(contexts)
@@ -135,8 +164,16 @@ class NextWordLm(nn.Module):
             return self.output_projection(hidden[-1])
 
         positions = torch.arange(self.context_len, device=contexts.device)
-        encoded = self.encoder(self.dropout(embedded + self.position_embedding(positions)))
         non_pad = contexts != PAD_ID
+        # An unknown preceding word can leave no known context. Keep the final
+        # PAD slot visible in that case: fully masked attention produces NaNs.
+        # Real context always masks left padding, independent of the host adapter.
+        empty = torch.logical_not(non_pad.any(dim=1, keepdim=True))
+        visible = torch.logical_or(non_pad, torch.logical_and(empty, positions == self.context_len - 1))
+        encoded = self.encoder(
+            self.dropout(embedded + self.position_embedding(positions)),
+            src_key_padding_mask=torch.logical_not(visible) if self.transformer_padding_mode == "masked-v1" else None,
+        )
         last_positions = contexts.shape[1] - 1 - non_pad.flip(dims=(1,)).int().argmax(dim=1)
         batch_positions = torch.arange(contexts.shape[0], device=contexts.device)
         return self.output_projection(encoded[batch_positions, last_positions])
@@ -160,6 +197,7 @@ def collect_examples(
     eligible_targets = 0
     examples_by_source: Counter[str] = Counter()
     scanned_sentences_by_source: Counter[str] = Counter()
+    total_targets_by_source: Counter[str] = Counter()
     started_at = time.time()
 
     for source, tokens in iter_eval_sentence_tokens(
@@ -178,6 +216,7 @@ def collect_examples(
         encoded = [BOS_ID, *(lm.token_id(token) for token in tokens)]
         for index in range(1, len(encoded)):
             total_targets += 1
+            total_targets_by_source[source] += 1
             target = encoded[index]
             if target <= UNK_ID:
                 continue
@@ -222,6 +261,7 @@ def collect_examples(
         eligible_targets=eligible_targets,
         examples_by_source=dict(sorted(examples_by_source.items())),
         scanned_sentences_by_source=dict(sorted(scanned_sentences_by_source.items())),
+        total_targets_by_source=dict(sorted(total_targets_by_source.items())),
     )
 
 
@@ -258,25 +298,56 @@ def train(
     distill_temperature: float,
     distill_top_k: int,
     batch_sampling: str,
+    *,
+    progress: dict | None = None,
+    checkpoint_callback=None,
+    epoch_callback=None,
+    checkpoint_seconds: float = 300,
+    max_steps: int | None = None,
+    max_training_seconds: float | None = None,
+    stop_at: float | None = None,
+    max_grad_norm: float | None = None,
 ) -> list[dict]:
     model.to(device)
     if teacher_model is not None:
         teacher_model.to(device)
         teacher_model.eval()
-    generator = torch.Generator().manual_seed(seed + start_epoch)
+    if train_set.size == 0:
+        raise ValueError("training collection is empty")
+    progress = {} if progress is None else progress
+    progress.setdefault("completed_epochs", start_epoch)
+    progress.setdefault("next_batch", 0)
+    progress.setdefault("optimizer_steps", 0)
+    progress["status"] = "running"
+    run_started = time.monotonic()
+    last_checkpoint = run_started
+    invocation_steps = 0
     history = []
+    if checkpoint_callback:
+        checkpoint_callback(progress)
     for epoch in range(1, epochs + 1):
         absolute_epoch = start_epoch + epoch
+        # Reconstruct exactly the same batch order when resuming within an epoch.
+        # This generator is independent of global dropout/model RNG state.
+        generator = torch.Generator().manual_seed(seed + absolute_epoch)
+        skip_batches = progress["next_batch"] if epoch == 1 else 0
         started_at = time.time()
         model.train()
-        loss_sum = 0.0
-        seen = 0
-        for indexes in iter_epoch_batches(
+        loss_sum = progress.get("loss_sum", 0.0) if skip_batches else 0.0
+        seen = progress.get("seen", 0) if skip_batches else 0
+        for batch_index, indexes in enumerate(iter_epoch_batches(
             train_set,
             batch_size,
             generator,
             batch_sampling,
-        ):
+        )):
+            if batch_index < skip_batches:
+                continue
+            if stop_at is not None and time.time() >= stop_at:
+                progress["status"] = "deadline"
+                if checkpoint_callback:
+                    checkpoint_callback(progress)
+                return history
             contexts = train_set.contexts[indexes].to(device)
             labels = train_set.labels[indexes].to(device)
             optimizer.zero_grad(set_to_none=True)
@@ -305,11 +376,38 @@ def train(
                 distill_alpha,
                 distill_temperature,
             )
+            if not torch.isfinite(loss):
+                raise ValueError("non-finite training loss; last valid checkpoint retained")
             loss.backward()
+            if max_grad_norm is not None:
+                torch.nn.utils.clip_grad_norm_(model.parameters(), max_grad_norm, error_if_nonfinite=True)
             optimizer.step()
             batch_seen = int(indexes.numel())
             seen += batch_seen
             loss_sum += float(loss.detach().cpu()) * batch_seen
+            invocation_steps += 1
+            progress.update(completed_epochs=absolute_epoch - 1, next_batch=batch_index + 1,
+                            optimizer_steps=progress["optimizer_steps"] + 1, loss_sum=loss_sum, seen=seen)
+            now = time.monotonic()
+            if max_steps is not None and invocation_steps >= max_steps:
+                progress["status"] = "step_limit"
+            elif max_training_seconds is not None and now - run_started >= max_training_seconds:
+                progress["status"] = "time_limit"
+            elif stop_at is not None and time.time() >= stop_at:
+                progress["status"] = "deadline"
+            if checkpoint_callback and (now - last_checkpoint >= checkpoint_seconds or progress["status"] != "running"):
+                checkpoint_callback(progress)
+                last_checkpoint = time.monotonic()
+            if progress["optimizer_steps"] % 100 == 0:
+                print(json.dumps({"event": "training_progress", "epoch": absolute_epoch,
+                                  "step": progress["optimizer_steps"], "loss": loss_sum / max(1, seen),
+                                  "elapsed_seconds": round(now - run_started, 3)}), flush=True)
+            if progress["status"] != "running":
+                return history
+        progress.update(completed_epochs=absolute_epoch, next_batch=0, loss_sum=0.0, seen=0)
+        if checkpoint_callback:
+            checkpoint_callback(progress)  # Survive preemption during validation too.
+            last_checkpoint = time.monotonic()
         epoch_report = {
             "epoch": absolute_epoch,
             "train_loss": loss_sum / max(1, seen),
@@ -319,6 +417,11 @@ def train(
         }
         history.append(epoch_report)
         print(json.dumps(epoch_report, ensure_ascii=False), flush=True)
+        if epoch_callback:
+            epoch_callback(progress, epoch_report)
+    progress["status"] = "completed"
+    if checkpoint_callback:
+        checkpoint_callback(progress)
     return history
 
 
@@ -491,11 +594,11 @@ def evaluate_model_by_source(
     reports: dict[str, dict] = {}
     for source_id, source_name in enumerate(example_set.source_names):
         indexes = torch.nonzero(example_set.source_ids == source_id, as_tuple=False).flatten()
-        if indexes.numel() == 0:
+        if indexes.numel() == 0 and example_set.total_targets_by_source.get(source_name, 0) == 0:
             continue
         reports[source_name] = evaluate_model(
             model,
-            subset_example_set(example_set, indexes),
+            subset_example_set(example_set, indexes, source_name=source_name),
             device,
             batch_size=batch_size,
             cutoffs=cutoffs,
@@ -537,11 +640,11 @@ def evaluate_ngram_baseline_by_source(
     reports: dict[str, dict] = {}
     for source_id, source_name in enumerate(example_set.source_names):
         indexes = torch.nonzero(example_set.source_ids == source_id, as_tuple=False).flatten()
-        if indexes.numel() == 0:
+        if indexes.numel() == 0 and example_set.total_targets_by_source.get(source_name, 0) == 0:
             continue
         reports[source_name] = evaluate_ngram_baseline(
             lm,
-            subset_example_set(example_set, indexes),
+            subset_example_set(example_set, indexes, source_name=source_name),
             top_k,
             cutoffs=cutoffs,
         )
@@ -895,25 +998,34 @@ def example_set_report(example_set: ExampleSet) -> dict:
         "eligible_ratio": example_set.eligible_targets / max(1, example_set.total_targets),
         "examples_by_source": example_set.examples_by_source,
         "scanned_sentences_by_source": example_set.scanned_sentences_by_source,
+        "total_targets_by_source": example_set.total_targets_by_source,
     }
 
 
-def subset_example_set(example_set: ExampleSet, indexes: torch.Tensor) -> ExampleSet:
+def subset_example_set(example_set: ExampleSet, indexes: torch.Tensor, *, source_name: str | None = None) -> ExampleSet:
     source_ids = example_set.source_ids[indexes]
     examples_by_source = {
         source_name: int((source_ids == source_id).sum())
         for source_id, source_name in enumerate(example_set.source_names)
         if int((source_ids == source_id).sum()) > 0
     }
+    total_targets_by_source = {
+        name: example_set.total_targets_by_source.get(name, count)
+        if count == example_set.examples_by_source.get(name) else count
+        for name, count in examples_by_source.items()
+    }
+    if source_name is not None:
+        total_targets_by_source = {source_name: example_set.total_targets_by_source.get(source_name, int(indexes.numel()))}
     return ExampleSet(
         contexts=example_set.contexts[indexes],
         labels=example_set.labels[indexes],
         source_ids=source_ids,
         source_names=example_set.source_names,
-        total_targets=int(indexes.numel()),
+        total_targets=sum(total_targets_by_source.values()),
         eligible_targets=int(indexes.numel()),
         examples_by_source=examples_by_source,
         scanned_sentences_by_source={},
+        total_targets_by_source=total_targets_by_source,
     )
 
 
@@ -983,8 +1095,12 @@ def load_checkpoint_model(
     checkpoint_path: Path,
     expected_vocab_size: int,
     expected_context_window: int,
+    *,
+    provenance: dict,
+    retrieval_model: Path,
 ) -> tuple[NextWordLm, dict]:
     checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
+    verify_checkpoint_provenance(checkpoint, provenance, retrieval_model)
     config = checkpoint["config"]
     if int(config["vocab_size"]) != expected_vocab_size:
         raise SystemExit(
@@ -1005,6 +1121,8 @@ def load_checkpoint_model(
         dropout=0.0,
         transformer_layers=int(config["transformer_layers"]),
         transformer_heads=int(config["transformer_heads"]),
+        transformer_padding_mode=config.get("transformer_padding_mode", "unmasked-v0"),
+        transformer_initialization=config.get("transformer_initialization", "legacy-v0"),
     )
     model.load_state_dict(checkpoint["state_dict"])
     model.eval()
@@ -1015,6 +1133,8 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", type=Path, required=True)
     parser.add_argument("--corpus-dir", type=Path, default=Path("data/autosuggest/corpus"))
+    parser.add_argument("--validation-corpus-dir", type=Path,
+                        help="Independent validation partition; required for versioned corpora. Test data is forbidden here.")
     parser.add_argument("--source", action="append", dest="sources")
     parser.add_argument("--context-window", type=int, default=16)
     parser.add_argument("--architecture", choices=("gru", "transformer"), default="gru")
@@ -1023,16 +1143,23 @@ def main() -> None:
     parser.add_argument("--dropout", type=float, default=0.05)
     parser.add_argument("--transformer-layers", type=int, default=2)
     parser.add_argument("--transformer-heads", type=int, default=4)
+    parser.add_argument("--transformer-padding-mode", choices=("masked-v1", "unmasked-v0"), default="masked-v1",
+                        help="Versioned padding behavior; unmasked-v0 preserves historical transformer checkpoints")
+    parser.add_argument("--transformer-initialization", choices=("independent-v1", "legacy-v0"), default="independent-v1",
+                        help="Versioned initialization; legacy-v0 preserves historical training profiles")
     parser.add_argument("--train-skip-sentences-per-source", type=int, default=0)
     parser.add_argument("--train-max-sentences-per-source", type=int, default=100_000)
     parser.add_argument("--train-max-examples-per-source", type=int, default=80_000)
-    parser.add_argument("--eval-skip-sentences-per-source", type=int, default=100_000)
+    parser.add_argument("--eval-skip-sentences-per-source", type=int,
+                        help="Defaults to 0 for separate validation data, 100000 for legacy corpus slicing.")
     parser.add_argument("--eval-max-sentences-per-source", type=int, default=25_000)
     parser.add_argument("--eval-max-examples-per-source", type=int, default=30_000)
     parser.add_argument("--epochs", type=int, default=3)
     parser.add_argument("--batch-size", type=int, default=512)
     parser.add_argument("--learning-rate", type=float, default=1e-3)
     parser.add_argument("--weight-decay", type=float, default=1e-4)
+    parser.add_argument("--max-grad-norm", type=float,
+                        help="Optional gradient norm clipping; non-finite gradients fail before the update")
     parser.add_argument(
         "--loss-mode",
         choices=("token", "source-balanced"),
@@ -1098,13 +1225,44 @@ def main() -> None:
     )
     parser.add_argument("--output-report", type=Path, default=Path("target/autosuggest-next-word-lm-report.json"))
     parser.add_argument("--output-checkpoint", type=Path)
+    parser.add_argument("--best-checkpoint", type=Path,
+                        help="Save best validation macro top-5 accuracy including unknown targets")
+    parser.add_argument("--checkpoint-seconds", type=float, default=300,
+                        help="Atomic resumable checkpoint interval, at most 900 seconds")
+    parser.add_argument("--max-steps", type=int, help="Stop cleanly after this many optimizer steps in this invocation")
+    parser.add_argument("--max-training-seconds", type=float)
+    parser.add_argument("--stop-at-utc", help="Absolute ISO-8601 cutoff with timezone, checked between optimizer steps")
     parser.add_argument("--log-every-targets", type=int, default=250_000)
     args = parser.parse_args()
+
+    data_provenance = neural_training_provenance(args.model, args.corpus_dir, args.validation_corpus_dir)
+    if args.eval_skip_sentences_per_source is None:
+        args.eval_skip_sentences_per_source = 0 if args.validation_corpus_dir else 100_000
 
     if args.context_window < 1:
         raise SystemExit("--context-window must be at least 1")
     if args.batch_size < 1:
         raise SystemExit("--batch-size must be at least 1")
+    if args.epochs < 0:
+        raise SystemExit("--epochs must be nonnegative")
+    if args.epochs == 0 and (args.output_checkpoint or args.best_checkpoint):
+        raise SystemExit("evaluation-only runs cannot write training checkpoints; use eval_next_word_lm")
+    if args.max_grad_norm is not None and (not math.isfinite(args.max_grad_norm) or args.max_grad_norm <= 0):
+        raise SystemExit("--max-grad-norm must be positive and finite")
+    if not 0 < args.checkpoint_seconds <= 900:
+        raise SystemExit("--checkpoint-seconds must be in (0, 900]")
+    if args.best_checkpoint and args.output_checkpoint and args.best_checkpoint.resolve() == args.output_checkpoint.resolve():
+        raise SystemExit("--best-checkpoint must differ from --output-checkpoint")
+    if args.max_steps is not None and args.max_steps < 1:
+        raise SystemExit("--max-steps must be positive")
+    if args.max_training_seconds is not None and (not math.isfinite(args.max_training_seconds) or args.max_training_seconds <= 0):
+        raise SystemExit("--max-training-seconds must be positive and finite")
+    stop_at = None
+    if args.stop_at_utc:
+        cutoff = datetime.fromisoformat(args.stop_at_utc.replace("Z", "+00:00"))
+        if cutoff.tzinfo is None:
+            raise SystemExit("--stop-at-utc requires a timezone")
+        stop_at = cutoff.timestamp()
     rank_penalties = tuple(
         float(value)
         for value in args.hybrid_rank_penalties.split(",")
@@ -1131,11 +1289,13 @@ def main() -> None:
     started_at = time.time()
     device = choose_device(args.device)
     lm = NgramLm(args.model)
+    print(json.dumps({"event": "training_device", "device": str(device), "torch": torch.__version__,
+                      "gpu": torch.cuda.get_device_name(device) if device.type == "cuda" else None}), flush=True)
     sources = set(args.sources) if args.sources else None
 
     eval_set = collect_examples(
         lm,
-        args.corpus_dir,
+        args.validation_corpus_dir or args.corpus_dir,
         sources,
         args.eval_skip_sentences_per_source,
         args.eval_max_sentences_per_source,
@@ -1166,6 +1326,8 @@ def main() -> None:
         dropout=args.dropout,
         transformer_layers=args.transformer_layers,
         transformer_heads=args.transformer_heads,
+        transformer_padding_mode=args.transformer_padding_mode,
+        transformer_initialization=args.transformer_initialization,
     )
     if not args.no_unigram_prior:
         initialize_output_bias_from_unigrams(model, lm)
@@ -1174,6 +1336,11 @@ def main() -> None:
     optimizer_state_loaded = False
     if args.input_checkpoint:
         checkpoint = torch.load(args.input_checkpoint, map_location="cpu", weights_only=False)
+        verify_checkpoint_provenance(checkpoint, data_provenance, args.model)
+        if args.architecture == "transformer" and checkpoint["config"].get("transformer_padding_mode", "unmasked-v0") != args.transformer_padding_mode:
+            raise ValueError("checkpoint transformer padding contract differs; preserve its recorded mode")
+        if args.architecture == "transformer" and checkpoint["config"].get("transformer_initialization", "legacy-v0") != args.transformer_initialization:
+            raise ValueError("checkpoint transformer initialization contract differs; preserve its recorded mode")
         model.load_state_dict(checkpoint["state_dict"])
         start_epoch = int(checkpoint.get("epoch", 0))
     teacher_model = None
@@ -1183,6 +1350,8 @@ def main() -> None:
             args.distill_teacher_checkpoint,
             lm.vocab_size,
             args.context_window,
+            provenance=data_provenance,
+            retrieval_model=args.model,
         )
     model.to(device)
     optimizer = torch.optim.AdamW(
@@ -1198,6 +1367,59 @@ def main() -> None:
         optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
         move_optimizer_state(optimizer, device)
         optimizer_state_loaded = True
+    artifact_record = {"path": str(args.model), "sha256": sha256_file(args.model), "bytes": len(lm.bytes),
+                       "vocab_size": lm.vocab_size, "candidate_record_len": lm.candidate_record_len,
+                       "max_context_order": lm.max_context_order}
+    model_config = {"architecture": args.architecture, "context_window": args.context_window,
+                    "embedding_dim": args.embedding_dim, "hidden_dim": args.hidden_dim,
+                    "transformer_layers": args.transformer_layers, "transformer_heads": args.transformer_heads,
+                    "transformer_padding_mode": args.transformer_padding_mode,
+                    "transformer_initialization": args.transformer_initialization,
+                    "dropout": args.dropout, "vocab_size": lm.vocab_size}
+    contract_fields = ("seed", "batch_size", "learning_rate", "weight_decay", "max_grad_norm", "loss_mode", "batch_sampling",
+                       "train_skip_sentences_per_source", "train_max_sentences_per_source", "train_max_examples_per_source",
+                       "eval_skip_sentences_per_source", "eval_max_sentences_per_source", "eval_max_examples_per_source",
+                       "no_unigram_prior", "distill_alpha", "distill_temperature", "distill_top_k")
+    training_contract = {"version": 1, "model": model_config, "options": {key: getattr(args, key) for key in contract_fields},
+                         "sources": sorted(sources) if sources else None, "trainer_sha256": sha256_file(Path(__file__)),
+                         "teacher_sha256": sha256_file(args.distill_teacher_checkpoint) if args.distill_teacher_checkpoint else None}
+    progress = {"completed_epochs": start_epoch, "next_batch": 0, "optimizer_steps": 0, "status": "evaluation_only"}
+    if checkpoint is not None and checkpoint.get("training_state") is not None and args.epochs > 0:
+        if checkpoint.get("training_contract") != training_contract:
+            raise ValueError("checkpoint training contract differs; sampling, architecture, and optimizer settings must match")
+        if not optimizer_state_loaded:
+            raise ValueError("mid-run resume requires the saved optimizer state")
+        progress = dict(checkpoint["training_state"])
+        restore_rng(checkpoint["rng_state"], device)
+
+    def save_progress(state: dict, full_report: dict | None = None, destination: Path | None = None) -> None:
+        destination = destination or args.output_checkpoint
+        if destination is None:
+            return
+        atomic_torch_save({"state_dict": tensor_tree_to_cpu(model.state_dict()),
+                           "optimizer_state_dict": tensor_tree_to_cpu(optimizer.state_dict()),
+                           "epoch": state["completed_epochs"], "training_state": dict(state),
+                           "training_contract": training_contract, "rng_state": capture_rng(device),
+                           "config": model_config,
+                           "report": full_report or {"data_provenance": data_provenance, "artifact": artifact_record,
+                                                      "model": model_config, "training_state": dict(state)}},
+                          destination)
+        print(json.dumps({"event": "checkpoint_saved", "path": str(destination),
+                          "completed_epochs": state["completed_epochs"], "next_batch": state["next_batch"],
+                          "optimizer_steps": state["optimizer_steps"], "status": state["status"]}), flush=True)
+
+    def save_best(state: dict, epoch_report: dict) -> None:
+        reports = list(epoch_report["eval_by_source"].values())
+        score = sum(item["top5_all_targets"] for item in reports) / max(1, len(reports))
+        if reports and score > state.get("best_validation_macro_top5_all_targets", -1.0):
+            state["best_validation_macro_top5_all_targets"] = score
+            state["best_epoch"] = state["completed_epochs"]
+            if args.best_checkpoint:
+                save_progress(state, {"data_provenance": data_provenance, "artifact": artifact_record,
+                                      "model": model_config, "epoch_validation": epoch_report,
+                                      "selection_metric": "validation_macro_top5_all_targets"}, args.best_checkpoint)
+        save_progress(state)
+
     history = []
     if args.epochs > 0:
         history = train(
@@ -1216,6 +1438,14 @@ def main() -> None:
             args.distill_temperature,
             args.distill_top_k,
             args.batch_sampling,
+            progress=progress,
+            checkpoint_callback=save_progress if args.output_checkpoint else None,
+            epoch_callback=save_best,
+            checkpoint_seconds=args.checkpoint_seconds,
+            max_steps=args.max_steps,
+            max_training_seconds=args.max_training_seconds,
+            stop_at=stop_at,
+            max_grad_norm=args.max_grad_norm,
         )
     final_eval = evaluate_model(model, eval_set, device)
     final_eval_by_source = evaluate_model_by_source(model, eval_set, device)
@@ -1265,8 +1495,12 @@ def main() -> None:
         args.full_vocab_benchmark_batch_size,
     )
     report = {
+        "data_provenance": data_provenance,
+        "training_state": progress,
+        "training_contract": training_contract,
         "artifact": {
             "path": str(args.model),
+            "sha256": sha256_file(args.model),
             "bytes": len(lm.bytes),
             "vocab_size": lm.vocab_size,
             "candidate_record_len": lm.candidate_record_len,
@@ -1325,17 +1559,7 @@ def main() -> None:
         "elapsed_seconds": round(time.time() - started_at, 3),
     }
     if args.output_checkpoint:
-        args.output_checkpoint.parent.mkdir(parents=True, exist_ok=True)
-        torch.save(
-            {
-                "state_dict": tensor_tree_to_cpu(model.state_dict()),
-                "optimizer_state_dict": tensor_tree_to_cpu(optimizer.state_dict()),
-                "epoch": start_epoch + len(history),
-                "config": report["model"] | {"vocab_size": lm.vocab_size},
-                "report": report,
-            },
-            args.output_checkpoint,
-        )
+        save_progress(progress, report)
         report["checkpoint"] = str(args.output_checkpoint)
     args.output_report.parent.mkdir(parents=True, exist_ok=True)
     args.output_report.write_text(

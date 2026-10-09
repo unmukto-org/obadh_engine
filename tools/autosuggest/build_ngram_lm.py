@@ -20,6 +20,9 @@ from pathlib import Path
 from typing import Iterable, Iterator, Protocol
 
 from tools.autosuggest.common import BOS_ID, PAD_ID, UNK_ID, load_vocab, sentence_paths
+from tools.corpus.provenance import (
+    digest_json, sha256_file, training_provenance, verify_artifact_training,
+)
 
 
 MAGIC = b"OBAUTOSUGLM_V1\0\0"
@@ -294,10 +297,14 @@ class SqliteCounts:
         self.max_context_order = max_context_order
         self.connection = sqlite3.connect(path)
         self.connection.execute("PRAGMA journal_mode=WAL")
-        self.connection.execute("PRAGMA synchronous=OFF")
+        self.connection.execute("PRAGMA synchronous=NORMAL")
         self.connection.execute("PRAGMA temp_store=MEMORY")
         if not reset:
-            self._verify_existing(metadata)
+            try:
+                self._verify_existing(metadata)
+            except BaseException:
+                self.connection.close()
+                raise
             self.unigram_batch = Counter()
             self.bigram_batch = Counter()
             self.trigram_batch = Counter()
@@ -523,6 +530,8 @@ def build_ngram_lm(
         trigram_min_count=trigram_min_count,
         fourgram_min_count=fourgram_min_count,
     )
+    provenance = training_provenance(corpus_dir)
+    verify_artifact_training(vocab_path, expected=provenance)
     words, vocab = load_vocab(vocab_path)
     fingerprint = vocab_fingerprint(words)
     sqlite_metadata = {
@@ -532,6 +541,20 @@ def build_ngram_lm(
         "vocab_fingerprint": str(fingerprint),
         "max_context_order": str(max_context_order),
     }
+    if provenance is not None:
+        # Cached counts depend on corpus membership AND the ingestion policy.
+        # Reusing a full-corpus DB with a train-only vocabulary is invalid even
+        # when vocabulary IDs happen to match.
+        sqlite_metadata["training_selection_sha256"] = digest_json({
+            "training_corpus": provenance,
+            "sources": sorted(sources) if sources else None,
+            "source_weights": source_weights.values,
+            "max_sentences": max_sentences,
+            "skip_sentences_per_source": skip_sentences_per_source,
+            "max_sentences_per_source": max_sentences_per_source,
+        })
+        sqlite_metadata["vocab_sha256"] = sha256_file(vocab_path)
+        sqlite_metadata["counting_complete"] = "1" if reuse_sqlite else "0"
     counts = (
         MemoryCounts(max_context_order)
         if backend == "memory"
@@ -543,167 +566,198 @@ def build_ngram_lm(
             reset=not reuse_sqlite,
         )
     )
-    observed_sentences = 0
-    observed_tokens = 0
-    source_sentences: Counter[str] = Counter()
-    weighted_source_tokens: Counter[str] = Counter()
-    started_at = time.monotonic()
+    try:
+        observed_sentences = 0
+        observed_tokens = 0
+        source_sentences: Counter[str] = Counter()
+        weighted_source_tokens: Counter[str] = Counter()
+        started_at = time.monotonic()
 
-    if not reuse_sqlite:
-        for source, tokens in iter_limited_sentence_tokens(
-            corpus_dir,
-            sources=sources,
-            max_sentences=max_sentences,
-            skip_sentences_per_source=skip_sentences_per_source,
-            max_sentences_per_source=max_sentences_per_source,
-        ):
-            encoded = encode_tokens(tokens, vocab)
-            if len(encoded) < 2:
-                continue
-            weight = source_weights.weight_for(source)
-            counts.observe(encoded, weight=weight)
-            observed_sentences += 1
-            observed_tokens += len(encoded) - 1
-            source_sentences[source] += 1
-            weighted_source_tokens[source] += (len(encoded) - 1) * weight
-            if log_every_sentences > 0 and observed_sentences % log_every_sentences == 0:
-                elapsed = time.monotonic() - started_at
-                print(
-                    json.dumps(
-                        {
-                            "event": "autosuggest_ngram_build_progress",
-                            "sentences": observed_sentences,
-                            "tokens": observed_tokens,
-                            "weighted_tokens": sum(weighted_source_tokens.values()),
-                            "elapsed_seconds": round(elapsed, 3),
-                            "source_sentences": dict(source_sentences),
-                            "weighted_source_tokens": dict(weighted_source_tokens),
-                        },
-                        ensure_ascii=False,
-                    ),
-                    file=sys.stderr,
-                    flush=True,
-                )
+        if reuse_sqlite and provenance is not None:
+            saved = counts.connection.execute(
+                f"SELECT value FROM {SQLITE_COUNT_METADATA_TABLE} WHERE key = 'collection_statistics'"
+            ).fetchone()
+            if saved is None:
+                raise ValueError("verified SQLite counts are missing collection statistics; rebuild the cache")
+            statistics = json.loads(saved[0])
+            observed_sentences = statistics["observed_sentences"]
+            observed_tokens = statistics["observed_tokens"]
+            source_sentences.update(statistics["source_sentences"])
+            weighted_source_tokens.update(statistics["weighted_source_tokens"])
 
-    counts.finalize()
-    scorer = (
-        sqlite_scorer(
-            counts.connection,
-            smoothing,
-            backoff_alpha,
-            kneser_ney_discount,
-            score_mode,
-            max_context_order,
-        )
-        if isinstance(counts, SqliteCounts)
-        else NgramScorer.from_memory_counts(
-            counts,
-            smoothing,
-            backoff_alpha,
-            kneser_ney_discount,
-            score_mode,
-            max_context_order,
-        )
-    )
+        if not reuse_sqlite:
+            for source, tokens in iter_limited_sentence_tokens(
+                corpus_dir,
+                sources=sources,
+                max_sentences=max_sentences,
+                skip_sentences_per_source=skip_sentences_per_source,
+                max_sentences_per_source=max_sentences_per_source,
+            ):
+                encoded = encode_tokens(tokens, vocab)
+                if len(encoded) < 2:
+                    continue
+                weight = source_weights.weight_for(source)
+                counts.observe(encoded, weight=weight)
+                observed_sentences += 1
+                observed_tokens += len(encoded) - 1
+                source_sentences[source] += 1
+                weighted_source_tokens[source] += (len(encoded) - 1) * weight
+                if log_every_sentences > 0 and observed_sentences % log_every_sentences == 0:
+                    elapsed = time.monotonic() - started_at
+                    print(
+                        json.dumps(
+                            {
+                                "event": "autosuggest_ngram_build_progress",
+                                "sentences": observed_sentences,
+                                "tokens": observed_tokens,
+                                "weighted_tokens": sum(weighted_source_tokens.values()),
+                                "elapsed_seconds": round(elapsed, 3),
+                                "source_sentences": dict(source_sentences),
+                                "weighted_source_tokens": dict(weighted_source_tokens),
+                            },
+                            ensure_ascii=False,
+                        ),
+                        file=sys.stderr,
+                        flush=True,
+                    )
 
-    output.parent.mkdir(parents=True, exist_ok=True)
-    if isinstance(counts, SqliteCounts):
-        export_report = encode_sqlite_artifact(
-            words=words,
-            counts=counts,
-            output=output,
-            max_candidates_per_prefix=max_candidates_per_prefix,
-            min_counts=min_counts,
-            unigram_size=unigram_size,
-            scorer=scorer,
-            max_context_order=max_context_order,
-            compact_count_records=compact_count_records,
+        if provenance is not None and training_provenance(corpus_dir) != provenance:
+            raise ValueError("training corpus changed during n-gram counting")
+        counts.finalize()
+        if provenance is not None and isinstance(counts, SqliteCounts) and not reuse_sqlite:
+            counts.connection.execute(
+                f"INSERT OR REPLACE INTO {SQLITE_COUNT_METADATA_TABLE} VALUES ('collection_statistics', ?)",
+                (json.dumps({"observed_sentences": observed_sentences, "observed_tokens": observed_tokens,
+                             "source_sentences": dict(source_sentences),
+                             "weighted_source_tokens": dict(weighted_source_tokens)}, sort_keys=True),),
+            )
+            counts.connection.execute(
+                f"UPDATE {SQLITE_COUNT_METADATA_TABLE} SET value = '1' WHERE key = 'counting_complete'"
+            )
+            counts.connection.commit()
+        scorer = (
+            sqlite_scorer(
+                counts.connection,
+                smoothing,
+                backoff_alpha,
+                kneser_ney_discount,
+                score_mode,
+                max_context_order,
+            )
+            if isinstance(counts, SqliteCounts)
+            else NgramScorer.from_memory_counts(
+                counts,
+                smoothing,
+                backoff_alpha,
+                kneser_ney_discount,
+                score_mode,
+                max_context_order,
+            )
         )
-    else:
-        unigrams, bigrams, trigrams, fourgrams = counts.rows(
-            max_candidates_per_prefix,
-            min_counts,
-            scorer,
+
+        output.parent.mkdir(parents=True, exist_ok=True)
+        if isinstance(counts, SqliteCounts):
+            export_report = encode_sqlite_artifact(
+                words=words,
+                counts=counts,
+                output=output,
+                max_candidates_per_prefix=max_candidates_per_prefix,
+                min_counts=min_counts,
+                unigram_size=unigram_size,
+                scorer=scorer,
+                max_context_order=max_context_order,
+                compact_count_records=compact_count_records,
+            )
+        else:
+            unigrams, bigrams, trigrams, fourgrams = counts.rows(
+                max_candidates_per_prefix,
+                min_counts,
+                scorer,
+            )
+            unigrams = unigrams[:unigram_size]
+            artifact = encode_artifact(
+                words,
+                unigrams,
+                bigrams,
+                trigrams,
+                fourgrams,
+                fingerprint,
+                max_context_order=max_context_order,
+                compact_count_records=compact_count_records,
+            )
+            output.write_bytes(artifact)
+            export_report = {
+                "unigram_count": len(unigrams),
+                "bigram_rows": len(bigrams),
+                "trigram_rows": len(trigrams),
+                "fourgram_rows": len(fourgrams),
+                "candidate_rows": sum(len(row[2]) for row in bigrams)
+                + sum(len(row[3]) for row in trigrams)
+                + sum(len(row[4]) for row in fourgrams),
+                "artifact_bytes": len(artifact),
+                "artifact_fingerprint": artifact_fingerprint(artifact),
+                "vocab_fingerprint": fingerprint,
+                "candidate_record_len": COUNT_CANDIDATE_RECORD_LEN
+                if compact_count_records
+                else CANDIDATE_RECORD_LEN,
+            }
+
+        artifact_version = (
+            VERSION_V3 if compact_count_records else VERSION_V2 if max_context_order >= 3 else VERSION
         )
-        unigrams = unigrams[:unigram_size]
-        artifact = encode_artifact(
-            words,
-            unigrams,
-            bigrams,
-            trigrams,
-            fourgrams,
-            fingerprint,
-            max_context_order=max_context_order,
-            compact_count_records=compact_count_records,
-        )
-        output.write_bytes(artifact)
-        export_report = {
-            "unigram_count": len(unigrams),
-            "bigram_rows": len(bigrams),
-            "trigram_rows": len(trigrams),
-            "fourgram_rows": len(fourgrams),
-            "candidate_rows": sum(len(row[2]) for row in bigrams)
-            + sum(len(row[3]) for row in trigrams)
-            + sum(len(row[4]) for row in fourgrams),
-            "artifact_bytes": len(artifact),
-            "artifact_fingerprint": artifact_fingerprint(artifact),
-            "vocab_fingerprint": fingerprint,
-            "candidate_record_len": COUNT_CANDIDATE_RECORD_LEN
-            if compact_count_records
-            else CANDIDATE_RECORD_LEN,
+        report = {
+            "artifact": "obadh-autosuggest-ngram",
+            "training_corpus": provenance,
+            "artifact_sha256": sha256_file(output),
+            "version": artifact_version,
+            "format": (
+                "bounded fourgram/trigram/bigram/unigram binary"
+                if max_context_order >= 3
+                else "bounded trigram/bigram/unigram binary"
+            ),
+            "corpus_dir": str(corpus_dir),
+            "vocab_path": str(vocab_path),
+            "output": str(output),
+            "backend": backend,
+            "sqlite_path": str(sqlite_path) if backend == "sqlite" else None,
+            "reuse_sqlite": reuse_sqlite,
+            "sources": sorted(sources) if sources else None,
+            "source_weights": source_weights.values,
+            "max_sentences": max_sentences,
+            "skip_sentences_per_source": skip_sentences_per_source,
+            "max_sentences_per_source": max_sentences_per_source,
+            "observed_sentences": observed_sentences,
+            "observed_tokens": observed_tokens,
+            "observed_weighted_tokens": sum(weighted_source_tokens.values()),
+            "source_sentences": dict(source_sentences),
+            "weighted_source_tokens": dict(weighted_source_tokens),
+            "vocab_size": len(words),
+            "vocab_fingerprint": export_report["vocab_fingerprint"],
+            "unigram_count": export_report["unigram_count"],
+            "bigram_rows": export_report["bigram_rows"],
+            "trigram_rows": export_report["trigram_rows"],
+            "fourgram_rows": export_report["fourgram_rows"],
+            "candidate_rows": export_report["candidate_rows"],
+            "candidate_record_len": export_report["candidate_record_len"],
+            "compact_count_records": compact_count_records,
+            "max_context_order": max_context_order,
+            "max_candidates_per_prefix": max_candidates_per_prefix,
+            "min_count": min_count,
+            "bigram_min_count": min_counts.bigram,
+            "trigram_min_count": min_counts.trigram,
+            "fourgram_min_count": min_counts.fourgram,
+            "smoothing": smoothing,
+            "backoff_alpha": backoff_alpha,
+            "kneser_ney_discount": kneser_ney_discount,
+            "score": scorer.score_name,
+            "artifact_bytes": export_report["artifact_bytes"],
+            "artifact_fingerprint": export_report["artifact_fingerprint"],
         }
-
-    artifact_version = (
-        VERSION_V3 if compact_count_records else VERSION_V2 if max_context_order >= 3 else VERSION
-    )
-    report = {
-        "artifact": "obadh-autosuggest-ngram",
-        "version": artifact_version,
-        "format": (
-            "bounded fourgram/trigram/bigram/unigram binary"
-            if max_context_order >= 3
-            else "bounded trigram/bigram/unigram binary"
-        ),
-        "corpus_dir": str(corpus_dir),
-        "vocab_path": str(vocab_path),
-        "output": str(output),
-        "backend": backend,
-        "sqlite_path": str(sqlite_path) if backend == "sqlite" else None,
-        "reuse_sqlite": reuse_sqlite,
-        "sources": sorted(sources) if sources else None,
-        "source_weights": source_weights.values,
-        "max_sentences": max_sentences,
-        "skip_sentences_per_source": skip_sentences_per_source,
-        "max_sentences_per_source": max_sentences_per_source,
-        "observed_sentences": observed_sentences,
-        "observed_tokens": observed_tokens,
-        "observed_weighted_tokens": sum(weighted_source_tokens.values()),
-        "source_sentences": dict(source_sentences),
-        "weighted_source_tokens": dict(weighted_source_tokens),
-        "vocab_size": len(words),
-        "vocab_fingerprint": export_report["vocab_fingerprint"],
-        "unigram_count": export_report["unigram_count"],
-        "bigram_rows": export_report["bigram_rows"],
-        "trigram_rows": export_report["trigram_rows"],
-        "fourgram_rows": export_report["fourgram_rows"],
-        "candidate_rows": export_report["candidate_rows"],
-        "candidate_record_len": export_report["candidate_record_len"],
-        "compact_count_records": compact_count_records,
-        "max_context_order": max_context_order,
-        "max_candidates_per_prefix": max_candidates_per_prefix,
-        "min_count": min_count,
-        "bigram_min_count": min_counts.bigram,
-        "trigram_min_count": min_counts.trigram,
-        "fourgram_min_count": min_counts.fourgram,
-        "smoothing": smoothing,
-        "backoff_alpha": backoff_alpha,
-        "kneser_ney_discount": kneser_ney_discount,
-        "score": scorer.score_name,
-        "artifact_bytes": export_report["artifact_bytes"],
-        "artifact_fingerprint": export_report["artifact_fingerprint"],
-    }
-    manifest_path(output).write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    return report
+        manifest_path(output).write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        return report
+    finally:
+        if isinstance(counts, SqliteCounts):
+            counts.connection.close()
 
 
 def iter_limited_sentence_tokens(

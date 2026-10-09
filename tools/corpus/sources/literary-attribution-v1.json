@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "scope": "Reviewed spelling and script aliases for this collection; not a universal author authority database.",
+  "aliases": {
+    "Rabindranath Tagore": "রবীন্দ্রনাথ ঠাকুর",
+    "হুমায়ূন আহমেদ": "হুমায়ুন আহমেদ",
+    "হুমায়ুন আহমেদ": "হুমায়ুন আহমেদ",
+    "শীর্ষেন্দু মুখােপাধ্যায়": "শীর্ষেন্দু মুখোপাধ্যায়",
+    "হুমায়ুন আজাদ": "হুমায়ুন আজাদ"
+  },
+  "excluded_epubs": {
+    "Prajapati.epub": "No creator metadata; embedded EPUB/notice.html identifies automatic unreviewed OCR with possible nonwords and incorrect reading order. Excluded from punctuation-sensitive adaptation pending manual quality review. Legacy corpus remains immutable."
+  }
+}

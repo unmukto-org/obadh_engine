@@ -10,6 +10,7 @@ from collections import Counter
 from pathlib import Path
 
 from tools.autosuggest.common import SPECIAL_TOKENS, iter_sentence_rows, save_manifest
+from tools.corpus.provenance import sha256_file, training_provenance
 
 
 def build_vocab(
@@ -18,6 +19,9 @@ def build_vocab(
     vocab_size: int,
     min_frequency: int,
 ) -> dict:
+    provenance = training_provenance(corpus_dir)
+    if vocab_size <= len(SPECIAL_TOKENS) or min_frequency < 1:
+        raise ValueError("vocab_size must exceed reserved tokens and min_frequency must be positive")
     counts: Counter[str] = Counter()
     source_rows: Counter[str] = Counter()
     source_tokens: Counter[str] = Counter()
@@ -28,9 +32,6 @@ def build_vocab(
         source_tokens[row.source] += len(row.tokens)
 
     reserved = len(SPECIAL_TOKENS)
-    if vocab_size <= reserved:
-        raise ValueError(f"vocab_size must be greater than {reserved}")
-
     words = [
         (word, frequency)
         for word, frequency in counts.items()
@@ -38,6 +39,9 @@ def build_vocab(
     ]
     words.sort(key=lambda item: (-item[1], item[0]))
     words = words[: vocab_size - reserved]
+
+    if provenance is not None and training_provenance(corpus_dir) != provenance:
+        raise ValueError("training corpus changed during vocabulary construction")
 
     output.parent.mkdir(parents=True, exist_ok=True)
     with output.open("w", encoding="utf-8", newline="") as handle:
@@ -51,6 +55,8 @@ def build_vocab(
     total_tokens = sum(counts.values())
     covered_tokens = sum(frequency for _, frequency in words)
     report = {
+        "training_corpus": provenance,
+        "artifact_sha256": sha256_file(output),
         "corpus_dir": str(corpus_dir),
         "output": str(output),
         "vocab_size": len(words) + reserved,

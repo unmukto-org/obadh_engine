@@ -1,0 +1,79 @@
+{
+  "artifact": "obadh-book-acquisition-plan",
+  "version": 1,
+  "authorization": "Project owner explicitly authorized eBanglaLibrary acquisition for this project and AI training on 2026-10-05.",
+  "selection": "Eight distinct authors; four training books, two validation books, two test books; fixed before model scoring.",
+  "books": [
+    {
+      "url": "https://www.ebanglalibrary.com/books/%e0%a6%b8%e0%a6%b0%e0%a6%b2-%e0%a6%9c%e0%a6%9f%e0%a6%bf%e0%a6%b2-%e0%a6%b8%e0%a7%81%e0%a6%a8%e0%a7%80%e0%a6%b2-%e0%a6%97%e0%a6%99%e0%a7%8d%e0%a6%97%e0%a7%8b%e0%a6%aa%e0%a6%be%e0%a6%a7%e0%a7%8d/",
+      "title": "সরল-জটিল – সুনীল গঙ্গোপাধ্যায়",
+      "course_id": 280970,
+      "chapters": 10,
+      "split": "train",
+      "group_id": "ebanglalibrary:course:280970"
+    },
+    {
+      "url": "https://www.ebanglalibrary.com/books/%e0%a6%89%e0%a6%a8%e0%a7%8d%e0%a6%ae%e0%a6%be%e0%a6%a6-%e0%a6%86%e0%a6%b6%e0%a7%8d%e0%a6%b0%e0%a6%ae-%e0%a6%93%e0%a6%ac%e0%a6%be%e0%a6%af%e0%a6%bc%e0%a7%87%e0%a6%a6-%e0%a6%b9%e0%a6%95/",
+      "title": "উন্মাদ আশ্রম – ওবায়েদ হক",
+      "course_id": 280195,
+      "chapters": 12,
+      "split": "test",
+      "group_id": "ebanglalibrary:course:280195"
+    },
+    {
+      "url": "https://www.ebanglalibrary.com/books/%e0%a6%9a%e0%a6%be%e0%a6%81%e0%a6%a6%e0%a7%87%e0%a6%b0-%e0%a6%a4%e0%a6%be%e0%a6%81%e0%a6%ac%e0%a7%81-%e0%a6%85%e0%a6%ae%e0%a6%b0%e0%a7%87%e0%a6%a8%e0%a7%8d%e0%a6%a6%e0%a7%8d%e0%a6%b0-%e0%a6%9a/",
+      "title": "চাঁদের তাঁবু  – অমরেন্দ্র চক্রবর্তী",
+      "course_id": 280247,
+      "chapters": 9,
+      "split": "train",
+      "group_id": "ebanglalibrary:course:280247"
+    },
+    {
+      "url": "https://www.ebanglalibrary.com/books/%e0%a6%b9%e0%a6%be%e0%a6%af%e0%a6%bc%e0%a6%a8%e0%a6%be%e0%a6%b0-%e0%a6%97%e0%a7%81%e0%a6%b9%e0%a6%be-%e0%a6%b8%e0%a7%88%e0%a6%af%e0%a6%bc%e0%a6%a6-%e0%a6%ae%e0%a7%81%e0%a6%b8%e0%a7%8d%e0%a6%a4/",
+      "title": "হায়নার গুহা – সৈয়দ মুস্তাফা সিরাজ",
+      "course_id": 275195,
+      "chapters": 16,
+      "split": "validation",
+      "group_id": "ebanglalibrary:course:275195"
+    },
+    {
+      "url": "https://www.ebanglalibrary.com/books/%e0%a6%ac%e0%a7%8b%e0%a6%a4%e0%a6%b2-%e0%a6%ad%e0%a7%82%e0%a6%a4-%e0%a6%b9%e0%a7%81%e0%a6%ae%e0%a6%be%e0%a6%af%e0%a6%bc%e0%a7%82%e0%a6%a8-%e0%a6%86%e0%a6%b9%e0%a6%ae%e0%a7%87%e0%a6%a6/",
+      "title": "বোতল ভূত – হুমায়ূন আহমেদ",
+      "course_id": 224993,
+      "chapters": 10,
+      "split": "test",
+      "group_id": "ebanglalibrary:course:224993"
+    },
+    {
+      "url": "https://www.ebanglalibrary.com/books/%e0%a6%9f%e0%a7%81-%e0%a6%9f%e0%a7%81-%e0%a6%9f%e0%a7%81%e0%a6%a8%e0%a6%9f%e0%a7%81%e0%a6%a8%e0%a6%bf-%e0%a6%9a%e0%a7%81-%e0%a6%9a%e0%a7%81-%e0%a6%9b%e0%a7%8b%e0%a6%9f%e0%a6%be%e0%a6%9a%e0%a7%8d/",
+      "title": "টু-টু-টুনটুনি চু-চু-ছোটাচ্চু – মুহম্মদ জাফর ইকবাল",
+      "course_id": 253120,
+      "chapters": 6,
+      "split": "validation",
+      "group_id": "ebanglalibrary:course:253120"
+    },
+    {
+      "url": "https://www.ebanglalibrary.com/books/%e0%a6%a8%e0%a7%8d%e0%a6%af%e0%a6%be%e0%a6%a6%e0%a7%8b%e0%a6%b6-%e0%a6%ae%e0%a6%b9%e0%a6%be%e0%a6%b6%e0%a7%8d%e0%a6%ac%e0%a7%87%e0%a6%a4%e0%a6%be-%e0%a6%a6%e0%a7%87%e0%a6%ac%e0%a7%80/",
+      "title": "ন্যাদোশ – মহাশ্বেতা দেবী",
+      "course_id": 242923,
+      "chapters": 6,
+      "split": "train",
+      "group_id": "ebanglalibrary:course:242923"
+    },
+    {
+      "url": "https://www.ebanglalibrary.com/books/%e0%a6%97%e0%a7%8b%e0%a6%b2%e0%a7%8b%e0%a6%95%e0%a6%aa%e0%a7%81%e0%a6%b0%e0%a7%87%e0%a6%b0-%e0%a6%aa%e0%a6%b0%e0%a6%b6-%e0%a6%aa%e0%a6%be%e0%a6%a5%e0%a6%b0-%e0%a6%85%e0%a6%ad%e0%a7%80%e0%a6%95/",
+      "title": "গোলোকপুরের পরশ পাথর – অভীক দত্ত",
+      "course_id": 238943,
+      "chapters": 12,
+      "split": "train",
+      "group_id": "ebanglalibrary:course:238943"
+    }
+  ],
+  "excluded": [
+    {
+      "course_id": 239920,
+      "title": "ফুটিডাঙায় ফাটাফাটি – সৈকত মুখোপাধ্যায়",
+      "reason": "All eight lesson URLs redirected to book front matter; no complete chapter text was acquired."
+    }
+  ]
+}

@@ -1,0 +1,1278 @@
+{
+  "artifact": "obadh-book-acquisition-plan",
+  "authorization": "Project owner explicitly authorized eBanglaLibrary acquisition for this project and AI training on 2026-10-05.",
+  "books": [
+    {
+      "author": "মহাশ্বেতা দেবী",
+      "chapters": 10,
+      "course_id": 242945,
+      "group_id": "ebanglalibrary:course:242945",
+      "split": "train",
+      "title": "বারান্দার জানালা – মহাশ্বেতা দেবী",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%AC%E0%A6%BE%E0%A6%B0%E0%A6%BE%E0%A6%A8%E0%A7%8D%E0%A6%A6%E0%A6%BE%E0%A6%B0-%E0%A6%9C%E0%A6%BE%E0%A6%A8%E0%A6%BE%E0%A6%B2%E0%A6%BE-%E0%A6%AE%E0%A6%B9%E0%A6%BE%E0%A6%B6%E0%A7%8D/",
+      "author_references": [
+        {
+          "name": "মহাশ্বেতা দেবী",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%ae%e0%a6%b9%e0%a6%be%e0%a6%b6%e0%a7%8d%e0%a6%ac%e0%a7%87%e0%a6%a4%e0%a6%be-%e0%a6%a6%e0%a7%87%e0%a6%ac%e0%a7%80/"
+        }
+      ]
+    },
+    {
+      "author": "বুদ্ধদেব গুহ",
+      "chapters": 4,
+      "course_id": 216948,
+      "group_id": "ebanglalibrary:course:216948",
+      "split": "train",
+      "title": "ঋজুদা সমগ্ৰ ১ – বুদ্ধদেব গুহ",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%8B%E0%A6%9C%E0%A7%81%E0%A6%A6%E0%A6%BE-%E0%A6%B8%E0%A6%AE%E0%A6%97%E0%A7%8D%E0%A7%B0-%E0%A7%A7-%E0%A6%AC%E0%A7%81%E0%A6%A6%E0%A7%8D%E0%A6%A7%E0%A6%A6%E0%A7%87%E0%A6%AC-%E0%A6%97%E0%A7%81/",
+      "author_references": [
+        {
+          "name": "বুদ্ধদেব গুহ",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%ac%e0%a7%81%e0%a6%a6%e0%a7%8d%e0%a6%a7%e0%a6%a6%e0%a7%87%e0%a6%ac-%e0%a6%97%e0%a7%81%e0%a6%b9/"
+        }
+      ]
+    },
+    {
+      "author": "সঙ্গীতা বন্দ্যোপাধ্যায়",
+      "chapters": 9,
+      "course_id": 204339,
+      "group_id": "ebanglalibrary:course:204339",
+      "split": "train",
+      "title": "প্যান্টি ও অন্যান্য গল্প – সঙ্গীতা বন্দ্যোপাধ্যায়",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%AA%E0%A7%8D%E0%A6%AF%E0%A6%BE%E0%A6%A8%E0%A7%8D%E0%A6%9F%E0%A6%BF-%E0%A6%93-%E0%A6%85%E0%A6%A8%E0%A7%8D%E0%A6%AF%E0%A6%BE%E0%A6%A8%E0%A7%8D%E0%A6%AF-%E0%A6%97%E0%A6%B2%E0%A7%8D%E0%A6%AA/",
+      "author_references": [
+        {
+          "name": "সঙ্গীতা বন্দ্যোপাধ্যায়",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b8%e0%a6%99%e0%a7%8d%e0%a6%97%e0%a7%80%e0%a6%a4%e0%a6%be-%e0%a6%ac%e0%a6%a8%e0%a7%8d%e0%a6%a6%e0%a7%8d%e0%a6%af%e0%a7%8b%e0%a6%aa%e0%a6%be%e0%a6%a7%e0%a7%8d%e0%a6%af%e0%a6%be%e0%a6%af%e0%a6%bc/"
+        }
+      ]
+    },
+    {
+      "author": "অজেয় রায়",
+      "chapters": 29,
+      "course_id": 216198,
+      "group_id": "ebanglalibrary:course:216198",
+      "split": "train",
+      "title": "গল্পসংগ্রহ – অজেয় রায়",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%97%E0%A6%B2%E0%A7%8D%E0%A6%AA%E0%A6%B8%E0%A6%82%E0%A6%97%E0%A7%8D%E0%A6%B0%E0%A6%B9-%E0%A6%85%E0%A6%9C%E0%A7%87%E0%A6%AF%E0%A6%BC-%E0%A6%B0%E0%A6%BE%E0%A6%AF%E0%A6%BC/",
+      "author_references": [
+        {
+          "name": "অজেয় রায়",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%85%e0%a6%9c%e0%a7%87%e0%a6%af%e0%a6%bc-%e0%a6%b0%e0%a6%be%e0%a6%af%e0%a6%bc/"
+        }
+      ]
+    },
+    {
+      "author": "সমরেশ মজুমদার",
+      "chapters": 5,
+      "course_id": 224384,
+      "group_id": "ebanglalibrary:course:224384",
+      "split": "train",
+      "title": "কার্ভালোর বাক্স – সমরেশ মজুমদার",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%95%E0%A6%BE%E0%A6%B0%E0%A7%8D%E0%A6%AD%E0%A6%BE%E0%A6%B2%E0%A7%8B%E0%A6%B0-%E0%A6%AC%E0%A6%BE%E0%A6%95%E0%A7%8D%E0%A6%B8-%E0%A6%B8%E0%A6%AE%E0%A6%B0%E0%A7%87%E0%A6%B6-%E0%A6%AE%E0%A6%9C/",
+      "author_references": [
+        {
+          "name": "সমরেশ মজুমদার",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b8%e0%a6%ae%e0%a6%b0%e0%a7%87%e0%a6%b6-%e0%a6%ae%e0%a6%9c%e0%a7%81%e0%a6%ae%e0%a6%a6%e0%a6%be%e0%a6%b0/"
+        }
+      ]
+    },
+    {
+      "author": "মোহাম্মদ নাজিম উদ্দিন",
+      "chapters": 18,
+      "course_id": 104982,
+      "group_id": "ebanglalibrary:course:104982",
+      "split": "train",
+      "title": "রহস্যের ব্যবচ্ছেদ অথবা হিরন্ময় নীরবতা – মোহাম্মদ নাজিম উদ্দিন",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%B0%E0%A6%B9%E0%A6%B8%E0%A7%8D%E0%A6%AF%E0%A7%87%E0%A6%B0-%E0%A6%AC%E0%A7%8D%E0%A6%AF%E0%A6%AC%E0%A6%9A%E0%A7%8D%E0%A6%9B%E0%A7%87%E0%A6%A6-%E0%A6%85%E0%A6%A5%E0%A6%AC%E0%A6%BE-%E0%A6%B9-2/",
+      "author_references": [
+        {
+          "name": "মোহাম্মদ নাজিম উদ্দিন",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%ae%e0%a7%8b%e0%a6%b9%e0%a6%be%e0%a6%ae%e0%a7%8d%e0%a6%ae%e0%a6%a6-%e0%a6%a8%e0%a6%be%e0%a6%9c%e0%a6%bf%e0%a6%ae-%e0%a6%89%e0%a6%a6%e0%a7%8d%e0%a6%a6%e0%a6%bf%e0%a6%a8/"
+        }
+      ]
+    },
+    {
+      "author": "ওবায়েদ হক",
+      "chapters": 28,
+      "course_id": 280691,
+      "group_id": "ebanglalibrary:course:280691",
+      "split": "train",
+      "title": "ডাকনাম ভুলে গেছি – ওবায়েদ হক",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%A1%E0%A6%BE%E0%A6%95%E0%A6%A8%E0%A6%BE%E0%A6%AE-%E0%A6%AD%E0%A7%81%E0%A6%B2%E0%A7%87-%E0%A6%97%E0%A7%87%E0%A6%9B%E0%A6%BF-%E0%A6%93%E0%A6%AC%E0%A6%BE%E0%A6%AF%E0%A6%BC%E0%A7%87%E0%A6%A6/",
+      "author_references": [
+        {
+          "name": "ওবায়েদ হক",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%93%e0%a6%ac%e0%a6%be%e0%a6%af%e0%a6%bc%e0%a7%87%e0%a6%a6-%e0%a6%b9%e0%a6%95/"
+        }
+      ]
+    },
+    {
+      "author": "বিনোদ ঘোষাল",
+      "chapters": 10,
+      "course_id": 216436,
+      "group_id": "ebanglalibrary:course:216436",
+      "split": "train",
+      "title": "সুপারম্যানের পিতা – বিনোদ ঘোষাল",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%B8%E0%A7%81%E0%A6%AA%E0%A6%BE%E0%A6%B0%E0%A6%AE%E0%A7%8D%E0%A6%AF%E0%A6%BE%E0%A6%A8%E0%A7%87%E0%A6%B0-%E0%A6%AA%E0%A6%BF%E0%A6%A4%E0%A6%BE-%E0%A6%AC%E0%A6%BF%E0%A6%A8%E0%A7%8B/",
+      "author_references": [
+        {
+          "name": "বিনোদ ঘোষাল",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%ac%e0%a6%bf%e0%a6%a8%e0%a7%8b%e0%a6%a6-%e0%a6%98%e0%a7%8b%e0%a6%b7%e0%a6%be%e0%a6%b2/"
+        }
+      ]
+    },
+    {
+      "author": "কৌশিক মজুমদার",
+      "chapters": 16,
+      "course_id": 238082,
+      "group_id": "ebanglalibrary:course:238082",
+      "split": "train",
+      "title": "আঁধার আখ্যান – কৌশিক মজুমদার",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%86%E0%A6%81%E0%A6%A7%E0%A6%BE%E0%A6%B0-%E0%A6%86%E0%A6%96%E0%A7%8D%E0%A6%AF%E0%A6%BE%E0%A6%A8-%E0%A6%95%E0%A7%8C%E0%A6%B6%E0%A6%BF%E0%A6%95-%E0%A6%AE%E0%A6%9C%E0%A7%81%E0%A6%AE%E0%A6%A6/",
+      "author_references": [
+        {
+          "name": "কৌশিক মজুমদার",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%95%e0%a7%8c%e0%a6%b6%e0%a6%bf%e0%a6%95-%e0%a6%ae%e0%a6%9c%e0%a7%81%e0%a6%ae%e0%a6%a6%e0%a6%be%e0%a6%b0/"
+        }
+      ]
+    },
+    {
+      "author": "শাক্যজিৎ ভট্টাচার্য",
+      "chapters": 7,
+      "course_id": 273054,
+      "group_id": "ebanglalibrary:course:273054",
+      "split": "train",
+      "title": "অনুষ্ঠান প্রচারে বিঘ্ন ঘটায় দুঃখিত – শাক্যজিৎ ভট্টাচাৰ্য্য",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%85%E0%A6%A8%E0%A7%81%E0%A6%B7%E0%A7%8D%E0%A6%A0%E0%A6%BE%E0%A6%A8-%E0%A6%AA%E0%A7%8D%E0%A6%B0%E0%A6%9A%E0%A6%BE%E0%A6%B0%E0%A7%87-%E0%A6%AC%E0%A6%BF%E0%A6%98%E0%A7%8D%E0%A6%A8-%E0%A6%98/",
+      "author_references": [
+        {
+          "name": "শাক্যজিৎ ভট্টাচার্য",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b6%e0%a6%be%e0%a6%95%e0%a7%8d%e0%a6%af%e0%a6%9c%e0%a6%bf%e0%a7%8e-%e0%a6%ad%e0%a6%9f%e0%a7%8d%e0%a6%9f%e0%a6%be%e0%a6%9a%e0%a6%be%e0%a6%b0%e0%a7%8d%e0%a6%af/"
+        }
+      ]
+    },
+    {
+      "author": "মানিক বন্দ্যোপাধ্যায়",
+      "chapters": 13,
+      "course_id": 214833,
+      "group_id": "ebanglalibrary:course:214833",
+      "split": "train",
+      "title": "বউ – মানিক বন্দ্যোপাধ্যায়",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%AC%E0%A6%89-%E0%A6%AE%E0%A6%BE%E0%A6%A8%E0%A6%BF%E0%A6%95-%E0%A6%AC%E0%A6%A8%E0%A7%8D%E0%A6%A6%E0%A7%8D%E0%A6%AF%E0%A7%8B%E0%A6%AA%E0%A6%BE%E0%A6%A7%E0%A7%8D%E0%A6%AF%E0%A6%BE%E0%A6%AF/",
+      "author_references": [
+        {
+          "name": "মানিক বন্দ্যোপাধ্যায়",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%ae%e0%a6%be%e0%a6%a8%e0%a6%bf%e0%a6%95-%e0%a6%ac%e0%a6%a8%e0%a7%8d%e0%a6%a6%e0%a7%8d%e0%a6%af%e0%a7%8b%e0%a6%aa%e0%a6%be%e0%a6%a7%e0%a7%8d%e0%a6%af%e0%a6%be%e0%a6%af%e0%a6%bc/"
+        }
+      ]
+    },
+    {
+      "author": "দীপান্বিতা রায়",
+      "chapters": 5,
+      "course_id": 239936,
+      "group_id": "ebanglalibrary:course:239936",
+      "split": "train",
+      "title": "মহীদাদুর এন্টিডোট – দীপান্বিতা রায়",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%AE%E0%A6%B9%E0%A7%80%E0%A6%A6%E0%A6%BE%E0%A6%A6%E0%A7%81%E0%A6%B0-%E0%A6%8F%E0%A6%A8%E0%A7%8D%E0%A6%9F%E0%A6%BF%E0%A6%A1%E0%A7%8B%E0%A6%9F-%E0%A6%A6%E0%A7%80%E0%A6%AA%E0%A6%BE%E0%A6%A8/",
+      "author_references": [
+        {
+          "name": "দীপান্বিতা রায়",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%a6%e0%a7%80%e0%a6%aa%e0%a6%be%e0%a6%a8%e0%a7%8d%e0%a6%ac%e0%a6%bf%e0%a6%a4%e0%a6%be-%e0%a6%b0%e0%a6%be%e0%a6%af%e0%a6%bc/"
+        }
+      ]
+    },
+    {
+      "author": "কৌশিক সামন্ত",
+      "chapters": 20,
+      "course_id": 265016,
+      "group_id": "ebanglalibrary:course:265016",
+      "split": "validation",
+      "title": "মেলানকোলির রাত – কৌশিক সামন্ত",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%AE%E0%A7%87%E0%A6%B2%E0%A6%BE%E0%A6%A8%E0%A6%95%E0%A7%8B%E0%A6%B2%E0%A6%BF%E0%A6%B0-%E0%A6%B0%E0%A6%BE%E0%A6%A4-%E0%A6%95%E0%A7%8C%E0%A6%B6%E0%A6%BF%E0%A6%95-%E0%A6%B8%E0%A6%BE%E0%A6%AE/",
+      "author_references": [
+        {
+          "name": "কৌশিক সামন্ত",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%95%e0%a7%8c%e0%a6%b6%e0%a6%bf%e0%a6%95-%e0%a6%b8%e0%a6%be%e0%a6%ae%e0%a6%a8%e0%a7%8d%e0%a6%a4/"
+        }
+      ]
+    },
+    {
+      "author": "সঞ্চারী মুখোপাধ্যায় | সাদত হাসান মান্টো",
+      "chapters": 25,
+      "course_id": 214060,
+      "group_id": "ebanglalibrary:course:214060",
+      "split": "train",
+      "title": "মান্টোর সেরা পঁচিশ – সাদত হাসান মান্টো",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%AE%E0%A6%BE%E0%A6%A8%E0%A7%8D%E0%A6%9F%E0%A7%8B%E0%A6%B0-%E0%A6%B8%E0%A7%87%E0%A6%B0%E0%A6%BE-%E0%A6%AA%E0%A6%81%E0%A6%9A%E0%A6%BF%E0%A6%B6-%E0%A6%B8%E0%A6%BE%E0%A6%A6%E0%A6%A4/",
+      "author_references": [
+        {
+          "name": "সঞ্চারী মুখোপাধ্যায়",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b8%e0%a6%9e%e0%a7%8d%e0%a6%9a%e0%a6%be%e0%a6%b0%e0%a7%80-%e0%a6%ae%e0%a7%81%e0%a6%96%e0%a7%8b%e0%a6%aa%e0%a6%be%e0%a6%a7%e0%a7%8d%e0%a6%af%e0%a6%be%e0%a6%af%e0%a6%bc/"
+        },
+        {
+          "name": "সাদত হাসান মান্টো",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b8%e0%a6%be%e0%a6%a6%e0%a6%a4-%e0%a6%b9%e0%a6%be%e0%a6%b8%e0%a6%be%e0%a6%a8-%e0%a6%ae%e0%a6%be%e0%a6%a8%e0%a7%8d%e0%a6%9f%e0%a7%8b/"
+        }
+      ]
+    },
+    {
+      "author": "বাণী বসু",
+      "chapters": 23,
+      "course_id": 218348,
+      "group_id": "ebanglalibrary:course:218348",
+      "split": "train",
+      "title": "খনামিহিরের ঢিপি – বাণী বসু",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%96%E0%A6%A8%E0%A6%BE%E0%A6%AE%E0%A6%BF%E0%A6%B9%E0%A6%BF%E0%A6%B0%E0%A7%87%E0%A6%B0-%E0%A6%A2%E0%A6%BF%E0%A6%AA%E0%A6%BF-%E0%A6%AC%E0%A6%BE%E0%A6%A3%E0%A7%80-%E0%A6%AC%E0%A6%B8/",
+      "author_references": [
+        {
+          "name": "বাণী বসু",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%ac%e0%a6%be%e0%a6%a3%e0%a7%80-%e0%a6%ac%e0%a6%b8%e0%a7%81/"
+        }
+      ]
+    },
+    {
+      "author": "সৈকত মুখোপাধ্যায়",
+      "chapters": 8,
+      "course_id": 239920,
+      "group_id": "ebanglalibrary:course:239920",
+      "split": "train",
+      "title": "ফুটিডাঙায় ফাটাফাটি – সৈকত মুখোপাধ্যায়",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%AB%E0%A7%81%E0%A6%9F%E0%A6%BF%E0%A6%A1%E0%A6%BE%E0%A6%99%E0%A6%BE%E0%A6%AF%E0%A6%BC-%E0%A6%AB%E0%A6%BE%E0%A6%9F%E0%A6%BE%E0%A6%AB%E0%A6%BE%E0%A6%9F%E0%A6%BF-%E0%A6%B8%E0%A7%88%E0%A6%95/",
+      "author_references": [
+        {
+          "name": "সৈকত মুখোপাধ্যায়",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b8%e0%a7%88%e0%a6%95%e0%a6%a4-%e0%a6%ae%e0%a7%81%e0%a6%96%e0%a7%8b%e0%a6%aa%e0%a6%be%e0%a6%a7%e0%a7%8d%e0%a6%af%e0%a6%be%e0%a6%af%e0%a6%bc/"
+        }
+      ]
+    },
+    {
+      "author": "সুচিত্রা ভট্টাচার্য",
+      "chapters": 10,
+      "course_id": 228005,
+      "group_id": "ebanglalibrary:course:228005",
+      "split": "train",
+      "title": "আমার এখন সময় নেই – সুচিত্রা ভট্টাচার্য",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%86%E0%A6%AE%E0%A6%BE%E0%A6%B0-%E0%A6%8F%E0%A6%96%E0%A6%A8-%E0%A6%B8%E0%A6%AE%E0%A6%AF%E0%A6%BC-%E0%A6%A8%E0%A7%87%E0%A6%87-%E0%A6%B8%E0%A7%81%E0%A6%9A%E0%A6%BF%E0%A6%A4%E0%A7%8D%E0%A6%B0/",
+      "author_references": [
+        {
+          "name": "সুচিত্রা ভট্টাচার্য",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b8%e0%a7%81%e0%a6%9a%e0%a6%bf%e0%a6%a4%e0%a7%8d%e0%a6%b0%e0%a6%be-%e0%a6%ad%e0%a6%9f%e0%a7%8d%e0%a6%9f%e0%a6%be%e0%a6%9a%e0%a6%be%e0%a6%b0%e0%a7%8d%e0%a6%af/"
+        }
+      ]
+    },
+    {
+      "author": "মোজাফ্‌ফর হোসেন",
+      "chapters": 14,
+      "course_id": 103396,
+      "group_id": "ebanglalibrary:course:103396",
+      "split": "train",
+      "title": "অতীত একটা ভিনদেশ – মোজাফ্‌ফর হোসেন",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%85%E0%A6%A4%E0%A7%80%E0%A6%A4-%E0%A6%8F%E0%A6%95%E0%A6%9F%E0%A6%BE-%E0%A6%AD%E0%A6%BF%E0%A6%A8%E0%A6%A6%E0%A7%87%E0%A6%B6-%E0%A6%AE%E0%A7%8B%E0%A6%9C%E0%A6%BE%E0%A6%AB%E0%A7%8D/",
+      "author_references": [
+        {
+          "name": "মোজাফ্‌ফর হোসেন",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%ae%e0%a7%8b%e0%a6%9c%e0%a6%be%e0%a6%ab%e0%a7%8d%e0%a6%ab%e0%a6%b0-%e0%a6%b9%e0%a7%8b%e0%a6%b8%e0%a7%87%e0%a6%a8/"
+        }
+      ]
+    },
+    {
+      "author": "আলী ইমাম",
+      "chapters": 14,
+      "course_id": 214763,
+      "group_id": "ebanglalibrary:course:214763",
+      "split": "train",
+      "title": "তারার দেশের হাঁস – আলী ইমাম",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%A4%E0%A6%BE%E0%A6%B0%E0%A6%BE%E0%A6%B0-%E0%A6%A6%E0%A7%87%E0%A6%B6%E0%A7%87%E0%A6%B0-%E0%A6%B9%E0%A6%BE%E0%A6%81%E0%A6%B8-%E0%A6%86%E0%A6%B2%E0%A7%80-%E0%A6%87%E0%A6%AE%E0%A6%BE/",
+      "author_references": [
+        {
+          "name": "আলী ইমাম",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%86%e0%a6%b2%e0%a7%80-%e0%a6%87%e0%a6%ae%e0%a6%be%e0%a6%ae/"
+        }
+      ]
+    },
+    {
+      "author": "বিনায়ক বন্দ্যোপাধ্যায়",
+      "chapters": 24,
+      "course_id": 216430,
+      "group_id": "ebanglalibrary:course:216430",
+      "split": "test",
+      "title": "ভৌ – বিনায়ক বন্দ্যোপাধ্যায়",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%AD%E0%A7%8C-%E0%A6%AC%E0%A6%BF%E0%A6%A8%E0%A6%BE%E0%A6%AF%E0%A6%BC%E0%A6%95-%E0%A6%AC%E0%A6%A8%E0%A7%8D%E0%A6%A6%E0%A7%8D%E0%A6%AF%E0%A7%8B%E0%A6%AA%E0%A6%BE%E0%A6%A7%E0%A7%8D/",
+      "author_references": [
+        {
+          "name": "বিনায়ক বন্দ্যোপাধ্যায়",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%ac%e0%a6%bf%e0%a6%a8%e0%a6%be%e0%a6%af%e0%a6%bc%e0%a6%95-%e0%a6%ac%e0%a6%a8%e0%a7%8d%e0%a6%a6%e0%a7%8d%e0%a6%af%e0%a7%8b%e0%a6%aa%e0%a6%be%e0%a6%a7%e0%a7%8d%e0%a6%af%e0%a6%be%e0%a6%af%e0%a6%bc/"
+        }
+      ]
+    },
+    {
+      "author": "সুনীল গঙ্গোপাধ্যায়",
+      "chapters": 12,
+      "course_id": 202983,
+      "group_id": "ebanglalibrary:course:202983",
+      "split": "train",
+      "title": "অর্ধেক মানবী – নীললোহিত (সুনীল গঙ্গোপাধ্যায়)",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%85%E0%A6%B0%E0%A7%8D%E0%A6%A7%E0%A7%87%E0%A6%95-%E0%A6%AE%E0%A6%BE%E0%A6%A8%E0%A6%AC%E0%A7%80-%E0%A6%B8%E0%A7%81%E0%A6%A8%E0%A7%80%E0%A6%B2-%E0%A6%97%E0%A6%99%E0%A7%8D%E0%A6%97%E0%A7%8B/",
+      "author_references": [
+        {
+          "name": "সুনীল গঙ্গোপাধ্যায়",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b8%e0%a7%81%e0%a6%a8%e0%a7%80%e0%a6%b2-%e0%a6%97%e0%a6%99%e0%a7%8d%e0%a6%97%e0%a7%8b%e0%a6%aa%e0%a6%be%e0%a6%a7%e0%a7%8d%e0%a6%af%e0%a6%be%e0%a6%af%e0%a6%bc/"
+        }
+      ]
+    },
+    {
+      "author": "অভিষেক সেনগুপ্ত",
+      "chapters": 10,
+      "course_id": 239985,
+      "group_id": "ebanglalibrary:course:239985",
+      "split": "train",
+      "title": "দশন – অভিষেক সেনগুপ্ত",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%A6%E0%A6%B6%E0%A6%A8-%E0%A6%85%E0%A6%AD%E0%A6%BF%E0%A6%B7%E0%A7%87%E0%A6%95-%E0%A6%B8%E0%A7%87%E0%A6%A8%E0%A6%97%E0%A7%81%E0%A6%AA%E0%A7%8D%E0%A6%A4/",
+      "author_references": [
+        {
+          "name": "অভিষেক সেনগুপ্ত",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%85%e0%a6%ad%e0%a6%bf%e0%a6%b7%e0%a7%87%e0%a6%95-%e0%a6%b8%e0%a7%87%e0%a6%a8%e0%a6%97%e0%a7%81%e0%a6%aa%e0%a7%8d%e0%a6%a4/"
+        }
+      ]
+    },
+    {
+      "author": "মাহরীন ফেরদৌস",
+      "chapters": 14,
+      "course_id": 111542,
+      "group_id": "ebanglalibrary:course:111542",
+      "split": "test",
+      "title": "অরিগামির গোলকধাঁধায় – মাহরীন ফেরদৌস",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%85%E0%A6%B0%E0%A6%BF%E0%A6%97%E0%A6%BE%E0%A6%AE%E0%A6%BF%E0%A6%B0-%E0%A6%97%E0%A7%8B%E0%A6%B2%E0%A6%95%E0%A6%A7%E0%A6%BE%E0%A6%81%E0%A6%A7%E0%A6%BE%E0%A6%AF%E0%A6%BC/",
+      "author_references": [
+        {
+          "name": "মাহরীন ফেরদৌস",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%ae%e0%a6%be%e0%a6%b9%e0%a6%b0%e0%a7%80%e0%a6%a8-%e0%a6%ab%e0%a7%87%e0%a6%b0%e0%a6%a6%e0%a7%8c%e0%a6%b8/"
+        }
+      ]
+    },
+    {
+      "author": "অন্নদাশঙ্কর রায়",
+      "chapters": 13,
+      "course_id": 214791,
+      "group_id": "ebanglalibrary:course:214791",
+      "split": "train",
+      "title": "বিনুর বই ও নির্বাচিত ছোটোগল্প – অন্নদাশঙ্কর রায়",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%AC%E0%A6%BF%E0%A6%A8%E0%A7%81%E0%A6%B0-%E0%A6%AC%E0%A6%87-%E0%A6%93-%E0%A6%A8%E0%A6%BF%E0%A6%B0%E0%A7%8D%E0%A6%AC%E0%A6%BE%E0%A6%9A%E0%A6%BF%E0%A6%A4-%E0%A6%9B%E0%A7%8B%E0%A6%9F%E0%A7%8B/",
+      "author_references": [
+        {
+          "name": "অন্নদাশঙ্কর রায়",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%85%e0%a6%a8%e0%a7%8d%e0%a6%a8%e0%a6%a6%e0%a6%be%e0%a6%b6%e0%a6%99%e0%a7%8d%e0%a6%95%e0%a6%b0-%e0%a6%b0%e0%a6%be%e0%a6%af%e0%a6%bc/"
+        }
+      ]
+    },
+    {
+      "author": "অর্পিতা সরকার",
+      "chapters": 20,
+      "course_id": 248573,
+      "group_id": "ebanglalibrary:course:248573",
+      "split": "train",
+      "title": "অপেক্ষার বারোমাস – অর্পিতা সরকার",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%85%E0%A6%AA%E0%A7%87%E0%A6%95%E0%A7%8D%E0%A6%B7%E0%A6%BE%E0%A6%B0-%E0%A6%AC%E0%A6%BE%E0%A6%B0%E0%A7%8B%E0%A6%AE%E0%A6%BE%E0%A6%B8-%E0%A6%85%E0%A6%B0%E0%A7%8D%E0%A6%AA%E0%A6%BF%E0%A6%A4/",
+      "author_references": [
+        {
+          "name": "অর্পিতা সরকার",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%85%e0%a6%b0%e0%a7%8d%e0%a6%aa%e0%a6%bf%e0%a6%a4%e0%a6%be-%e0%a6%b8%e0%a6%b0%e0%a6%95%e0%a6%be%e0%a6%b0/"
+        }
+      ]
+    },
+    {
+      "author": "রতনতনু ঘাটী",
+      "chapters": 25,
+      "course_id": 258270,
+      "group_id": "ebanglalibrary:course:258270",
+      "split": "train",
+      "title": "২৫টি সেরা রূপকথা – রতনতনু ঘাটী",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A7%A8%E0%A7%AB%E0%A6%9F%E0%A6%BF-%E0%A6%B8%E0%A7%87%E0%A6%B0%E0%A6%BE-%E0%A6%B0%E0%A7%82%E0%A6%AA%E0%A6%95%E0%A6%A5%E0%A6%BE-%E0%A6%B0%E0%A6%A4%E0%A6%A8%E0%A6%A4%E0%A6%A8%E0%A7%81-%E0%A6%98/",
+      "author_references": [
+        {
+          "name": "রতনতনু ঘাটী",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b0%e0%a6%a4%e0%a6%a8%e0%a6%a4%e0%a6%a8%e0%a7%81-%e0%a6%98%e0%a6%be%e0%a6%9f%e0%a7%80/"
+        }
+      ]
+    },
+    {
+      "author": "শ্যামল গঙ্গোপাধ্যায়",
+      "chapters": 25,
+      "course_id": 235658,
+      "group_id": "ebanglalibrary:course:235658",
+      "split": "train",
+      "title": "পঁচিশটি গল্প – শ্যামল গঙ্গোপাধ্যায়",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%AA%E0%A6%81%E0%A6%9A%E0%A6%BF%E0%A6%B6%E0%A6%9F%E0%A6%BF-%E0%A6%97%E0%A6%B2%E0%A7%8D%E0%A6%AA-%E0%A6%B6%E0%A7%8D%E0%A6%AF%E0%A6%BE%E0%A6%AE%E0%A6%B2-%E0%A6%97%E0%A6%99%E0%A7%8D%E0%A6%97/",
+      "author_references": [
+        {
+          "name": "শ্যামল গঙ্গোপাধ্যায়",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b6%e0%a7%8d%e0%a6%af%e0%a6%be%e0%a6%ae%e0%a6%b2-%e0%a6%97%e0%a6%99%e0%a7%8d%e0%a6%97%e0%a7%8b%e0%a6%aa%e0%a6%be%e0%a6%a7%e0%a7%8d%e0%a6%af%e0%a6%be%e0%a6%af%e0%a6%bc/"
+        }
+      ]
+    },
+    {
+      "author": "উপেন্দ্রকিশোর রায়চৌধুরী",
+      "chapters": 36,
+      "course_id": 215567,
+      "group_id": "ebanglalibrary:course:215567",
+      "split": "train",
+      "title": "গল্পমালা – উপেন্দ্রকিশোর রায়চৌধুরী",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%97%E0%A6%B2%E0%A7%8D%E0%A6%AA%E0%A6%AE%E0%A6%BE%E0%A6%B2%E0%A6%BE-%E0%A6%89%E0%A6%AA%E0%A7%87%E0%A6%A8%E0%A7%8D%E0%A6%A6%E0%A7%8D%E0%A6%B0%E0%A6%95%E0%A6%BF%E0%A6%B6%E0%A7%8B%E0%A6%B0/",
+      "author_references": [
+        {
+          "name": "উপেন্দ্রকিশোর রায়চৌধুরী",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%89%e0%a6%aa%e0%a7%87%e0%a6%a8%e0%a7%8d%e0%a6%a6%e0%a7%8d%e0%a6%b0%e0%a6%95%e0%a6%bf%e0%a6%b6%e0%a7%8b%e0%a6%b0-%e0%a6%b0%e0%a6%be%e0%a6%af%e0%a6%bc%e0%a6%9a%e0%a7%8c%e0%a6%a7%e0%a7%81%e0%a6%b0/"
+        }
+      ]
+    },
+    {
+      "author": "আশাপূর্ণা দেবী",
+      "chapters": 10,
+      "course_id": 229484,
+      "group_id": "ebanglalibrary:course:229484",
+      "split": "train",
+      "title": "১০টি কিশোর উপন্যাস – আশাপূর্ণা দেবী",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A7%A7%E0%A7%A6%E0%A6%9F%E0%A6%BF-%E0%A6%95%E0%A6%BF%E0%A6%B6%E0%A7%8B%E0%A6%B0-%E0%A6%89%E0%A6%AA%E0%A6%A8%E0%A7%8D%E0%A6%AF%E0%A6%BE%E0%A6%B8-%E0%A6%86%E0%A6%B6%E0%A6%BE%E0%A6%AA%E0%A7%82/",
+      "author_references": [
+        {
+          "name": "আশাপূর্ণা দেবী",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%86%e0%a6%b6%e0%a6%be%e0%a6%aa%e0%a7%82%e0%a6%b0%e0%a7%8d%e0%a6%a3%e0%a6%be-%e0%a6%a6%e0%a7%87%e0%a6%ac%e0%a7%80/"
+        }
+      ]
+    },
+    {
+      "author": "প্রচেত গুপ্ত",
+      "chapters": 15,
+      "course_id": 236897,
+      "group_id": "ebanglalibrary:course:236897",
+      "split": "validation",
+      "title": "স্যার, আমি খুন করেছি – প্রচেত গুপ্ত",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%B8%E0%A7%8D%E0%A6%AF%E0%A6%BE%E0%A6%B0-%E0%A6%86%E0%A6%AE%E0%A6%BF-%E0%A6%96%E0%A7%81%E0%A6%A8-%E0%A6%95%E0%A6%B0%E0%A7%87%E0%A6%9B%E0%A6%BF-%E0%A6%AA%E0%A7%8D%E0%A6%B0%E0%A6%9A%E0%A7%87/",
+      "author_references": [
+        {
+          "name": "প্রচেত গুপ্ত",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%aa%e0%a7%8d%e0%a6%b0%e0%a6%9a%e0%a7%87%e0%a6%a4-%e0%a6%97%e0%a7%81%e0%a6%aa%e0%a7%8d%e0%a6%a4/"
+        }
+      ]
+    },
+    {
+      "author": "শঙ্কর চ্যাটার্জী",
+      "chapters": 8,
+      "course_id": 260409,
+      "group_id": "ebanglalibrary:course:260409",
+      "split": "train",
+      "title": "বৈদ্যুতিক চুল্লি – শঙ্কর চ্যাটার্জী",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%AC%E0%A7%88%E0%A6%A6%E0%A7%8D%E0%A6%AF%E0%A7%81%E0%A6%A4%E0%A6%BF%E0%A6%95-%E0%A6%9A%E0%A7%81%E0%A6%B2%E0%A7%8D%E0%A6%B2%E0%A6%BF-%E0%A6%B6%E0%A6%99%E0%A7%8D%E0%A6%95%E0%A6%B0-%E0%A6%9A/",
+      "author_references": [
+        {
+          "name": "শঙ্কর চ্যাটার্জী",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b6%e0%a6%99%e0%a7%8d%e0%a6%95%e0%a6%b0-%e0%a6%9a%e0%a7%8d%e0%a6%af%e0%a6%be%e0%a6%9f%e0%a6%be%e0%a6%b0%e0%a7%8d%e0%a6%9c%e0%a7%80/"
+        }
+      ]
+    },
+    {
+      "author": "মুহম্মদ শহীদুল্লাহ",
+      "chapters": 12,
+      "course_id": 216122,
+      "group_id": "ebanglalibrary:course:216122",
+      "split": "train",
+      "title": "রকমারি – ডক্টর মুহম্মদ শহীদুল্লাহ",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%B0%E0%A6%95%E0%A6%AE%E0%A6%BE%E0%A6%B0%E0%A6%BF-%E0%A6%A1%E0%A6%95%E0%A7%8D%E0%A6%9F%E0%A6%B0-%E0%A6%AE%E0%A7%81%E0%A6%B9%E0%A6%AE%E0%A7%8D%E0%A6%AE%E0%A6%A6-%E0%A6%B6%E0%A6%B9/",
+      "author_references": [
+        {
+          "name": "মুহম্মদ শহীদুল্লাহ",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%ae%e0%a7%81%e0%a6%b9%e0%a6%ae%e0%a7%8d%e0%a6%ae%e0%a6%a6-%e0%a6%b6%e0%a6%b9%e0%a7%80%e0%a6%a6%e0%a7%81%e0%a6%b2%e0%a7%8d%e0%a6%b2%e0%a6%be%e0%a6%b9/"
+        }
+      ]
+    },
+    {
+      "author": "বিভূতিভূষণ বন্দ্যোপাধ্যায়",
+      "chapters": 14,
+      "course_id": 209437,
+      "group_id": "ebanglalibrary:course:209437",
+      "split": "train",
+      "title": "চাঁদের পাহাড় – বিভূতিভূষণ বন্দ্যোপাধ্যায়",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%9A%E0%A6%BE%E0%A6%81%E0%A6%A6%E0%A7%87%E0%A6%B0-%E0%A6%AA%E0%A6%BE%E0%A6%B9%E0%A6%BE%E0%A6%A1%E0%A6%BC-%E0%A6%AC%E0%A6%BF%E0%A6%AD%E0%A7%82%E0%A6%A4%E0%A6%BF%E0%A6%AD%E0%A7%82%E0%A6%B7/",
+      "author_references": [
+        {
+          "name": "বিভূতিভূষণ বন্দ্যোপাধ্যায়",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%ac%e0%a6%bf%e0%a6%ad%e0%a7%82%e0%a6%a4%e0%a6%bf%e0%a6%ad%e0%a7%82%e0%a6%b7%e0%a6%a3-%e0%a6%ac%e0%a6%a8%e0%a7%8d%e0%a6%a6%e0%a7%8d%e0%a6%af%e0%a7%8b%e0%a6%aa%e0%a6%be%e0%a6%a7%e0%a7%8d%e0%a6%af/"
+        }
+      ]
+    },
+    {
+      "author": "বিভূতিভূষণ মুখোপাধ্যায়",
+      "chapters": 12,
+      "course_id": 228337,
+      "group_id": "ebanglalibrary:course:228337",
+      "split": "test",
+      "title": "রাণুর দ্বিতীয় ভাগ – বিভূতিভূষণ মুখোপাধ্যায়",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%B0%E0%A6%BE%E0%A6%A3%E0%A7%81%E0%A6%B0-%E0%A6%A6%E0%A7%8D%E0%A6%AC%E0%A6%BF%E0%A6%A4%E0%A7%80%E0%A6%AF%E0%A6%BC-%E0%A6%AD%E0%A6%BE%E0%A6%97-%E0%A6%AC%E0%A6%BF%E0%A6%AD%E0%A7%82%E0%A6%A4/",
+      "author_references": [
+        {
+          "name": "বিভূতিভূষণ মুখোপাধ্যায়",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%ac%e0%a6%bf%e0%a6%ad%e0%a7%82%e0%a6%a4%e0%a6%bf%e0%a6%ad%e0%a7%82%e0%a6%b7%e0%a6%a3-%e0%a6%ae%e0%a7%81%e0%a6%96%e0%a7%8b%e0%a6%aa%e0%a6%be%e0%a6%a7%e0%a7%8d%e0%a6%af%e0%a6%be%e0%a6%af%e0%a6%bc/"
+        }
+      ]
+    },
+    {
+      "author": "হুমায়ূন আহমেদ",
+      "chapters": 7,
+      "course_id": 198424,
+      "group_id": "ebanglalibrary:course:198424",
+      "split": "train",
+      "title": "মীরার গ্রামের বাড়ী – হুমায়ূন আহমেদ",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%AE%E0%A7%80%E0%A6%B0%E0%A6%BE%E0%A6%B0-%E0%A6%97%E0%A7%8D%E0%A6%B0%E0%A6%BE%E0%A6%AE%E0%A7%87%E0%A6%B0-%E0%A6%AC%E0%A6%BE%E0%A6%A1%E0%A6%BC%E0%A7%80-%E0%A6%B9%E0%A7%81%E0%A6%AE%E0%A6%BE/",
+      "author_references": [
+        {
+          "name": "হুমায়ূন আহমেদ",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b9%e0%a7%81%e0%a6%ae%e0%a6%be%e0%a6%af%e0%a6%bc%e0%a7%82%e0%a6%a8-%e0%a6%86%e0%a6%b9%e0%a6%ae%e0%a7%87%e0%a6%a6/"
+        }
+      ]
+    },
+    {
+      "author": "হিমাদ্রিকিশোর দাশগুপ্ত",
+      "chapters": 12,
+      "course_id": 239738,
+      "group_id": "ebanglalibrary:course:239738",
+      "split": "train",
+      "title": "ভয়ংকর স্বীকারোক্তি – হিমাদ্রিকিশোর দাশগুপ্ত",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%AD%E0%A6%AF%E0%A6%BC%E0%A6%82%E0%A6%95%E0%A6%B0-%E0%A6%B8%E0%A7%8D%E0%A6%AC%E0%A7%80%E0%A6%95%E0%A6%BE%E0%A6%B0%E0%A7%8B%E0%A6%95%E0%A7%8D%E0%A6%A4%E0%A6%BF-%E0%A6%B9%E0%A6%BF%E0%A6%AE/",
+      "author_references": [
+        {
+          "name": "হিমাদ্রিকিশোর দাশগুপ্ত",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b9%e0%a6%bf%e0%a6%ae%e0%a6%be%e0%a6%a6%e0%a7%8d%e0%a6%b0%e0%a6%bf%e0%a6%95%e0%a6%bf%e0%a6%b6%e0%a7%8b%e0%a6%b0-%e0%a6%a6%e0%a6%be%e0%a6%b6%e0%a6%97%e0%a7%81%e0%a6%aa%e0%a7%8d%e0%a6%a4/"
+        }
+      ]
+    },
+    {
+      "author": "মুহম্মদ জাফর ইকবাল",
+      "chapters": 6,
+      "course_id": 222880,
+      "group_id": "ebanglalibrary:course:222880",
+      "split": "train",
+      "title": "আরো টুনটুনি ও আরো ছোটাচ্চু – মুহম্মদ জাফর ইকবাল",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%86%E0%A6%B0%E0%A7%8B-%E0%A6%9F%E0%A7%81%E0%A6%A8%E0%A6%9F%E0%A7%81%E0%A6%A8%E0%A6%BF-%E0%A6%93-%E0%A6%86%E0%A6%B0%E0%A7%8B-%E0%A6%9B%E0%A7%8B%E0%A6%9F%E0%A6%BE%E0%A6%9A%E0%A7%8D%E0%A6%9A/",
+      "author_references": [
+        {
+          "name": "মুহম্মদ জাফর ইকবাল",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%ae%e0%a7%81%e0%a6%b9%e0%a6%ae%e0%a7%8d%e0%a6%ae%e0%a6%a6-%e0%a6%9c%e0%a6%be%e0%a6%ab%e0%a6%b0-%e0%a6%87%e0%a6%95%e0%a6%ac%e0%a6%be%e0%a6%b2/"
+        }
+      ]
+    },
+    {
+      "author": "শীর্ষেন্দু মুখােপাধ্যায়",
+      "chapters": 21,
+      "course_id": 228733,
+      "group_id": "ebanglalibrary:course:228733",
+      "split": "test",
+      "title": "বিয়ের রাত – শীর্ষেন্দু মুখোপাধ্যায়",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%AC%E0%A6%BF%E0%A6%AF%E0%A6%BC%E0%A7%87%E0%A6%B0-%E0%A6%B0%E0%A6%BE%E0%A6%A4-%E0%A6%B6%E0%A7%80%E0%A6%B0%E0%A7%8D%E0%A6%B7%E0%A7%87%E0%A6%A8%E0%A7%8D%E0%A6%A6%E0%A7%81-%E0%A6%AE%E0%A7%81/",
+      "author_references": [
+        {
+          "name": "শীর্ষেন্দু মুখােপাধ্যায়",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b6%e0%a7%80%e0%a6%b0%e0%a7%8d%e0%a6%b7%e0%a7%87%e0%a6%a8%e0%a7%8d%e0%a6%a6%e0%a7%81-%e0%a6%ae%e0%a7%81%e0%a6%96%e0%a6%be%e0%a7%87%e0%a6%aa%e0%a6%be%e0%a6%a7%e0%a7%8d%e0%a6%af%e0%a6%be%e0%a6%af/"
+        }
+      ]
+    },
+    {
+      "author": "স্বপ্নময় চক্রবর্তী",
+      "chapters": 4,
+      "course_id": 215763,
+      "group_id": "ebanglalibrary:course:215763",
+      "split": "train",
+      "title": "চার ডাক্তার – স্বপ্নময় চক্রবর্তী",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%9A%E0%A6%BE%E0%A6%B0-%E0%A6%A1%E0%A6%BE%E0%A6%95%E0%A7%8D%E0%A6%A4%E0%A6%BE%E0%A6%B0-%E0%A6%B8%E0%A7%8D%E0%A6%AC%E0%A6%AA%E0%A7%8D%E0%A6%A8%E0%A6%AE%E0%A6%AF%E0%A6%BC-%E0%A6%9A/",
+      "author_references": [
+        {
+          "name": "স্বপ্নময় চক্রবর্তী",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b8%e0%a7%8d%e0%a6%ac%e0%a6%aa%e0%a7%8d%e0%a6%a8%e0%a6%ae%e0%a6%af%e0%a6%bc-%e0%a6%9a%e0%a6%95%e0%a7%8d%e0%a6%b0%e0%a6%ac%e0%a6%b0%e0%a7%8d%e0%a6%a4%e0%a7%80/"
+        }
+      ]
+    },
+    {
+      "author": "সুবোধ চক্রবর্তী",
+      "chapters": 10,
+      "course_id": 279730,
+      "group_id": "ebanglalibrary:course:279730",
+      "split": "train",
+      "title": "ছোটদের পারস্য উপন্যাস – সুবোধ চক্রবর্তী",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%9B%E0%A7%8B%E0%A6%9F%E0%A6%A6%E0%A7%87%E0%A6%B0-%E0%A6%AA%E0%A6%BE%E0%A6%B0%E0%A6%B8%E0%A7%8D%E0%A6%AF-%E0%A6%89%E0%A6%AA%E0%A6%A8%E0%A7%8D%E0%A6%AF%E0%A6%BE%E0%A6%B8-%E0%A6%B8%E0%A7%81/",
+      "author_references": [
+        {
+          "name": "সুবোধ চক্রবর্তী",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b8%e0%a7%81%e0%a6%ac%e0%a7%8b%e0%a6%a7-%e0%a6%9a%e0%a6%95%e0%a7%8d%e0%a6%b0%e0%a6%ac%e0%a6%b0%e0%a7%8d%e0%a6%a4%e0%a7%80/"
+        }
+      ]
+    },
+    {
+      "author": "সোনালী ঘোষাল",
+      "chapters": 12,
+      "course_id": 220043,
+      "group_id": "ebanglalibrary:course:220043",
+      "split": "train",
+      "title": "আম্মানের গল্পের ঝাঁপি – সোনালী ঘোষাল",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%86%E0%A6%AE%E0%A7%8D%E0%A6%AE%E0%A6%BE%E0%A6%A8%E0%A7%87%E0%A6%B0-%E0%A6%97%E0%A6%B2%E0%A7%8D%E0%A6%AA%E0%A7%87%E0%A6%B0-%E0%A6%9D%E0%A6%BE%E0%A6%81%E0%A6%AA%E0%A6%BF-%E0%A6%B8%E0%A7%8B/",
+      "author_references": [
+        {
+          "name": "সোনালী ঘোষাল",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b8%e0%a7%8b%e0%a6%a8%e0%a6%be%e0%a6%b2%e0%a7%80-%e0%a6%98%e0%a7%8b%e0%a6%b7%e0%a6%be%e0%a6%b2/"
+        }
+      ]
+    },
+    {
+      "author": "আনিসুল হক",
+      "chapters": 5,
+      "course_id": 214918,
+      "group_id": "ebanglalibrary:course:214918",
+      "split": "train",
+      "title": "বাগানবাড়ি রহস্য – আনিসুল হক",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%AC%E0%A6%BE%E0%A6%97%E0%A6%BE%E0%A6%A8%E0%A6%AC%E0%A6%BE%E0%A6%A1%E0%A6%BC%E0%A6%BF-%E0%A6%B0%E0%A6%B9%E0%A6%B8%E0%A7%8D%E0%A6%AF-%E0%A6%86%E0%A6%A8%E0%A6%BF%E0%A6%B8%E0%A7%81/",
+      "author_references": [
+        {
+          "name": "আনিসুল হক",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%86%e0%a6%a8%e0%a6%bf%e0%a6%b8%e0%a7%81%e0%a6%b2-%e0%a6%b9%e0%a6%95/"
+        }
+      ]
+    },
+    {
+      "author": "দিব্যজ্যোতি মজুমদার",
+      "chapters": 24,
+      "course_id": 257565,
+      "group_id": "ebanglalibrary:course:257565",
+      "split": "validation",
+      "title": "আদিবাসী লোককথা : ২য় খণ্ড – দিব্যজ্যোতি মজুমদার",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%86%E0%A6%A6%E0%A6%BF%E0%A6%AC%E0%A6%BE%E0%A6%B8%E0%A7%80-%E0%A6%B2%E0%A7%8B%E0%A6%95%E0%A6%95%E0%A6%A5%E0%A6%BE-%E0%A7%A8%E0%A6%AF%E0%A6%BC-%E0%A6%96%E0%A6%A3%E0%A7%8D%E0%A6%A1-%E0%A6%A6/",
+      "author_references": [
+        {
+          "name": "দিব্যজ্যোতি মজুমদার",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%a6%e0%a6%bf%e0%a6%ac%e0%a7%8d%e0%a6%af%e0%a6%9c%e0%a7%8d%e0%a6%af%e0%a7%8b%e0%a6%a4%e0%a6%bf-%e0%a6%ae%e0%a6%9c%e0%a7%81%e0%a6%ae%e0%a6%a6%e0%a6%be%e0%a6%b0/"
+        }
+      ]
+    },
+    {
+      "author": "রঞ্জন বন্দ্যোপাধ্যায়",
+      "chapters": 5,
+      "course_id": 218572,
+      "group_id": "ebanglalibrary:course:218572",
+      "split": "train",
+      "title": "পাঁচ মহানায়কের গোপন জীবন – রঞ্জন বন্দ্যোপাধ্যায়",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%AA%E0%A6%BE%E0%A6%81%E0%A6%9A-%E0%A6%AE%E0%A6%B9%E0%A6%BE%E0%A6%A8%E0%A6%BE%E0%A6%AF%E0%A6%BC%E0%A6%95%E0%A7%87%E0%A6%B0-%E0%A6%97%E0%A7%8B%E0%A6%AA%E0%A6%A8-%E0%A6%9C%E0%A7%80%E0%A6%AC/",
+      "author_references": [
+        {
+          "name": "রঞ্জন বন্দ্যোপাধ্যায়",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b0%e0%a6%9e%e0%a7%8d%e0%a6%9c%e0%a6%a8-%e0%a6%ac%e0%a6%a8%e0%a7%8d%e0%a6%a6%e0%a7%8d%e0%a6%af%e0%a7%8b%e0%a6%aa%e0%a6%be%e0%a6%a7%e0%a7%8d%e0%a6%af%e0%a6%be%e0%a6%af%e0%a6%bc/"
+        }
+      ]
+    },
+    {
+      "author": "সায়ক আমান",
+      "chapters": 45,
+      "course_id": 236590,
+      "group_id": "ebanglalibrary:course:236590",
+      "split": "train",
+      "title": "সেরা ৪৫ – সায়ক আমান",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%B8%E0%A7%87%E0%A6%B0%E0%A6%BE-%E0%A7%AA%E0%A7%AB-%E0%A6%B8%E0%A6%BE%E0%A6%AF%E0%A6%BC%E0%A6%95-%E0%A6%86%E0%A6%AE%E0%A6%BE%E0%A6%A8/",
+      "author_references": [
+        {
+          "name": "সায়ক আমান",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b8%e0%a6%be%e0%a6%af%e0%a6%bc%e0%a6%95-%e0%a6%86%e0%a6%ae%e0%a6%be%e0%a6%a8/"
+        }
+      ]
+    },
+    {
+      "author": "প্রফুল্ল রায়",
+      "chapters": 6,
+      "course_id": 241672,
+      "group_id": "ebanglalibrary:course:241672",
+      "split": "train",
+      "title": "পাগল মামার চার ছেলে – প্রফুল্ল রায়",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%AA%E0%A6%BE%E0%A6%97%E0%A6%B2-%E0%A6%AE%E0%A6%BE%E0%A6%AE%E0%A6%BE%E0%A6%B0-%E0%A6%9A%E0%A6%BE%E0%A6%B0-%E0%A6%9B%E0%A7%87%E0%A6%B2%E0%A7%87-%E0%A6%AA%E0%A7%8D%E0%A6%B0%E0%A6%AB%E0%A7%81/",
+      "author_references": [
+        {
+          "name": "প্রফুল্ল রায়",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%aa%e0%a7%8d%e0%a6%b0%e0%a6%ab%e0%a7%81%e0%a6%b2%e0%a7%8d%e0%a6%b2-%e0%a6%b0%e0%a6%be%e0%a6%af%e0%a6%bc/"
+        }
+      ]
+    },
+    {
+      "author": "আখতারুজ্জামান ইলিয়াস",
+      "chapters": 6,
+      "course_id": 197471,
+      "group_id": "ebanglalibrary:course:197471",
+      "split": "train",
+      "title": "অন্য ঘরে অন্য স্বর – আখতারুজ্জামান ইলিয়াস",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%85%E0%A6%A8%E0%A7%8D%E0%A6%AF-%E0%A6%98%E0%A6%B0%E0%A7%87-%E0%A6%85%E0%A6%A8%E0%A7%8D%E0%A6%AF-%E0%A6%B8%E0%A7%8D%E0%A6%AC%E0%A6%B0-%E0%A6%86%E0%A6%96%E0%A6%A4%E0%A6%BE%E0%A6%B0%E0%A7%81/",
+      "author_references": [
+        {
+          "name": "আখতারুজ্জামান ইলিয়াস",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%86%e0%a6%96%e0%a6%a4%e0%a6%be%e0%a6%b0%e0%a7%81%e0%a6%9c%e0%a7%8d%e0%a6%9c%e0%a6%be%e0%a6%ae%e0%a6%be%e0%a6%a8-%e0%a6%87%e0%a6%b2%e0%a6%bf%e0%a6%af%e0%a6%bc%e0%a6%be%e0%a6%b8/"
+        }
+      ]
+    },
+    {
+      "author": "সঞ্জীব চট্টোপাধ্যায়",
+      "chapters": 25,
+      "course_id": 235070,
+      "group_id": "ebanglalibrary:course:235070",
+      "split": "train",
+      "title": "২৫টি দমফাটা হাসি – সম্পাদনা : সঞ্জীব চট্টোপাধ্যায়",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A7%A8%E0%A7%AB%E0%A6%9F%E0%A6%BF-%E0%A6%A6%E0%A6%AE%E0%A6%AB%E0%A6%BE%E0%A6%9F%E0%A6%BE-%E0%A6%B9%E0%A6%BE%E0%A6%B8%E0%A6%BF-%E0%A6%B8%E0%A6%AE%E0%A7%8D%E0%A6%AA%E0%A6%BE%E0%A6%A6/",
+      "author_references": [
+        {
+          "name": "সঞ্জীব চট্টোপাধ্যায়",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b8%e0%a6%9e%e0%a7%8d%e0%a6%9c%e0%a7%80%e0%a6%ac-%e0%a6%9a%e0%a6%9f%e0%a7%8d%e0%a6%9f%e0%a7%8b%e0%a6%aa%e0%a6%be%e0%a6%a7%e0%a7%8d%e0%a6%af%e0%a6%be%e0%a6%af%e0%a6%bc/"
+        }
+      ]
+    },
+    {
+      "author": "ষষ্ঠীপদ চট্টোপাধ্যায়",
+      "chapters": 10,
+      "course_id": 219707,
+      "group_id": "ebanglalibrary:course:219707",
+      "split": "train",
+      "title": "দশটি কিশোর উপন্যাস – ষষ্ঠীপদ চট্টোপাধ্যায়",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%A6%E0%A6%B6%E0%A6%9F%E0%A6%BF-%E0%A6%95%E0%A6%BF%E0%A6%B6%E0%A7%8B%E0%A6%B0-%E0%A6%89%E0%A6%AA%E0%A6%A8%E0%A7%8D%E0%A6%AF%E0%A6%BE%E0%A6%B8-%E0%A6%B7%E0%A6%B7%E0%A7%8D%E0%A6%A0%E0%A7%80/",
+      "author_references": [
+        {
+          "name": "ষষ্ঠীপদ চট্টোপাধ্যায়",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b7%e0%a6%b7%e0%a7%8d%e0%a6%a0%e0%a7%80%e0%a6%aa%e0%a6%a6-%e0%a6%9a%e0%a6%9f%e0%a7%8d%e0%a6%9f%e0%a7%8b%e0%a6%aa%e0%a6%be%e0%a6%a7%e0%a7%8d%e0%a6%af%e0%a6%be%e0%a6%af%e0%a6%bc/"
+        }
+      ]
+    },
+    {
+      "author": "হেমেন্দ্রকুমার রায়",
+      "chapters": 5,
+      "course_id": 222676,
+      "group_id": "ebanglalibrary:course:222676",
+      "split": "train",
+      "title": "কিশোর রহস্য উপন্যাস – হেমেন্দ্রকুমার রায়",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%95%E0%A6%BF%E0%A6%B6%E0%A7%8B%E0%A6%B0-%E0%A6%B0%E0%A6%B9%E0%A6%B8%E0%A7%8D%E0%A6%AF-%E0%A6%89%E0%A6%AA%E0%A6%A8%E0%A7%8D%E0%A6%AF%E0%A6%BE%E0%A6%B8-%E0%A6%B9%E0%A7%87%E0%A6%AE%E0%A7%87/",
+      "author_references": [
+        {
+          "name": "হেমেন্দ্রকুমার রায়",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b9%e0%a7%87%e0%a6%ae%e0%a7%87%e0%a6%a8%e0%a7%8d%e0%a6%a6%e0%a7%8d%e0%a6%b0%e0%a6%95%e0%a7%81%e0%a6%ae%e0%a6%be%e0%a6%b0-%e0%a6%b0%e0%a6%be%e0%a6%af%e0%a6%bc/"
+        }
+      ]
+    },
+    {
+      "author": "দেবারতি মুখোপাধ্যায়",
+      "chapters": 6,
+      "course_id": 228719,
+      "group_id": "ebanglalibrary:course:228719",
+      "split": "validation",
+      "title": "লিলি – দেবারতি মুখোপাধ্যায়",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%B2%E0%A6%BF%E0%A6%B2%E0%A6%BF-%E0%A6%A6%E0%A7%87%E0%A6%AC%E0%A6%BE%E0%A6%B0%E0%A6%A4%E0%A6%BF-%E0%A6%AE%E0%A7%81%E0%A6%96%E0%A7%8B%E0%A6%AA%E0%A6%BE%E0%A6%A7%E0%A7%8D%E0%A6%AF%E0%A6%BE/",
+      "author_references": [
+        {
+          "name": "দেবারতি মুখোপাধ্যায়",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%a6%e0%a7%87%e0%a6%ac%e0%a6%be%e0%a6%b0%e0%a6%a4%e0%a6%bf-%e0%a6%ae%e0%a7%81%e0%a6%96%e0%a7%8b%e0%a6%aa%e0%a6%be%e0%a6%a7%e0%a7%8d%e0%a6%af%e0%a6%be%e0%a6%af%e0%a6%bc/"
+        }
+      ]
+    },
+    {
+      "author": "মুহম্মদ জাফর ইকবাল",
+      "chapters": 4,
+      "course_id": 224604,
+      "group_id": "ebanglalibrary:course:224604",
+      "split": "train",
+      "title": "গ্রামের নাম কাঁকনডুবি –- মুহম্মদ জাফর ইকবাল",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%97%E0%A7%8D%E0%A6%B0%E0%A6%BE%E0%A6%AE%E0%A7%87%E0%A6%B0-%E0%A6%A8%E0%A6%BE%E0%A6%AE-%E0%A6%95%E0%A6%BE%E0%A6%81%E0%A6%95%E0%A6%A8%E0%A6%A1%E0%A7%81%E0%A6%AC%E0%A6%BF-%E0%A6%AE/",
+      "author_references": [
+        {
+          "name": "মুহম্মদ জাফর ইকবাল",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%ae%e0%a7%81%e0%a6%b9%e0%a6%ae%e0%a7%8d%e0%a6%ae%e0%a6%a6-%e0%a6%9c%e0%a6%be%e0%a6%ab%e0%a6%b0-%e0%a6%87%e0%a6%95%e0%a6%ac%e0%a6%be%e0%a6%b2/"
+        }
+      ]
+    },
+    {
+      "author": "প্রমথ চৌধুরী",
+      "chapters": 48,
+      "course_id": 201365,
+      "group_id": "ebanglalibrary:course:201365",
+      "split": "train",
+      "title": "গল্পসংগ্রহ – প্রমথ চৌধুরী",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%97%E0%A6%B2%E0%A7%8D%E0%A6%AA%E0%A6%B8%E0%A6%82%E0%A6%97%E0%A7%8D%E0%A6%B0%E0%A6%B9-%E0%A6%AA%E0%A7%8D%E0%A6%B0%E0%A6%AE%E0%A6%A5-%E0%A6%9A%E0%A7%8C%E0%A6%A7%E0%A7%81%E0%A6%B0%E0%A7%80/",
+      "author_references": [
+        {
+          "name": "প্রমথ চৌধুরী",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%aa%e0%a7%8d%e0%a6%b0%e0%a6%ae%e0%a6%a5-%e0%a6%9a%e0%a7%8c%e0%a6%a7%e0%a7%81%e0%a6%b0%e0%a7%80/"
+        }
+      ]
+    },
+    {
+      "author": "বর্ণালী সাহা",
+      "chapters": 8,
+      "course_id": 215539,
+      "group_id": "ebanglalibrary:course:215539",
+      "split": "train",
+      "title": "জবরখাকি – বর্ণালী সাহা",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%9C%E0%A6%AC%E0%A6%B0%E0%A6%96%E0%A6%BE%E0%A6%95%E0%A6%BF-%E0%A6%AC%E0%A6%B0%E0%A7%8D%E0%A6%A3%E0%A6%BE%E0%A6%B2%E0%A7%80-%E0%A6%B8%E0%A6%BE%E0%A6%B9%E0%A6%BE/",
+      "author_references": [
+        {
+          "name": "বর্ণালী সাহা",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%ac%e0%a6%b0%e0%a7%8d%e0%a6%a3%e0%a6%be%e0%a6%b2%e0%a7%80-%e0%a6%b8%e0%a6%be%e0%a6%b9%e0%a6%be/"
+        }
+      ]
+    },
+    {
+      "author": "সৌভিক চক্রবর্তী",
+      "chapters": 14,
+      "course_id": 248812,
+      "group_id": "ebanglalibrary:course:248812",
+      "split": "train",
+      "title": "শ্মশানকোকিলের ডাক – সৌভিক চক্রবর্তী",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%B6%E0%A7%8D%E0%A6%AE%E0%A6%B6%E0%A6%BE%E0%A6%A8%E0%A6%95%E0%A7%8B%E0%A6%95%E0%A6%BF%E0%A6%B2%E0%A7%87%E0%A6%B0-%E0%A6%A1%E0%A6%BE%E0%A6%95-%E0%A6%B8%E0%A7%8C%E0%A6%AD%E0%A6%BF%E0%A6%95/",
+      "author_references": [
+        {
+          "name": "সৌভিক চক্রবর্তী",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b8%e0%a7%8c%e0%a6%ad%e0%a6%bf%e0%a6%95-%e0%a6%9a%e0%a6%95%e0%a7%8d%e0%a6%b0%e0%a6%ac%e0%a6%b0%e0%a7%8d%e0%a6%a4%e0%a7%80/"
+        }
+      ]
+    },
+    {
+      "author": "সুনীল গঙ্গোপাধ্যায়",
+      "chapters": 25,
+      "course_id": 233742,
+      "group_id": "ebanglalibrary:course:233742",
+      "split": "train",
+      "title": "২৫টি জমজমাট রহস্য – সম্পাদনা : সুনীল গঙ্গোপাধ্যায়",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A7%A8%E0%A7%AB%E0%A6%9F%E0%A6%BF-%E0%A6%9C%E0%A6%AE%E0%A6%9C%E0%A6%AE%E0%A6%BE%E0%A6%9F-%E0%A6%B0%E0%A6%B9%E0%A6%B8%E0%A7%8D%E0%A6%AF-%E0%A6%B8%E0%A6%AE%E0%A7%8D%E0%A6%AA%E0%A6%BE/",
+      "author_references": [
+        {
+          "name": "সুনীল গঙ্গোপাধ্যায়",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b8%e0%a7%81%e0%a6%a8%e0%a7%80%e0%a6%b2-%e0%a6%97%e0%a6%99%e0%a7%8d%e0%a6%97%e0%a7%8b%e0%a6%aa%e0%a6%be%e0%a6%a7%e0%a7%8d%e0%a6%af%e0%a6%be%e0%a6%af%e0%a6%bc/"
+        }
+      ]
+    },
+    {
+      "author": "সায়ন্তনী পূততুন্ড",
+      "chapters": 19,
+      "course_id": 216593,
+      "group_id": "ebanglalibrary:course:216593",
+      "split": "train",
+      "title": "যেখানে আঁধার নামে – সায়ন্তনী পুততুণ্ড",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%AF%E0%A7%87%E0%A6%96%E0%A6%BE%E0%A6%A8%E0%A7%87-%E0%A6%86%E0%A6%81%E0%A6%A7%E0%A6%BE%E0%A6%B0-%E0%A6%A8%E0%A6%BE%E0%A6%AE%E0%A7%87-%E0%A6%B8%E0%A6%BE%E0%A6%AF%E0%A6%BC%E0%A6%A8%E0%A7%8D/",
+      "author_references": [
+        {
+          "name": "সায়ন্তনী পূততুন্ড",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b8%e0%a6%be%e0%a6%af%e0%a6%bc%e0%a6%a8%e0%a7%8d%e0%a6%a4%e0%a6%a8%e0%a7%80-%e0%a6%aa%e0%a7%82%e0%a6%a4%e0%a6%a4%e0%a7%81%e0%a6%a8%e0%a7%8d%e0%a6%a1/"
+        }
+      ]
+    },
+    {
+      "author": "আশুতোষ মুখোপাধ্যায়",
+      "chapters": 3,
+      "course_id": 183435,
+      "group_id": "ebanglalibrary:course:183435",
+      "split": "test",
+      "title": "মুখোমুখি – আশুতোষ মুখোপাধ্যায়",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%AE%E0%A7%81%E0%A6%96%E0%A7%8B%E0%A6%AE%E0%A7%81%E0%A6%96%E0%A6%BF-%E0%A6%86%E0%A6%B6%E0%A7%81%E0%A6%A4%E0%A7%8B%E0%A6%B7-%E0%A6%AE%E0%A7%81%E0%A6%96%E0%A7%8B%E0%A6%AA%E0%A6%BE%E0%A6%A7/",
+      "author_references": [
+        {
+          "name": "আশুতোষ মুখোপাধ্যায়",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%86%e0%a6%b6%e0%a7%81%e0%a6%a4%e0%a7%8b%e0%a6%b7-%e0%a6%ae%e0%a7%81%e0%a6%96%e0%a7%8b%e0%a6%aa%e0%a6%be%e0%a6%a7%e0%a7%8d%e0%a6%af%e0%a6%be%e0%a6%af%e0%a6%bc/"
+        }
+      ]
+    },
+    {
+      "author": "জুনায়েদ ইভান",
+      "chapters": 7,
+      "course_id": 202509,
+      "group_id": "ebanglalibrary:course:202509",
+      "split": "train",
+      "title": "অন্যমনস্ক – জুনায়েদ ইভান",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%85%E0%A6%A8%E0%A7%8D%E0%A6%AF%E0%A6%AE%E0%A6%A8%E0%A6%B8%E0%A7%8D%E0%A6%95-%E0%A6%9C%E0%A7%81%E0%A6%A8%E0%A6%BE%E0%A6%AF%E0%A6%BC%E0%A7%87%E0%A6%A6-%E0%A6%87%E0%A6%AD%E0%A6%BE%E0%A6%A8/",
+      "author_references": [
+        {
+          "name": "জুনায়েদ ইভান",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%9c%e0%a7%81%e0%a6%a8%e0%a6%be%e0%a6%af%e0%a6%bc%e0%a7%87%e0%a6%a6-%e0%a6%87%e0%a6%ad%e0%a6%be%e0%a6%a8/"
+        }
+      ]
+    },
+    {
+      "author": "সুকান্ত গঙ্গোপাধ্যায়",
+      "chapters": 50,
+      "course_id": 230734,
+      "group_id": "ebanglalibrary:course:230734",
+      "split": "train",
+      "title": "পঞ্চাশটি গল্প – সুকান্ত গঙ্গোপাধ্যায়",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%AA%E0%A6%9E%E0%A7%8D%E0%A6%9A%E0%A6%BE%E0%A6%B6%E0%A6%9F%E0%A6%BF-%E0%A6%97%E0%A6%B2%E0%A7%8D%E0%A6%AA-%E0%A6%B8%E0%A7%81%E0%A6%95%E0%A6%BE%E0%A6%A8%E0%A7%8D%E0%A6%A4-%E0%A6%97%E0%A6%99/",
+      "author_references": [
+        {
+          "name": "সুকান্ত গঙ্গোপাধ্যায়",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b8%e0%a7%81%e0%a6%95%e0%a6%be%e0%a6%a8%e0%a7%8d%e0%a6%a4-%e0%a6%97%e0%a6%99%e0%a7%8d%e0%a6%97%e0%a7%8b%e0%a6%aa%e0%a6%be%e0%a6%a7%e0%a7%8d%e0%a6%af%e0%a6%be%e0%a6%af%e0%a6%bc/"
+        }
+      ]
+    },
+    {
+      "author": "আব্দুর রউফ চৌধুরী",
+      "chapters": 3,
+      "course_id": 214738,
+      "group_id": "ebanglalibrary:course:214738",
+      "split": "train",
+      "title": "গল্পসম্ভার – আব্দুর রউফ চৌধুরী",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%97%E0%A6%B2%E0%A7%8D%E0%A6%AA%E0%A6%B8%E0%A6%AE%E0%A7%8D%E0%A6%AD%E0%A6%BE%E0%A6%B0-%E0%A6%86%E0%A6%AC%E0%A7%8D%E0%A6%A6%E0%A7%81%E0%A6%B0-%E0%A6%B0%E0%A6%89%E0%A6%AB-%E0%A6%9A%E0%A7%8C/",
+      "author_references": [
+        {
+          "name": "আব্দুর রউফ চৌধুরী",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%86%e0%a6%ac%e0%a7%8d%e0%a6%a6%e0%a7%81%e0%a6%b0-%e0%a6%b0%e0%a6%89%e0%a6%ab-%e0%a6%9a%e0%a7%8c%e0%a6%a7%e0%a7%81%e0%a6%b0%e0%a7%80/"
+        }
+      ]
+    },
+    {
+      "author": "সৈয়দ মুজতবা আলী",
+      "chapters": 34,
+      "course_id": 223056,
+      "group_id": "ebanglalibrary:course:223056",
+      "split": "train",
+      "title": "টুনি মেম – সৈয়দ মুজতবা আলী",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%9F%E0%A7%81%E0%A6%A8%E0%A6%BF-%E0%A6%AE%E0%A7%87%E0%A6%AE-%E0%A6%B8%E0%A7%88%E0%A6%AF%E0%A6%BC%E0%A6%A6-%E0%A6%AE%E0%A7%81%E0%A6%9C%E0%A6%A4%E0%A6%AC%E0%A6%BE-%E0%A6%86%E0%A6%B2/",
+      "author_references": [
+        {
+          "name": "সৈয়দ মুজতবা আলী",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b8%e0%a7%88%e0%a6%af%e0%a6%bc%e0%a6%a6-%e0%a6%ae%e0%a7%81%e0%a6%9c%e0%a6%a4%e0%a6%ac%e0%a6%be-%e0%a6%86%e0%a6%b2%e0%a7%80/"
+        }
+      ]
+    },
+    {
+      "author": "উল্লাস মল্লিক",
+      "chapters": 8,
+      "course_id": 263553,
+      "group_id": "ebanglalibrary:course:263553",
+      "split": "train",
+      "title": "৮এ অট্টহাসি – উল্লাস মল্লিক",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A7%AE%E0%A6%8F-%E0%A6%85%E0%A6%9F%E0%A7%8D%E0%A6%9F%E0%A6%B9%E0%A6%BE%E0%A6%B8%E0%A6%BF-%E0%A6%89%E0%A6%B2%E0%A7%8D%E0%A6%B2%E0%A6%BE%E0%A6%B8-%E0%A6%AE%E0%A6%B2%E0%A7%8D%E0%A6%B2%E0%A6%BF/",
+      "author_references": [
+        {
+          "name": "উল্লাস মল্লিক",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%89%e0%a6%b2%e0%a7%8d%e0%a6%b2%e0%a6%be%e0%a6%b8-%e0%a6%ae%e0%a6%b2%e0%a7%8d%e0%a6%b2%e0%a6%bf%e0%a6%95/"
+        }
+      ]
+    },
+    {
+      "author": "সায়ন্তনী পূততুন্ড",
+      "chapters": 8,
+      "course_id": 237046,
+      "group_id": "ebanglalibrary:course:237046",
+      "split": "train",
+      "title": "এড়ানো যায় না – সায়ন্তনী পূততুন্ড",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%8F%E0%A6%A1%E0%A6%BC%E0%A6%BE%E0%A6%A8%E0%A7%8B-%E0%A6%AF%E0%A6%BE%E0%A6%AF%E0%A6%BC-%E0%A6%A8%E0%A6%BE-%E0%A6%B8%E0%A6%BE%E0%A6%AF%E0%A6%BC%E0%A6%A8%E0%A7%8D%E0%A6%A4%E0%A6%A8%E0%A7%80/",
+      "author_references": [
+        {
+          "name": "সায়ন্তনী পূততুন্ড",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b8%e0%a6%be%e0%a6%af%e0%a6%bc%e0%a6%a8%e0%a7%8d%e0%a6%a4%e0%a6%a8%e0%a7%80-%e0%a6%aa%e0%a7%82%e0%a6%a4%e0%a6%a4%e0%a7%81%e0%a6%a8%e0%a7%8d%e0%a6%a1/"
+        }
+      ]
+    },
+    {
+      "author": "অভীক সরকার",
+      "chapters": 6,
+      "course_id": 236719,
+      "group_id": "ebanglalibrary:course:236719",
+      "split": "train",
+      "title": "অন্ধকারের গল্প – অভীক সরকার",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%85%E0%A6%A8%E0%A7%8D%E0%A6%A7%E0%A6%95%E0%A6%BE%E0%A6%B0%E0%A7%87%E0%A6%B0-%E0%A6%97%E0%A6%B2%E0%A7%8D%E0%A6%AA-%E0%A6%85%E0%A6%AD%E0%A7%80%E0%A6%95-%E0%A6%B8%E0%A6%B0%E0%A6%95%E0%A6%BE/",
+      "author_references": [
+        {
+          "name": "অভীক সরকার",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%85%e0%a6%ad%e0%a7%80%e0%a6%95-%e0%a6%b8%e0%a6%b0%e0%a6%95%e0%a6%be%e0%a6%b0/"
+        }
+      ]
+    },
+    {
+      "author": "বিশ্বরূপ মজুমদার",
+      "chapters": 9,
+      "course_id": 253551,
+      "group_id": "ebanglalibrary:course:253551",
+      "split": "train",
+      "title": "ইতিহাস কথা বলে – সম্পাদনা : বিশ্বরূপ মজুমদার",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%87%E0%A6%A4%E0%A6%BF%E0%A6%B9%E0%A6%BE%E0%A6%B8-%E0%A6%95%E0%A6%A5%E0%A6%BE-%E0%A6%AC%E0%A6%B2%E0%A7%87-%E0%A6%B8%E0%A6%AE%E0%A7%8D%E0%A6%AA%E0%A6%BE%E0%A6%A6%E0%A6%A8%E0%A6%BE-%E0%A6%AC/",
+      "author_references": [
+        {
+          "name": "বিশ্বরূপ মজুমদার",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%ac%e0%a6%bf%e0%a6%b6%e0%a7%8d%e0%a6%ac%e0%a6%b0%e0%a7%82%e0%a6%aa-%e0%a6%ae%e0%a6%9c%e0%a7%81%e0%a6%ae%e0%a6%a6%e0%a6%be%e0%a6%b0/"
+        }
+      ]
+    },
+    {
+      "author": "সুনীল গঙ্গোপাধ্যায়",
+      "chapters": 5,
+      "course_id": 225110,
+      "group_id": "ebanglalibrary:course:225110",
+      "split": "train",
+      "title": "ভালো হতে চাই – সুনীল গঙ্গোপাধ্যায়",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%AD%E0%A6%BE%E0%A6%B2%E0%A7%8B-%E0%A6%B9%E0%A6%A4%E0%A7%87-%E0%A6%9A%E0%A6%BE%E0%A6%87-%E0%A6%B8%E0%A7%81%E0%A6%A8%E0%A7%80%E0%A6%B2-%E0%A6%97%E0%A6%99%E0%A7%8D%E0%A6%97%E0%A7%8B/",
+      "author_references": [
+        {
+          "name": "সুনীল গঙ্গোপাধ্যায়",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b8%e0%a7%81%e0%a6%a8%e0%a7%80%e0%a6%b2-%e0%a6%97%e0%a6%99%e0%a7%8d%e0%a6%97%e0%a7%8b%e0%a6%aa%e0%a6%be%e0%a6%a7%e0%a7%8d%e0%a6%af%e0%a6%be%e0%a6%af%e0%a6%bc/"
+        }
+      ]
+    },
+    {
+      "author": "বুদ্ধদেব বসু",
+      "chapters": 9,
+      "course_id": 227613,
+      "group_id": "ebanglalibrary:course:227613",
+      "split": "train",
+      "title": "পিরানদেল্লোর গল্প – সম্পাদনা : বুদ্ধদেব বসু",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%AA%E0%A6%BF%E0%A6%B0%E0%A6%BE%E0%A6%A8%E0%A6%A6%E0%A7%87%E0%A6%B2%E0%A7%8D%E0%A6%B2%E0%A7%8B%E0%A6%B0-%E0%A6%97%E0%A6%B2%E0%A7%8D%E0%A6%AA-%E0%A6%B8%E0%A6%AE%E0%A7%8D%E0%A6%AA%E0%A6%BE/",
+      "author_references": [
+        {
+          "name": "বুদ্ধদেব বসু",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%ac%e0%a7%81%e0%a6%a6%e0%a7%8d%e0%a6%a7%e0%a6%a6%e0%a7%87%e0%a6%ac-%e0%a6%ac%e0%a6%b8%e0%a7%81/"
+        }
+      ]
+    },
+    {
+      "author": "আশাপূর্ণা দেবী",
+      "chapters": 14,
+      "course_id": 241663,
+      "group_id": "ebanglalibrary:course:241663",
+      "split": "train",
+      "title": "আশাপূর্ণা দেবী – সাহিত্যের সেরা গল্প",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%86%E0%A6%B6%E0%A6%BE%E0%A6%AA%E0%A7%82%E0%A6%B0%E0%A7%8D%E0%A6%A3%E0%A6%BE-%E0%A6%A6%E0%A7%87%E0%A6%AC%E0%A7%80-%E0%A6%B8%E0%A6%BE%E0%A6%B9%E0%A6%BF%E0%A6%A4%E0%A7%8D%E0%A6%AF%E0%A7%87/",
+      "author_references": [
+        {
+          "name": "আশাপূর্ণা দেবী",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%86%e0%a6%b6%e0%a6%be%e0%a6%aa%e0%a7%82%e0%a6%b0%e0%a7%8d%e0%a6%a3%e0%a6%be-%e0%a6%a6%e0%a7%87%e0%a6%ac%e0%a7%80/"
+        }
+      ]
+    },
+    {
+      "author": "সমরেশ বসু",
+      "chapters": 4,
+      "course_id": 197225,
+      "group_id": "ebanglalibrary:course:197225",
+      "split": "train",
+      "title": "ছায়াচারিণী – সমরেশ বসু",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%9B%E0%A6%BE%E0%A6%AF%E0%A6%BC%E0%A6%BE%E0%A6%9A%E0%A6%BE%E0%A6%B0%E0%A6%BF%E0%A6%A3%E0%A7%80-%E0%A6%B8%E0%A6%AE%E0%A6%B0%E0%A7%87%E0%A6%B6-%E0%A6%AC%E0%A6%B8%E0%A7%81/",
+      "author_references": [
+        {
+          "name": "সমরেশ বসু",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b8%e0%a6%ae%e0%a6%b0%e0%a7%87%e0%a6%b6-%e0%a6%ac%e0%a6%b8%e0%a7%81/"
+        }
+      ]
+    },
+    {
+      "author": "ঈশ্বরচন্দ্র বিদ্যাসাগর",
+      "chapters": 24,
+      "course_id": 213383,
+      "group_id": "ebanglalibrary:course:213383",
+      "split": "train",
+      "title": "আখ্যানমঞ্জরী – ঈশ্বরচন্দ্র বিদ্যাসাগর সঙ্কলিত",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%86%E0%A6%96%E0%A7%8D%E0%A6%AF%E0%A6%BE%E0%A6%A8%E0%A6%AE%E0%A6%9E%E0%A7%8D%E0%A6%9C%E0%A6%B0%E0%A7%80-%E0%A6%88%E0%A6%B6%E0%A7%8D%E0%A6%AC%E0%A6%B0%E0%A6%9A%E0%A6%A8%E0%A7%8D%E0%A6%A6/",
+      "author_references": [
+        {
+          "name": "ঈশ্বরচন্দ্র বিদ্যাসাগর",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%88%e0%a6%b6%e0%a7%8d%e0%a6%ac%e0%a6%b0%e0%a6%9a%e0%a6%a8%e0%a7%8d%e0%a6%a6%e0%a7%8d%e0%a6%b0-%e0%a6%ac%e0%a6%bf%e0%a6%a6%e0%a7%8d%e0%a6%af%e0%a6%be%e0%a6%b8%e0%a6%be%e0%a6%97%e0%a6%b0/"
+        }
+      ]
+    },
+    {
+      "author": "কর্ণ শীল",
+      "chapters": 7,
+      "course_id": 202210,
+      "group_id": "ebanglalibrary:course:202210",
+      "split": "train",
+      "title": "নিষিদ্ধ গাণ্ডিব – কর্ণ শীল",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%A8%E0%A6%BF%E0%A6%B7%E0%A6%BF%E0%A6%A6%E0%A7%8D%E0%A6%A7-%E0%A6%97%E0%A6%BE%E0%A6%A3%E0%A7%8D%E0%A6%A1%E0%A6%BF%E0%A6%AC-%E0%A6%95%E0%A6%B0%E0%A7%8D%E0%A6%A3-%E0%A6%B6%E0%A7%80%E0%A6%B2/",
+      "author_references": [
+        {
+          "name": "কর্ণ শীল",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%95%e0%a6%b0%e0%a7%8d%e0%a6%a3-%e0%a6%b6%e0%a7%80%e0%a6%b2/"
+        }
+      ]
+    },
+    {
+      "author": "শিবরাম চক্রবর্তী",
+      "chapters": 2,
+      "course_id": 203981,
+      "group_id": "ebanglalibrary:course:203981",
+      "split": "validation",
+      "title": "এক মেয়ে ব্যোমকেশের কাহিনী – শিবরাম চক্রবর্তী﻿",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%8F%E0%A6%95-%E0%A6%AE%E0%A7%87%E0%A6%AF%E0%A6%BC%E0%A7%87-%E0%A6%AC%E0%A7%8D%E0%A6%AF%E0%A7%8B%E0%A6%AE%E0%A6%95%E0%A7%87%E0%A6%B6%E0%A7%87%E0%A6%B0-%E0%A6%95%E0%A6%BE%E0%A6%B9%E0%A6%BF/",
+      "author_references": [
+        {
+          "name": "শিবরাম চক্রবর্তী",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b6%e0%a6%bf%e0%a6%ac%e0%a6%b0%e0%a6%be%e0%a6%ae-%e0%a6%9a%e0%a6%95%e0%a7%8d%e0%a6%b0%e0%a6%ac%e0%a6%b0%e0%a7%8d%e0%a6%a4%e0%a7%80/"
+        }
+      ]
+    },
+    {
+      "author": "শান্তিপ্রিয় বন্দ্যোপাধ্যায়",
+      "chapters": 1,
+      "course_id": 267611,
+      "group_id": "ebanglalibrary:course:267611",
+      "split": "train",
+      "title": "সুড়ঙ্গ রহস্য – শান্তিপ্রিয় বন্দ্যোপাধ্যায়",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%B8%E0%A7%81%E0%A6%A1%E0%A6%BC%E0%A6%99%E0%A7%8D%E0%A6%97-%E0%A6%B0%E0%A6%B9%E0%A6%B8%E0%A7%8D%E0%A6%AF-%E0%A6%B6%E0%A6%BE%E0%A6%A8%E0%A7%8D%E0%A6%A4%E0%A6%BF%E0%A6%AA%E0%A7%8D%E0%A6%B0/",
+      "author_references": [
+        {
+          "name": "শান্তিপ্রিয় বন্দ্যোপাধ্যায়",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b6%e0%a6%be%e0%a6%a8%e0%a7%8d%e0%a6%a4%e0%a6%bf%e0%a6%aa%e0%a7%8d%e0%a6%b0%e0%a6%bf%e0%a6%af%e0%a6%bc-%e0%a6%ac%e0%a6%a8%e0%a7%8d%e0%a6%a6%e0%a7%8d%e0%a6%af%e0%a7%8b%e0%a6%aa%e0%a6%be%e0%a6%a7/"
+        }
+      ]
+    },
+    {
+      "author": "জাহানারা ইমাম",
+      "chapters": 7,
+      "course_id": 212886,
+      "group_id": "ebanglalibrary:course:212886",
+      "split": "train",
+      "title": "বীর শ্রেষ্ঠ – জাহানারা ইমাম",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%AC%E0%A7%80%E0%A6%B0-%E0%A6%B6%E0%A7%8D%E0%A6%B0%E0%A7%87%E0%A6%B7%E0%A7%8D%E0%A6%A0-%E0%A6%9C%E0%A6%BE%E0%A6%B9%E0%A6%BE%E0%A6%A8%E0%A6%BE%E0%A6%B0%E0%A6%BE-%E0%A6%87%E0%A6%AE%E0%A6%BE/",
+      "author_references": [
+        {
+          "name": "জাহানারা ইমাম",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%9c%e0%a6%be%e0%a6%b9%e0%a6%be%e0%a6%a8%e0%a6%be%e0%a6%b0%e0%a6%be-%e0%a6%87%e0%a6%ae%e0%a6%be%e0%a6%ae/"
+        }
+      ]
+    },
+    {
+      "author": "অতীন বন্দ্যোপাধ্যায়",
+      "chapters": 16,
+      "course_id": 204617,
+      "group_id": "ebanglalibrary:course:204617",
+      "split": "train",
+      "title": "সাহিত্যের সেরা গল্প – অতীন বন্দ্যোপাধ্যায়",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%B8%E0%A6%BE%E0%A6%B9%E0%A6%BF%E0%A6%A4%E0%A7%8D%E0%A6%AF%E0%A7%87%E0%A6%B0-%E0%A6%B8%E0%A7%87%E0%A6%B0%E0%A6%BE-%E0%A6%97%E0%A6%B2%E0%A7%8D%E0%A6%AA-%E0%A6%85%E0%A6%A4%E0%A7%80%E0%A6%A8/",
+      "author_references": [
+        {
+          "name": "অতীন বন্দ্যোপাধ্যায়",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%85%e0%a6%a4%e0%a7%80%e0%a6%a8-%e0%a6%ac%e0%a6%a8%e0%a7%8d%e0%a6%a6%e0%a7%8d%e0%a6%af%e0%a7%8b%e0%a6%aa%e0%a6%be%e0%a6%a7%e0%a7%8d%e0%a6%af%e0%a6%be%e0%a6%af%e0%a6%bc/"
+        }
+      ]
+    },
+    {
+      "author": "অমরেন্দ্র চক্রবর্তী | বিমল মুখার্জি",
+      "chapters": 20,
+      "course_id": 208097,
+      "group_id": "ebanglalibrary:course:208097",
+      "split": "train",
+      "title": "দুচাকায় দুনিয়া – বিমল মুখার্জি",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%A6%E0%A7%81%E0%A6%9A%E0%A6%BE%E0%A6%95%E0%A6%BE%E0%A6%AF%E0%A6%BC-%E0%A6%A6%E0%A7%81%E0%A6%A8%E0%A6%BF%E0%A6%AF%E0%A6%BC%E0%A6%BE-%E0%A6%AC%E0%A6%BF%E0%A6%AE%E0%A6%B2-%E0%A6%AE%E0%A7%81/",
+      "author_references": [
+        {
+          "name": "অমরেন্দ্র চক্রবর্তী",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%85%e0%a6%ae%e0%a6%b0%e0%a7%87%e0%a6%a8%e0%a7%8d%e0%a6%a6%e0%a7%8d%e0%a6%b0-%e0%a6%9a%e0%a6%95%e0%a7%8d%e0%a6%b0%e0%a6%ac%e0%a6%b0%e0%a7%8d%e0%a6%a4%e0%a7%80/"
+        },
+        {
+          "name": "বিমল মুখার্জি",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%ac%e0%a6%bf%e0%a6%ae%e0%a6%b2-%e0%a6%ae%e0%a7%81%e0%a6%96%e0%a6%be%e0%a6%b0%e0%a7%8d%e0%a6%9c%e0%a6%bf/"
+        }
+      ]
+    },
+    {
+      "author": "সৌমিত্র বিশ্বাস",
+      "chapters": 10,
+      "course_id": 268023,
+      "group_id": "ebanglalibrary:course:268023",
+      "split": "train",
+      "title": "দশরূপা – সৌমিত্র বিশ্বাস",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%A6%E0%A6%B6%E0%A6%B0%E0%A7%82%E0%A6%AA%E0%A6%BE-%E0%A6%B8%E0%A7%8C%E0%A6%AE%E0%A6%BF%E0%A6%A4%E0%A7%8D%E0%A6%B0-%E0%A6%AC%E0%A6%BF%E0%A6%B6%E0%A7%8D%E0%A6%AC%E0%A6%BE%E0%A6%B8/",
+      "author_references": [
+        {
+          "name": "সৌমিত্র বিশ্বাস",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b8%e0%a7%8c%e0%a6%ae%e0%a6%bf%e0%a6%a4%e0%a7%8d%e0%a6%b0-%e0%a6%ac%e0%a6%bf%e0%a6%b6%e0%a7%8d%e0%a6%ac%e0%a6%be%e0%a6%b8/"
+        }
+      ]
+    },
+    {
+      "author": "সন্মাত্রানন্দ",
+      "chapters": 2,
+      "course_id": 220335,
+      "group_id": "ebanglalibrary:course:220335",
+      "split": "train",
+      "title": "ছোটগল্প – সন্মাত্রানন্দ",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%9B%E0%A7%8B%E0%A6%9F%E0%A6%97%E0%A6%B2%E0%A7%8D%E0%A6%AA-%E0%A6%B8%E0%A6%A8%E0%A7%8D%E0%A6%AE%E0%A6%BE%E0%A6%A4%E0%A7%8D%E0%A6%B0%E0%A6%BE%E0%A6%A8%E0%A6%A8%E0%A7%8D%E0%A6%A6/",
+      "author_references": [
+        {
+          "name": "সন্মাত্রানন্দ",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%b8%e0%a6%a8%e0%a7%8d%e0%a6%ae%e0%a6%be%e0%a6%a4%e0%a7%8d%e0%a6%b0%e0%a6%be%e0%a6%a8%e0%a6%a8%e0%a7%8d%e0%a6%a6/"
+        }
+      ]
+    },
+    {
+      "author": "কাসেম বিন আবুবাকার",
+      "chapters": 6,
+      "course_id": 212306,
+      "group_id": "ebanglalibrary:course:212306",
+      "split": "train",
+      "title": "জোঁকা – কাসেম বিন আবু বাকার",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%9C%E0%A7%8B%E0%A6%81%E0%A6%95%E0%A6%BE-%E0%A6%95%E0%A6%BE%E0%A6%B8%E0%A7%87%E0%A6%AE-%E0%A6%AC%E0%A6%BF%E0%A6%A8-%E0%A6%86%E0%A6%AC%E0%A7%81-%E0%A6%AC%E0%A6%BE%E0%A6%95%E0%A6%BE%E0%A6%B0/",
+      "author_references": [
+        {
+          "name": "কাসেম বিন আবুবাকার",
+          "url": "https://www.ebanglalibrary.com/authors/%e0%a6%95%e0%a6%be%e0%a6%b8%e0%a7%87%e0%a6%ae-%e0%a6%ac%e0%a6%bf%e0%a6%a8-%e0%a6%86%e0%a6%ac%e0%a7%81%e0%a6%ac%e0%a6%be%e0%a6%95%e0%a6%be%e0%a6%b0/"
+        }
+      ]
+    }
+  ],
+  "discovery_failures": [
+    {
+      "error": "paginated table of contents needs explicit support before acquisition",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%85%E0%A6%A8%E0%A7%80%E0%A6%B6%E0%A7%87%E0%A6%B0-%E0%A6%B8%E0%A7%87%E0%A6%B0%E0%A6%BE-%E0%A7%A7%E0%A7%A6%E0%A7%A7-%E0%A6%85%E0%A6%A8%E0%A7%80%E0%A6%B6-%E0%A6%A6%E0%A7%87%E0%A6%AC/"
+    },
+    {
+      "error": "book must expose between 1 and 100 ordered chapters",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%B8%E0%A6%AE%E0%A7%81%E0%A6%A6%E0%A7%8D%E0%A6%B0%E0%A7%87%E0%A6%B0-%E0%A6%B8%E0%A6%A8%E0%A7%8D%E0%A6%A8%E0%A7%8D%E0%A6%AF%E0%A6%BE%E0%A6%B8%E0%A6%BF%E0%A6%A8%E0%A7%80-%E0%A6%A8%E0%A6%AC/"
+    },
+    {
+      "error": "paginated table of contents needs explicit support before acquisition",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%86%E0%A6%A8%E0%A6%A8%E0%A7%8D%E0%A6%A6%E0%A6%B8%E0%A6%99%E0%A7%8D%E0%A6%97%E0%A7%80-%E0%A6%9B%E0%A7%8B%E0%A6%9F%E0%A6%97%E0%A6%B2%E0%A7%8D%E0%A6%AA/"
+    },
+    {
+      "error": "book must expose between 1 and 100 ordered chapters",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%86%E0%A6%AB%E0%A7%8D%E0%A6%B0%E0%A6%BF%E0%A6%95%E0%A6%BE%E0%A6%B0-%E0%A6%B2%E0%A7%8B%E0%A6%95%E0%A6%97%E0%A6%B2%E0%A7%8D%E0%A6%AA-%E0%A6%85%E0%A6%B6%E0%A7%8B%E0%A6%95%E0%A6%95%E0%A7%81/"
+    },
+    {
+      "error": "book must expose between 1 and 100 ordered chapters",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%AA%E0%A6%BE%E0%A6%96%E0%A6%BF%E0%A6%B0-%E0%A6%96%E0%A6%BE%E0%A6%A4%E0%A6%BE-%E0%A6%85%E0%A6%AE%E0%A6%B0%E0%A7%87%E0%A6%A8%E0%A7%8D%E0%A6%A6%E0%A7%8D%E0%A6%B0-%E0%A6%9A%E0%A6%95%E0%A7%8D/"
+    },
+    {
+      "error": "paginated table of contents needs explicit support before acquisition",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%B6%E0%A7%8D%E0%A6%B0%E0%A7%87%E0%A6%B7%E0%A7%8D%E0%A6%A0-%E0%A6%89%E0%A6%B0%E0%A7%8D%E0%A6%A6%E0%A7%81-%E0%A6%97%E0%A6%B2%E0%A7%8D%E0%A6%AA-%E0%A6%B8%E0%A6%AE%E0%A7%8D%E0%A6%AA%E0%A6%BE/"
+    },
+    {
+      "error": "book must expose between 1 and 100 ordered chapters",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%A1%E0%A6%BF%E0%A6%AD%E0%A7%8B%E0%A6%B0%E0%A7%8D%E0%A6%B8-%E0%A6%87%E0%A6%A4%E0%A7%8D%E0%A6%AF%E0%A6%BE%E0%A6%A6%E0%A6%BF/"
+    },
+    {
+      "error": "book must expose between 1 and 100 ordered chapters",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%85%E0%A6%A4%E0%A6%B2-%E0%A6%9C%E0%A6%B2%E0%A7%87%E0%A6%B0-%E0%A6%AC%E0%A6%A8%E0%A7%8D%E0%A6%A7%E0%A7%81-%E0%A6%B8%E0%A7%8D%E0%A6%AE%E0%A6%B0%E0%A6%A3%E0%A6%9C%E0%A6%BF%E0%A7%8E-%E0%A6%9A/"
+    },
+    {
+      "error": "book must expose between 1 and 100 ordered chapters",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%B0%E0%A7%8B%E0%A6%B2-%E0%A6%A8%E0%A6%82-%E0%A7%A7%E0%A7%AD-%E0%A6%A6%E0%A7%8B%E0%A6%B2%E0%A6%BE-%E0%A6%AE%E0%A6%BF%E0%A6%A4%E0%A7%8D%E0%A6%B0-%E0%A6%97%E0%A6%B2%E0%A7%8D%E0%A6%AA%E0%A6%97/"
+    },
+    {
+      "error": "paginated table of contents needs explicit support before acquisition",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%AE%E0%A6%BE%E0%A6%AA%E0%A6%BE-%E0%A6%B9%E0%A6%BE%E0%A6%B8%E0%A6%BF-%E0%A6%9A%E0%A6%BE%E0%A6%AA%E0%A6%BE-%E0%A6%95%E0%A6%BE%E0%A6%A8%E0%A7%8D%E0%A6%A8%E0%A6%BE-%E0%A6%B8%E0%A6%9E%E0%A7%8D/"
+    },
+    {
+      "error": "paginated table of contents needs explicit support before acquisition",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%B8%E0%A7%87%E0%A6%B0%E0%A6%BE-%E0%A6%AD%E0%A7%8D%E0%A6%B0%E0%A6%AE%E0%A6%A3-%E0%A6%95%E0%A6%BE%E0%A6%B9%E0%A6%BF%E0%A6%A8%E0%A7%80-%E0%A6%AA%E0%A7%8D%E0%A6%B0%E0%A6%A5%E0%A6%AE-%E0%A6%96/"
+    },
+    {
+      "error": "paginated table of contents needs explicit support before acquisition",
+      "url": "https://www.ebanglalibrary.com/books/%E0%A6%97%E0%A6%B2%E0%A7%8D%E0%A6%AA%E0%A6%B8%E0%A6%82%E0%A6%97%E0%A7%8D%E0%A6%B0%E0%A6%B9-%E0%A6%B6%E0%A6%B0%E0%A6%A6%E0%A6%BF%E0%A6%A8%E0%A7%8D%E0%A6%A6%E0%A7%81-%E0%A6%AC%E0%A6%A8%E0%A7%8D/"
+    }
+  ],
+  "selection": "round-robin across catalogue authors, at most five books/author, no model scores; original eight books excluded; every book remains one split unit; admission-v2 reserves five new authors for validation and five for test before any new book training; discovery acquisition labels were provisional",
+  "version": 1,
+  "author_holdouts": {
+    "দেবারতি মুখোপাধ্যায়": "validation",
+    "দিব্যজ্যোতি মজুমদার": "validation",
+    "প্রচেত গুপ্ত": "validation",
+    "কৌশিক সামন্ত": "validation",
+    "শিবরাম চক্রবর্তী": "validation",
+    "শীর্ষেন্দু মুখােপাধ্যায়": "test",
+    "আশুতোষ মুখোপাধ্যায়": "test",
+    "বিনায়ক বন্দ্যোপাধ্যায়": "test",
+    "বিভূতিভূষণ মুখোপাধ্যায়": "test",
+    "মাহরীন ফেরদৌস": "test"
+  }
+}

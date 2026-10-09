@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Iterator
 
 from tools.autosuggest.common import BOS_ID, PAD_ID, UNK_ID, sentence_paths
+from tools.corpus.provenance import evaluation_provenance
 
 
 MAGIC = b"OBAUTOSUGLM_V1\0\0"
@@ -449,6 +450,7 @@ def evaluate(
     backoff_policy: str,
     miss_samples: int = 0,
 ) -> dict:
+    provenance = evaluation_provenance(model, corpus_dir)
     lm = NgramLm(model)
     report_ks = report_cutoffs(top_k)
     total_targets = 0
@@ -523,7 +525,7 @@ def evaluate(
                     report_ks,
                     backoff_policy,
                     miss_samples,
-                )
+                ) | {"evaluation_provenance": provenance}
 
     return report(
         lm,
@@ -545,7 +547,7 @@ def evaluate(
         report_ks,
         backoff_policy,
         miss_samples,
-    )
+    ) | {"evaluation_provenance": provenance}
 
 
 def report(

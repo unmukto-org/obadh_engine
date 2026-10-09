@@ -14,6 +14,7 @@ import argparse
 import json
 import shutil
 import time
+from functools import wraps
 from pathlib import Path
 
 import numpy as np
@@ -26,6 +27,10 @@ from collections import Counter
 from dataclasses import dataclass
 
 from tools.autosuggest.common import PAD_ID, UNK_ID
+from tools.corpus.provenance import (
+    evaluation_provenance, load_partition, neural_training_provenance,
+    sha256_file, verify_checkpoint_provenance,
+)
 from tools.autosuggest.eval_ngram_lm import NgramLm, model_recent_context
 from tools.autosuggest.train_next_word_lm import (
     NextWordLm,
@@ -120,8 +125,13 @@ class FullVocabTopKAndCandidateScorer(nn.Module):
         return topk_scores, token_ids, candidate_scores
 
 
-def load_model(checkpoint_path: Path) -> tuple[NextWordLm, dict]:
+def load_model(checkpoint_path: Path, *, provenance: dict | None = None,
+               retrieval_model: Path | None = None) -> tuple[NextWordLm, dict]:
     checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
+    if provenance is not None:
+        if retrieval_model is None:
+            raise ValueError("checkpoint verification requires a retrieval artifact")
+        verify_checkpoint_provenance(checkpoint, provenance, retrieval_model)
     config = checkpoint["config"]
     model = NextWordLm(
         vocab_size=int(config["vocab_size"]),
@@ -132,12 +142,28 @@ def load_model(checkpoint_path: Path) -> tuple[NextWordLm, dict]:
         dropout=0.0,
         transformer_layers=int(config["transformer_layers"]),
         transformer_heads=int(config["transformer_heads"]),
+        transformer_padding_mode=config.get("transformer_padding_mode", "unmasked-v0"),
+        transformer_initialization=config.get("transformer_initialization", "legacy-v0"),
     )
     model.load_state_dict(checkpoint["state_dict"])
     model.eval()
     return model, config
 
 
+def portable_attention_export(function):
+    """Scope tracing to portable primitives and restore the caller's backend."""
+    @wraps(function)
+    def wrapped(*args, **kwargs):
+        enabled = torch.backends.mha.get_fastpath_enabled()
+        try:
+            torch.backends.mha.set_fastpath_enabled(False)
+            return function(*args, **kwargs)
+        finally:
+            torch.backends.mha.set_fastpath_enabled(enabled)
+    return wrapped
+
+
+@portable_attention_export
 def export_onnx(
     model: NextWordLm,
     output_path: Path,
@@ -162,6 +188,7 @@ def export_onnx(
     onnx.checker.check_model(onnx_model)
 
 
+@portable_attention_export
 def export_topk_onnx(
     model: NextWordLm,
     output_path: Path,
@@ -185,6 +212,7 @@ def export_topk_onnx(
     onnx.checker.check_model(onnx_model)
 
 
+@portable_attention_export
 def export_combined_onnx(
     model: NextWordLm,
     output_path: Path,
@@ -210,6 +238,7 @@ def export_combined_onnx(
     onnx.checker.check_model(onnx_model)
 
 
+@portable_attention_export
 def export_coreml(
     model: NextWordLm,
     output_path: Path,
@@ -244,6 +273,7 @@ def export_coreml(
     mlmodel.save(str(output_path))
 
 
+@portable_attention_export
 def export_topk_coreml(
     model: NextWordLm,
     output_path: Path,
@@ -277,6 +307,7 @@ def export_topk_coreml(
     mlmodel.save(str(output_path))
 
 
+@portable_attention_export
 def export_combined_coreml(
     model: NextWordLm,
     output_path: Path,
@@ -2471,6 +2502,8 @@ def main() -> None:
     parser.add_argument("--quantized-output", type=Path)
     parser.add_argument("--coreml-output", type=Path)
     parser.add_argument("--report", type=Path, required=True)
+    parser.add_argument("--native-fixtures", type=Path,
+                        help="Write up to 4096 verified input cases for the native Apple benchmark")
     parser.add_argument(
         "--export-kind",
         choices=("candidate-scorer", "full-vocab-topk", "full-vocab-topk-scorer"),
@@ -2479,7 +2512,7 @@ def main() -> None:
     parser.add_argument("--pool-k", type=int, default=16)
     parser.add_argument("--top-k-output", type=int, default=128)
     parser.add_argument("--opset", type=int, default=17)
-    parser.add_argument("--skip-sentences-per-source", type=int, default=100_000)
+    parser.add_argument("--skip-sentences-per-source", type=int)
     parser.add_argument("--max-examples-per-source", type=int, default=1_000)
     parser.add_argument("--benchmark-iterations", type=int, default=2_000)
     parser.add_argument("--benchmark-batch-size", type=int, default=1)
@@ -2632,7 +2665,23 @@ def main() -> None:
         args.scored_union_locked_static_prefixes,
         "--scored-union-locked-static-prefixes",
     )
-    model, config = load_model(args.checkpoint)
+    data_provenance = evaluation_provenance(args.artifact, args.corpus_dir)
+    checkpoint_provenance = None
+    if data_provenance["status"] == "partition_verified":
+        # This exporter runs ranking-policy comparisons; test must remain reserved
+        # for the separate frozen evaluator, even when exporting a fixed graph.
+        load_partition(args.corpus_dir, allowed=("validation",))
+        checkpoint_provenance = neural_training_provenance(
+            args.artifact, args.corpus_dir.parent / "train", args.corpus_dir,
+        )
+    if args.skip_sentences_per_source is None:
+        args.skip_sentences_per_source = 0 if checkpoint_provenance else 100_000
+    checkpoint_hash = sha256_file(args.checkpoint)
+    model, config = load_model(args.checkpoint, provenance=checkpoint_provenance,
+                               retrieval_model=args.artifact)
+    lm = NgramLm(args.artifact)
+    if config["vocab_size"] != lm.vocab_size:
+        raise ValueError("checkpoint vocabulary size differs from retrieval artifact")
     context_window = int(config["context_window"])
     if args.export_kind == "candidate-scorer":
         export_onnx(model, args.output, context_window, args.pool_k, args.opset)
@@ -2684,7 +2733,6 @@ def main() -> None:
         quantized_path = args.quantized_output or args.output.with_suffix(".int8.onnx")
         quantize_onnx(args.output, quantized_path)
 
-    lm = NgramLm(args.artifact)
     inputs = collect_real_inputs(
         lm,
         args.corpus_dir,
@@ -2695,6 +2743,8 @@ def main() -> None:
     )
     session = make_session(args.output, args.intra_op_threads)
     report = {
+        "data_provenance": data_provenance,
+        "checkpoint_sha256": checkpoint_hash,
         "checkpoint": str(args.checkpoint),
         "artifact": str(args.artifact),
         "model": {
@@ -3151,6 +3201,24 @@ def main() -> None:
                 args.benchmark_iterations,
                 args.benchmark_batch_size,
             )
+    if sha256_file(args.checkpoint) != checkpoint_hash:
+        raise ValueError("checkpoint changed during export; use an immutable snapshot")
+    if args.native_fixtures:
+        if inputs.size == 0:
+            raise ValueError("cannot create native fixtures from an empty collection")
+        indexes = np.linspace(0, inputs.size - 1, min(inputs.size, 4096), dtype=np.int64)
+        fixtures = {
+            "version": 1, "vocabularySize": lm.vocab_size,
+            "contexts": inputs.contexts[indexes].tolist(),
+            "candidates": inputs.candidate_ids[indexes].tolist(),
+            "targets": inputs.labels[indexes].tolist(),
+            "targetScope": "known-vocabulary validation subset; not all-target accuracy",
+            "checkpointSHA256": checkpoint_hash, "retrievalSHA256": sha256_file(args.artifact),
+        }
+        args.native_fixtures.parent.mkdir(parents=True, exist_ok=True)
+        args.native_fixtures.write_text(json.dumps(fixtures, separators=(",", ":")) + "\n", encoding="utf-8")
+        report["native_fixtures"] = {"path": str(args.native_fixtures), "cases": len(indexes),
+                                     "sha256": sha256_file(args.native_fixtures)}
     args.report.parent.mkdir(parents=True, exist_ok=True)
     args.report.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, ensure_ascii=False, indent=2))

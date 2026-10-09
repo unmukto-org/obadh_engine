@@ -38,6 +38,8 @@ def load_checkpoint(path: Path) -> NextWordLm:
         dropout=0.0,
         transformer_layers=int(config["transformer_layers"]),
         transformer_heads=int(config["transformer_heads"]),
+        transformer_padding_mode=config.get("transformer_padding_mode", "unmasked-v0"),
+        transformer_initialization=config.get("transformer_initialization", "legacy-v0"),
     )
     model.load_state_dict(checkpoint["state_dict"])
     model.eval()
