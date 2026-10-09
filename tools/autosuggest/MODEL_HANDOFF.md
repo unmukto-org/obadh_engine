@@ -6,6 +6,25 @@ was acquired, released or cancelled during parking. No experiment has passed
 production admission. This document supersedes historical active-run instructions
 in [TRAINING.md](TRAINING.md) and the archived logs.
 
+## Completed archive and local cleanup
+
+The private Git LFS archive is complete at revision `33eaf1f3a7896b6d20bef8393418c2b08a909ecb`. It preserves
+all 6125 locally present file paths in 45 independent batches
+(142,633,956,923 compressed bytes). Source files were hash-checked while archiving;
+all LFS uploads and Git pushes succeeded and committed pointers match the manifest.
+Full remote read-back was stopped at the owner’s request; no full restore download
+is required before cleanup. The first six batches retain their earlier read-back
+receipts.
+
+Manifest SHA-256: `57b510c2420debfd5980bd1f7445026446d5850c50c331e8ad78f0a136907d76`.
+`preservation-receipt.json` and `cleanup-receipt.json` record publication and
+owner-requested local payload removal, completed at `2026-10-09T07:15:41Z`.
+`~/Dev/obadh-model-runs` now contains only a restore pointer;
+`~/Dev/obadh-model-backup` retains small manifests, Git metadata, LFS pointers
+and recovery tools. Restore from the private remote before using old local
+checkpoint/data paths. The known historical missing prediction JSONL and
+remote-only Gemma weights remain documented below.
+
 ## Branches and archive
 
 All corpus, neural completion, correction, evaluation and Apple probe work belongs
