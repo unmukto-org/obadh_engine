@@ -8,6 +8,8 @@ Releases before `0.7.0` predate this file; see the git history and tags for thos
 
 ## [Unreleased]
 
+## [0.9.5] - 2026-10-09
+
 ### Added
 
 - Two source-audited loanword batches add 74 spelling pairs, including Amazon,
