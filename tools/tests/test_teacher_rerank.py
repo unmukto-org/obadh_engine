@@ -1,3 +1,7 @@
+from tools.tests.dependencies import require
+
+require('regex')
+
 import json
 import unittest
 from tools.correction.teacher_rerank import choices, prompt, selected, outcomes

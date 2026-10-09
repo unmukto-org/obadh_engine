@@ -1,3 +1,7 @@
+from tools.tests.dependencies import require
+
+require('regex')
+
 import json
 from pathlib import Path
 import tempfile

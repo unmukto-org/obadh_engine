@@ -1,3 +1,7 @@
+from tools.tests.dependencies import require
+
+require('regex')
+
 import unittest
 import json
 from pathlib import Path
