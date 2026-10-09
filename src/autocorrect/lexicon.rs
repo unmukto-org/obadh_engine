@@ -4,7 +4,7 @@ use super::artifact::{
     push_u16, push_u32, ArtifactReader, LexiconArtifactError, LexiconArtifactVersion, LEXICON_MAGIC,
 };
 use super::bangla::{bangla_units, phonetic_skeleton, unit_similarity};
-use super::edit::{weighted_edit_distance, EditCost, INSERT_DELETE_COST};
+use super::edit::{insertion_deletion_cost, weighted_edit_distance, EditCost, INSERT_DELETE_COST};
 
 const PREFIX_COMPLETION_INDEX_LIMIT: usize = 8;
 
@@ -270,7 +270,7 @@ impl Lexicon {
         let min_candidate_depth = input_units.len().saturating_sub(length_slack);
         let max_candidate_depth = input_units.len() + length_slack;
         let initial_row = (0..=input_units.len())
-            .map(|index| (index as u16) * INSERT_DELETE_COST)
+            .map(insertion_deletion_cost)
             .collect::<Vec<_>>();
         let mut matches = Vec::new();
         let mut rows = vec![initial_row];
@@ -481,12 +481,13 @@ impl Lexicon {
             let previous_row = &previous_rows[depth - 1];
             let current_row = &mut current_rows[0];
             current_row.clear();
-            current_row.push(previous_row[0] + INSERT_DELETE_COST);
+            current_row.push(previous_row[0].saturating_add(INSERT_DELETE_COST));
 
             for (input_index, input_unit) in input_units.iter().enumerate() {
-                let substitution = previous_row[input_index] + unit_similarity(input_unit, unit);
-                let deletion = previous_row[input_index + 1] + INSERT_DELETE_COST;
-                let insertion = current_row[input_index] + INSERT_DELETE_COST;
+                let substitution =
+                    previous_row[input_index].saturating_add(unit_similarity(input_unit, unit));
+                let deletion = previous_row[input_index + 1].saturating_add(INSERT_DELETE_COST);
+                let insertion = current_row[input_index].saturating_add(INSERT_DELETE_COST);
                 current_row.push(substitution.min(deletion).min(insertion));
             }
 
@@ -809,17 +810,17 @@ fn skeleton_edit_distance(left: &str, right: &str, max_cost: u16) -> Option<u16>
     }
 
     let mut previous = (0..=right.len())
-        .map(|index| index as u16)
+        .map(|index| index.min(usize::from(u16::MAX)) as u16)
         .collect::<Vec<_>>();
     let mut current = vec![0; right.len() + 1];
 
     for (left_index, left_ch) in left.iter().enumerate() {
-        current[0] = (left_index + 1) as u16;
+        current[0] = (left_index + 1).min(usize::from(u16::MAX)) as u16;
         let mut row_min = current[0];
         for (right_index, right_ch) in right.iter().enumerate() {
-            let substitution = previous[right_index] + u16::from(left_ch != right_ch);
-            let deletion = previous[right_index + 1] + 1;
-            let insertion = current[right_index] + 1;
+            let substitution = previous[right_index].saturating_add(u16::from(left_ch != right_ch));
+            let deletion = previous[right_index + 1].saturating_add(1);
+            let insertion = current[right_index].saturating_add(1);
             let cost = substitution.min(deletion).min(insertion);
             current[right_index + 1] = cost;
             row_min = row_min.min(cost);
@@ -1091,9 +1092,14 @@ mod tests {
             LexiconEntry::new("বিজ্ঞান", 7),
             LexiconEntry::new("কিরণ", 6),
             LexiconEntry::new("করণ", 5),
+            LexiconEntry::new("কি", 4),
+            LexiconEntry::new("মি", 3),
+            LexiconEntry::new("কী", 2),
+            LexiconEntry::new("কাঁ", 1),
         ]);
 
-        for input in ["আমী", "আমাদের", "বিজান", "কীরণ"] {
+        for input in ["আমী", "আমাদের", "বিজান", "কীরণ", "কি", "কা"]
+        {
             let max_edit_cost = 4;
             let actual = lexicon
                 .find_within_edit_cost(input, max_edit_cost)
@@ -1111,6 +1117,14 @@ mod tests {
 
             assert_eq!(actual, expected);
         }
+    }
+
+    #[test]
+    fn trie_lookup_accepts_long_input_without_cost_overflow() {
+        let lexicon = Lexicon::new([LexiconEntry::new("ক", 10)]);
+        assert!(lexicon
+            .find_within_edit_cost(&"ক".repeat(32_768), 4)
+            .is_empty());
     }
 
     #[test]

@@ -11,6 +11,7 @@ use super::bangla::{
     for_each_chandrabindu_variant, has_bengali_letter,
 };
 use super::edit::weighted_edit_distance;
+use super::edit_row::BoundedEditRow;
 use super::morphology::{stem_suffix_completions, StemSuffixCompletion};
 
 pub const DEFAULT_FST_MAX_DISTANCE: u32 = 1;
@@ -97,7 +98,11 @@ impl<D: AsRef<[u8]>> FstLexicon<D> {
     ///
     /// Cost: one automaton walk of the fst that dies the instant a consonant diverges from
     /// the skeleton, so it visits only the shared subtree of actual skeleton-mates.
-    fn skeleton_matches(&self, baseline: &str, limit: usize) -> Vec<super::skeleton::SkeletonMatch> {
+    fn skeleton_matches(
+        &self,
+        baseline: &str,
+        limit: usize,
+    ) -> Vec<super::skeleton::SkeletonMatch> {
         use super::skeleton::{SkeletonAutomaton, SkeletonMatch};
 
         if limit == 0 {
@@ -120,7 +125,11 @@ impl<D: AsRef<[u8]>> FstLexicon<D> {
                 });
             }
         }
-        collected.sort_by(|a, b| b.frequency.cmp(&a.frequency).then_with(|| a.word.cmp(&b.word)));
+        collected.sort_by(|a, b| {
+            b.frequency
+                .cmp(&a.frequency)
+                .then_with(|| a.word.cmp(&b.word))
+        });
         collected.truncate(limit);
         collected
     }
@@ -696,7 +705,7 @@ fn insert_english_loanword_candidate(
     } else {
         FstCandidateSource::EnglishLoanwordFuzzy
     };
-    let score = english_loanword_candidate_score(
+    let mut score = english_loanword_candidate_score(
         source,
         edit_cost,
         loanword.repair_cost,
@@ -704,6 +713,25 @@ fn insert_english_loanword_candidate(
         loanword.roman_input,
         loanword.roman_repair,
     );
+    if source == FstCandidateSource::EnglishLoanwordFuzzy
+        && english_loanword_prefix_truncation_penalty(loanword.roman_input, loanword.roman_repair)
+            > 0
+    {
+        // Dropping a typed suffix is weaker evidence than a closer Bangla edit.
+        // Preserve that ordering independently of frequency and cost-scale
+        // tuning. Repeated final-key typos are exempt from the truncation rule.
+        if let Some(ceiling) = seeds
+            .values()
+            .filter(|candidate| {
+                candidate.source == FstCandidateSource::EditDistance
+                    && candidate.edit_cost < edit_cost
+            })
+            .map(|candidate| candidate.score)
+            .max()
+        {
+            score = score.min(ceiling.saturating_sub(1));
+        }
+    }
     let candidate = FstCandidate {
         text: loanword.bangla_output.to_string(),
         source,
@@ -928,12 +956,12 @@ fn frequency_score(frequency: u64) -> i64 {
 #[derive(Debug, Clone)]
 struct UnicodeLevenshtein {
     query: Vec<char>,
-    distance: usize,
+    distance: u8,
 }
 
 #[derive(Debug, Clone)]
 struct UnicodeLevenshteinState {
-    row: Vec<usize>,
+    row: BoundedEditRow,
     pending: [u8; 4],
     pending_len: u8,
     expected_len: u8,
@@ -942,24 +970,25 @@ struct UnicodeLevenshteinState {
 
 impl UnicodeLevenshtein {
     fn new(query: &str, distance: u32) -> Self {
+        debug_assert!(distance <= FST_MAX_LEVENSHTEIN_DISTANCE);
         Self {
             query: query.chars().collect(),
-            distance: distance as usize,
+            distance: distance as u8,
         }
     }
 
-    fn start_row(&self) -> Vec<usize> {
-        (0..=self.query.len()).collect()
+    fn start_row(&self) -> BoundedEditRow {
+        BoundedEditRow::initial(self.query.len(), self.distance + 1)
     }
 
-    fn accept_char(&self, row: &[usize], ch: char) -> Vec<usize> {
-        let mut next = Vec::with_capacity(self.query.len() + 1);
-        next.push(row[0].saturating_add(1));
+    fn accept_char(&self, row: &[u8], ch: char) -> BoundedEditRow {
+        let mut next = BoundedEditRow::with_capacity(self.query.len() + 1);
+        next.push((row[0] + 1).min(self.distance + 1));
         for (index, query_ch) in self.query.iter().enumerate() {
-            let substitution_cost = usize::from(*query_ch != ch);
-            let substitution = row[index].saturating_add(substitution_cost);
-            let deletion = row[index + 1].saturating_add(1);
-            let insertion = next[index].saturating_add(1);
+            let substitution_cost = u8::from(*query_ch != ch);
+            let substitution = row[index] + substitution_cost;
+            let deletion = row[index + 1] + 1;
+            let insertion = next[index] + 1;
             next.push(
                 substitution
                     .min(deletion)
@@ -1097,9 +1126,105 @@ fn is_utf8_continuation(byte: u8) -> bool {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::BTreeMap;
+
+    use fst::automaton::Automaton;
+    use fst::{IntoStreamer, Streamer};
+
     use super::{
         FstCandidateSource, FstLexicon, FstLoanwordMatch, FstRepairedBaseline, FstSuggestOptions,
+        UnicodeLevenshtein,
     };
+
+    fn reference_unicode_distance(left: &str, right: &str) -> u16 {
+        let left = left.chars().collect::<Vec<_>>();
+        let right = right.chars().collect::<Vec<_>>();
+        let mut matrix = vec![vec![0_u16; right.len() + 1]; left.len() + 1];
+        for (index, row) in matrix.iter_mut().enumerate() {
+            row[0] = index as u16;
+        }
+        for (index, cell) in matrix[0].iter_mut().enumerate() {
+            *cell = index as u16;
+        }
+        for i in 1..=left.len() {
+            for j in 1..=right.len() {
+                matrix[i][j] = (matrix[i - 1][j] + 1)
+                    .min(matrix[i][j - 1] + 1)
+                    .min(matrix[i - 1][j - 1] + u16::from(left[i - 1] != right[j - 1]));
+            }
+        }
+        matrix[left.len()][right.len()]
+    }
+
+    fn assert_unicode_search_matches_reference(words: &[String]) {
+        let map = fst::Map::from_iter(words.iter().map(|word| (word.as_bytes(), 1))).unwrap();
+        for query in words {
+            for limit in 0..=2 {
+                let mut stream = map
+                    .search_with_state(UnicodeLevenshtein::new(query, limit))
+                    .into_stream();
+                let mut actual = BTreeMap::new();
+                while let Some((key, _, state)) = stream.next() {
+                    actual.insert(key.to_vec(), u16::from(state.row[query.chars().count()]));
+                }
+                let expected = words
+                    .iter()
+                    .filter_map(|word| {
+                        let distance = reference_unicode_distance(query, word);
+                        (u32::from(distance) <= limit).then(|| (word.as_bytes().to_vec(), distance))
+                    })
+                    .collect::<BTreeMap<_, _>>();
+                assert_eq!(actual, expected, "query={query:?}, limit={limit}");
+            }
+        }
+    }
+
+    #[test]
+    fn compact_unicode_rows_match_exhaustive_scalar_distance() {
+        let mut words = vec![String::new()];
+        let mut level = vec![String::new()];
+        for _ in 0..3 {
+            level = level
+                .iter()
+                .flat_map(|prefix| ['x', 'é', 'ক', '😀'].map(|ch| format!("{prefix}{ch}")))
+                .collect();
+            words.extend(level.iter().cloned());
+        }
+        words.sort();
+        assert_unicode_search_matches_reference(&words);
+    }
+
+    #[test]
+    fn unicode_heap_fallback_matches_reference_across_inline_boundary() {
+        let mut words = Vec::new();
+        for len in [31, 32, 33, 64] {
+            let prefix = "ক".repeat(len - 1);
+            for suffix in ["", "ক", "খ", "কি", "😀"] {
+                words.push(format!("{prefix}{suffix}"));
+            }
+        }
+        words.sort();
+        words.dedup();
+        assert_unicode_search_matches_reference(&words);
+    }
+
+    #[test]
+    fn unicode_automaton_rejects_invalid_or_incomplete_utf8() {
+        let automaton = UnicodeLevenshtein::new("ক", 2);
+        for bytes in [
+            &[0x80][..],
+            &[0xc0, 0xaf],
+            &[0xe0, 0x80, 0x80],
+            &[0xed, 0xa0, 0x80],
+            &[0xf4, 0x90, 0x80, 0x80],
+            &[0xe0, 0xa6],
+        ] {
+            let state = bytes.iter().fold(automaton.start(), |state, byte| {
+                automaton.accept(&state, *byte)
+            });
+            assert!(!automaton.is_match(&state), "invalid UTF-8 {bytes:?}");
+        }
+    }
 
     #[test]
     fn fst_suggest_handles_bangla_unicode_edit_distance() {
@@ -1577,6 +1702,40 @@ mod tests {
     }
 
     #[test]
+    fn suffix_truncated_loanword_channel_stays_below_closer_edit_across_frequencies() {
+        for (america_frequency, american_frequency) in [(10_018, 20_752), (1_000_000, 10)] {
+            let mut seeds = BTreeMap::new();
+            super::insert_fst_candidate(
+                &mut seeds,
+                "আমেরিকান",
+                american_frequency,
+                FstCandidateSource::EditDistance,
+                "আমেরিচান",
+                None,
+            );
+            let loanword = FstLoanwordMatch {
+                roman_input: "American",
+                roman_repair: "america",
+                bangla_output: "আমেরিকা",
+                frequency: 16,
+                repair_kind: "english_loanword_fuzzy",
+                repair_cost: 1,
+            };
+            super::insert_english_loanword_candidate(
+                &mut seeds,
+                &loanword,
+                america_frequency,
+                "আমেরিচান",
+            );
+            let closer = &seeds["আমেরিকান"];
+            let truncated = &seeds["আমেরিকা"];
+            assert_eq!(truncated.source, FstCandidateSource::EnglishLoanwordFuzzy);
+            assert!(closer.edit_cost < truncated.edit_cost);
+            assert!(closer.score > truncated.score);
+        }
+    }
+
+    #[test]
     fn fuzzy_english_loanword_repeated_final_key_typo_stays_strong() {
         let lexicon = test_lexicon([("উনিভেরসিতা", 2), ("ইউনিভার্সিটি", 9407)]);
         let loanwords = [FstLoanwordMatch {
@@ -1766,7 +1925,8 @@ mod tests {
         };
         let lexicon = FstLexicon::from_bytes(bytes).expect("load fst");
         // Vowel-dropped baselines (the channel's real inputs) plus a 2-consonant worst case.
-        for baseline in ["ক্রল্ম", "দখলম", "প্রয়জন", "ক্র"] {
+        for baseline in ["ক্রল্ম", "দখলম", "প্রয়জন", "ক্র"]
+        {
             for _ in 0..200 {
                 let _ = lexicon.skeleton_matches(baseline, super::SKELETON_MATCH_LIMIT);
             }
@@ -1774,7 +1934,9 @@ mod tests {
             let start = Instant::now();
             let mut sink = 0usize;
             for _ in 0..n {
-                sink += lexicon.skeleton_matches(baseline, super::SKELETON_MATCH_LIMIT).len();
+                sink += lexicon
+                    .skeleton_matches(baseline, super::SKELETON_MATCH_LIMIT)
+                    .len();
             }
             let per_us = start.elapsed().as_secs_f64() * 1e6 / n as f64;
             eprintln!(

@@ -1,8 +1,8 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion, Throughput};
 use obadh_engine::{
     AutocorrectEngine, AutosuggestContext, AutosuggestLm, AutosuggestOptions, AutosuggestSession,
-    CorrectionRequest, FstLexicon, FstSuggestOptions, LexiconEntry, ObadhEngine,
-    PersonalAutosuggest, PersonalAutosuggestConfig, Tokenizer,
+    CorrectionRequest, FstLexicon, FstSuggestOptions, LexiconEntry, LoanwordLexicon,
+    LoanwordSearchOptions, ObadhEngine, PersonalAutosuggest, PersonalAutosuggestConfig, Tokenizer,
 };
 use std::fs;
 use std::time::Duration;
@@ -112,6 +112,45 @@ fn bench_autocorrect(c: &mut Criterion) {
                 .expect("shipped FST suggestion should succeed")
         });
     });
+    for (name, input) in [
+        ("shipped_fst_suggest_kolom_512", "কলম"),
+        ("shipped_fst_suggest_k_512", "ক"),
+    ] {
+        group.bench_function(name, |b| {
+            b.iter(|| {
+                shipped_fst
+                    .suggest(black_box(input), black_box(fst_options))
+                    .expect("shipped FST suggestion should succeed")
+            });
+        });
+    }
+    group.finish();
+}
+
+fn bench_loanword_lookup(c: &mut Criterion) {
+    let Some(bytes) = read_first_existing(&[
+        "www/assets/autocorrect/en_bn_loanwords.fst",
+        "data/autocorrect/models/en_bn_loanwords.fst",
+    ]) else {
+        return;
+    };
+    let lexicon = LoanwordLexicon::from_bytes(bytes).expect("shipped loanwords should load");
+    let mut group = c.benchmark_group("loanword_shipped");
+    for (name, input) in [
+        ("exact", "keyboard"),
+        ("single_swap", "ekyboard"),
+        ("two_swaps", "ekyborad"),
+        ("swap_and_substitution", "ekyboarx"),
+    ] {
+        let options = LoanwordSearchOptions::for_input(input);
+        group.bench_function(name, |b| {
+            b.iter(|| {
+                lexicon
+                    .suggestions(black_box(input), black_box(options))
+                    .unwrap()
+            });
+        });
+    }
     group.finish();
 }
 
@@ -317,6 +356,6 @@ criterion_group! {
         .sample_size(20)
         .warm_up_time(Duration::from_millis(500))
         .measurement_time(Duration::from_secs(1));
-    targets = bench_tokenizer, bench_transliterator, bench_autocorrect, bench_autosuggest
+    targets = bench_tokenizer, bench_transliterator, bench_autocorrect, bench_loanword_lookup, bench_autosuggest
 }
 criterion_main!(hot_path);

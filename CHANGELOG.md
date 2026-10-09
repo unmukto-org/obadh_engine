@@ -28,6 +28,10 @@ Releases before `0.7.0` predate this file; see the git history and tags for thos
 
 ### Changed
 
+- FST edit searches use capped byte-sized rows stored inline for short queries,
+  with a heap fallback for longer input. Loanword searches retrieve and score
+  adjacent transpositions with one OSA automaton instead of separate swap probes
+  and a quadratic scoring matrix.
 - Simplified the playground around its editor with shared Obadh branding,
   locally hosted fonts, consistent light and dark themes, and responsive sizing.
 - The candidate ribbon follows the macOS client: compact cells, wrapping arrow
@@ -37,6 +41,14 @@ Releases before `0.7.0` predate this file; see the git history and tags for thos
 
 ### Fixed
 
+- Loanword fuzzy lookup now retrieves combinations of two adjacent swaps or a
+  swap plus another edit within the configured distance limit.
+- Weighted Bangla edit costs saturate at `u16::MAX` instead of overflowing on
+  long input. Vowel and nasal discounts require the same consonant base, keeping
+  hasants, joiners, and nukta distinct. A suffix-truncated fuzzy loanword stays
+  below a closer Bangla edit.
+- WASM autosuggest scratch buffers reserve their requested total capacity from
+  the current length, avoiding unexpected allocations when limits grow.
 - Kept the canonical `address` → অ্যাড্রেস loanword mapping; the proposed এড্রেস
   variant is excluded. The existing `dress` → ড্রেস mapping is retained.
 - Playground suggestions for the previous input are hidden when the active

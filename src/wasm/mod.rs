@@ -40,7 +40,37 @@ fn now() -> f64 {
 
 fn reserve_vec_to<T>(values: &mut Vec<T>, capacity: usize) {
     if values.capacity() < capacity {
-        values.reserve_exact(capacity - values.capacity());
+        // Vec reservations are additional to len, not to existing capacity.
+        values.reserve_exact(capacity - values.len());
+    }
+}
+
+#[cfg(test)]
+mod buffer_tests {
+    use super::reserve_vec_to;
+
+    #[test]
+    fn growing_scratch_reserves_the_requested_total_capacity() {
+        for len in [0, 4, 16] {
+            let mut values = Vec::with_capacity(16);
+            values.extend(0..len);
+            reserve_vec_to(&mut values, 24);
+            assert!(values.capacity() >= 24);
+            assert_eq!(values, (0..len).collect::<Vec<_>>());
+            let pointer = values.as_ptr();
+            values.extend(len..24);
+            assert_eq!(values.as_ptr(), pointer);
+        }
+    }
+
+    #[test]
+    fn sufficient_scratch_capacity_is_reused() {
+        let mut values = Vec::with_capacity(24);
+        values.extend(0..4);
+        let pointer = values.as_ptr();
+        reserve_vec_to(&mut values, 16);
+        assert_eq!(values.as_ptr(), pointer);
+        assert_eq!(values, vec![0, 1, 2, 3]);
     }
 }
 
@@ -1127,15 +1157,9 @@ fn autosuggest_session_candidate_ids_into(
 ) -> Result<AutosuggestMetadata, AutosuggestArtifactError> {
     let limit = limit.max(1);
     let pool_limit = session_repetition_guard_pool_limit(limit);
-    if personal_scratch.capacity() < pool_limit {
-        personal_scratch.reserve_exact(pool_limit - personal_scratch.capacity());
-    }
-    if model_scratch.capacity() < pool_limit {
-        model_scratch.reserve_exact(pool_limit - model_scratch.capacity());
-    }
-    if output.capacity() < limit {
-        output.reserve_exact(limit - output.capacity());
-    }
+    reserve_vec_to(personal_scratch, pool_limit);
+    reserve_vec_to(model_scratch, pool_limit);
+    reserve_vec_to(output, limit);
     personal.suggest_ids_with_lm_for_personal_context_into(
         lm,
         context,

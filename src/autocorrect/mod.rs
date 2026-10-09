@@ -8,6 +8,7 @@
 mod artifact;
 mod bangla;
 mod edit;
+mod edit_row;
 mod emoticon;
 mod fst_lexicon;
 mod lexicon;
