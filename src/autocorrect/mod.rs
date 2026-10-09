@@ -8,18 +8,20 @@
 mod artifact;
 mod bangla;
 mod edit;
+mod emoticon;
 mod fst_lexicon;
 mod lexicon;
 mod loanword;
 mod morphology;
-mod ranker;
 mod phoneme;
 mod qwerty;
+mod ranker;
 mod roman_repair;
 mod skeleton;
 
 pub use artifact::LexiconArtifactError;
 pub use edit::{weighted_edit_distance, EditCost};
+pub use emoticon::{emoticon_emoji, emoticon_suggestions};
 pub use fst_lexicon::{
     FstCandidate, FstCandidateSource, FstLexicon, FstLoanwordMatch, FstRepairedBaseline,
     FstSuggestError, FstSuggestOptions, FstSuggestResult, DEFAULT_FST_MAX_DISTANCE,

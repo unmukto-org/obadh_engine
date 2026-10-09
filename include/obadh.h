@@ -95,6 +95,7 @@ uint64_t obadh_autocorrect_word_frequency(const ObadhAutocorrect *autocorrect,
  *                                    //  5 stem_suffix_completion  6 skeleton_vowel_drop
  *                                    //  7 consonant_confusion  8 roman_repair_exact
  *                                    //  9 english_loanword_exact  10 english_loanword_fuzzy
+ *                                    // 11 emoticon_exact (opt-in conversion only)
  *                                    // treat an UNKNOWN code as not-auto-replaceable.
  *       [uint16 edit_cost]           // Bangla-side edit distance
  *       [uint16 roman_repair_cost]   // 0xFFFF = none (native-side edit)
@@ -105,8 +106,9 @@ size_t obadh_autocorrect_suggest_detailed(const ObadhAutocorrect *autocorrect,
                                           size_t limit, uint8_t *out, size_t cap);
 
 /* Active-typing candidate bar for `roman`: the deterministic baseline first,
- * then corrections. The baseline is always present so the user can keep what
- * they typed even when it is not a lexicon word. Packed string list. */
+ * then corrections. Exact emoticons return the intact literal first, then its
+ * emoji. The baseline is always present so the user can keep what they typed
+ * even when it is not a lexicon word. Packed string list. */
 size_t obadh_compose_suggestions(const ObadhAutocorrect *autocorrect,
                                  const uint8_t *roman, size_t roman_len,
                                  size_t limit, uint8_t *out, size_t cap);

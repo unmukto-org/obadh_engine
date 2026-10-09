@@ -274,6 +274,9 @@ impl ObadhAutocorrect {
     /// repairs, QWERTY key-slip repairs, and loanword matches folded into one
     /// ranked result. Mirrors the reference runtime wiring.
     fn suggest_result(&self, roman: &str) -> Option<FstSuggestResult> {
+        if let Some(result) = crate::emoticon_suggestions(roman, AUTOCORRECT_RESPONSE_LIMIT) {
+            return Some(result);
+        }
         if roman.trim().is_empty() {
             return None;
         }
@@ -358,6 +361,16 @@ impl ObadhAutocorrect {
         }
         let limit = limit.clamp(1, AUTOCORRECT_RESPONSE_LIMIT);
         let mut candidates = Vec::with_capacity(limit);
+        if let Some(result) = crate::emoticon_suggestions(roman, limit.saturating_sub(1)) {
+            candidates.push(result.baseline);
+            candidates.extend(
+                result
+                    .candidates
+                    .into_iter()
+                    .map(|candidate| candidate.text),
+            );
+            return candidates;
+        }
         candidates.push(self.engine.transliterate(roman));
         for candidate in self.suggest_texts(roman, limit.saturating_sub(1)) {
             if candidates.len() >= limit {
@@ -971,6 +984,7 @@ mod tests {
             (RomanRepairExact, 8),
             (EnglishLoanwordExact, 9),
             (EnglishLoanwordFuzzy, 10),
+            (EmoticonExact, 11),
         ];
         let candidates: Vec<FstCandidate> = sources
             .iter()
@@ -1025,6 +1039,48 @@ mod tests {
             small.iter().all(|&b| b == 0),
             "too-small buffer is not written"
         );
+    }
+
+    #[test]
+    fn emoticon_compose_and_detailed_suggestions_preserve_literal_input() {
+        let path = temp_fst("emoticons.fst", &[("বাংলা", 10)]);
+        let path_bytes = path.to_str().unwrap().as_bytes();
+        unsafe {
+            let handle =
+                obadh_autocorrect_open(path_bytes.as_ptr(), path_bytes.len(), ptr::null(), 0);
+            assert!(!handle.is_null());
+            for (input, emoji) in [(":)", "😃"), (":-)", "😃"), (":D", "😄"), (":-D", "😄")]
+            {
+                let packed = read_sized(|out, cap| {
+                    obadh_compose_suggestions(handle, input.as_ptr(), input.len(), 2, out, cap)
+                });
+                assert_eq!(
+                    parse_str_list(&packed),
+                    vec![input.to_owned(), emoji.to_owned()]
+                );
+                let packed = read_sized(|out, cap| {
+                    obadh_compose_suggestions(handle, input.as_ptr(), input.len(), 1, out, cap)
+                });
+                assert_eq!(parse_str_list(&packed), vec![input.to_owned()]);
+                let packed = read_sized(|out, cap| {
+                    obadh_autocorrect_suggest_detailed(
+                        handle,
+                        input.as_ptr(),
+                        input.len(),
+                        2,
+                        out,
+                        cap,
+                    )
+                });
+                let records = parse_detailed_list(&packed);
+                assert_eq!(records.len(), 1);
+                assert_eq!(records[0].text, emoji);
+                assert_eq!(records[0].source, 11);
+                assert_eq!(records[0].frequency, 0);
+            }
+            obadh_autocorrect_free(handle);
+        }
+        std::fs::remove_file(path).unwrap();
     }
 
     #[test]

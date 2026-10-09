@@ -212,6 +212,26 @@ carries the provenance a caller needs to rank, filter, or gate it:
 The Rust API exposes these on `FstCandidate` (`FstLexicon::suggest`); the C ABI
 exposes them through `obadh_autocorrect_suggest_detailed`.
 
+ASCII emoticons use a separate exact-match channel above transliteration:
+`emoticon_emoji` performs an allocation-free lookup, and
+`emoticon_suggestions` returns the intact literal baseline plus an emoji
+alternative. The pinned mapping covers 322 aliases, including `:)` / `:-)` →
+😃 and `:D` / `:-D` → 😄. Supply the complete active input before punctuation
+splitting; matching preserves case and does not trim or repair input.
+
+Native compose suggestions keep the literal face first and offer emoji second.
+Detailed suggestions identify the emoji with `emoticon_exact` (C source code
+11), frequency zero, and score zero. These are alternatives, not spelling
+corrections: automatic conversion is an explicit client preference. Both CLI
+backends and the browser bindings recognize this channel. The browser keeps
+the literal draft until the user selects emoji. Commit emoji directly rather
+than sending it through lenient transliteration, which removes unsupported
+characters. The deterministic core's behavior is unchanged.
+
+See [mapping provenance and coverage](data/emoticons/README.md). Regenerate the
+static table with `python3 tools/emoticons/generate_table.py`; use `--check`
+to verify that the checked-in table matches the source snapshot.
+
 ### Auto-insert policy
 
 Whether to *silently apply* a correction is a client decision: it depends on the
@@ -450,6 +470,16 @@ npm --prefix www run serve
 `./build.sh dev` runs the Tailwind watcher plus the lightweight `www/` server.
 The dev server is an npm-only playground tool and is outside the Rust crate
 dependency graph.
+
+The editor uses the shared Obadh icon, locally hosted brand fonts, and teal
+palette. Its compact candidate ribbon follows the macOS client: the first
+candidate is selected initially, arrows or Tab cycle through alternatives,
+and Space or Enter commits the selection. Candidate details, tokens, timing,
+JSON, and runtime resources live in the collapsible Inspector. Editor settings
+include text size and Roman history; the toolbar offers Copy, Save, and
+reversible Clear.
+The Inspector groups ranking data and phonetic units in expandable details;
+JSON uses syntax colors for keys, strings, numbers, and literals in both themes.
 
 WASM usage:
 

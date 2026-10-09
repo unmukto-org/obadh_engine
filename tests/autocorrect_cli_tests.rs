@@ -9,6 +9,44 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use serde_json::Value;
 
 #[test]
+fn emoticons_bypass_spelling_correction_in_both_cli_backends() {
+    let workspace = TempWorkspace::new("obadh-emoticon-cli");
+    let source = workspace.path("lexicon.tsv");
+    fs::write(&source, "বাংলা\t100\n").unwrap();
+    for (build_command, suggest_command) in [
+        ("build-lexicon", "suggest"),
+        ("build-fst-lexicon", "suggest-fst"),
+    ] {
+        let artifact = workspace.path(build_command);
+        let output = run_obadh_autocorrect([
+            build_command,
+            "--input",
+            path_str(&source),
+            "--output",
+            path_str(&artifact),
+        ]);
+        assert!(output.status.success(), "{}", stderr(&output));
+        for (input, emoji) in [(":)", "😃"), (":-)", "😃"), (":D", "😄"), (":-D", "😄")] {
+            let output = run_obadh_autocorrect([
+                suggest_command,
+                "--lexicon",
+                path_str(&artifact),
+                "--input",
+                input,
+            ]);
+            assert!(output.status.success(), "{}", stderr(&output));
+            let result = json_stdout(&output);
+            assert_eq!(result["obadh_output"], input);
+            assert_eq!(result["candidates"][0]["text"], emoji);
+            assert_eq!(result["candidates"][0]["source"], "emoticon_exact");
+            assert_eq!(result["candidates"][0]["frequency"], 0);
+            assert_eq!(result["returned_candidates"], 1);
+            assert!(result.get("replacement").is_none_or(Value::is_null));
+        }
+    }
+}
+
+#[test]
 fn autocorrect_cli_builds_inspects_and_evaluates_artifacts() {
     let workspace = TempWorkspace::new("obadh-autocorrect-cli-roundtrip");
     let lexicon_tsv = workspace.path("lexicon.tsv");

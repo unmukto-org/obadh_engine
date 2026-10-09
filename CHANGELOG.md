@@ -8,6 +8,34 @@ Releases before `0.7.0` predate this file; see the git history and tags for thos
 
 ## [Unreleased]
 
+### Added
+
+- `ok` and `okay` loanwords mapping to ওকে, with rebuilt lexicon artifacts.
+- Exact ASCII emoticon suggestions across Rust, CLI, WASM, and the C ABI, using
+  322 aliases from the pinned, MIT-licensed `wooorm/emoticon` dataset. Both
+  noseless and nosed forms work (`:)` / `:-)` → 😃, `:D` / `:-D` → 😄).
+  Compose returns the literal first and its emoji as an explicit alternative;
+  the deterministic transliteration core is unchanged. Emoticon alternatives
+  have the append-only candidate source code `11` (`emoticon_exact`).
+- Playground Copy, Save, reversible Clear, text-size settings, and an optional
+  Roman history view.
+
+### Changed
+
+- Simplified the playground around its editor with shared Obadh branding,
+  locally hosted fonts, consistent light and dark themes, and responsive sizing.
+- The candidate ribbon follows the macOS client: compact cells, wrapping arrow
+  and Tab navigation, and Space or Enter to commit the selected candidate.
+- Reworked the collapsible Inspector with expandable ranking and phonetic-unit
+  details, timing bars, runtime resources, and JSON syntax highlighting.
+
+### Fixed
+
+- Playground suggestions for the previous input are hidden when the active
+  input changes. Committing an emoji preserves it in the composer.
+- Long inspector content scrolls within bounded panels; whitespace tokens have
+  visible markers rather than blank conversion rows.
+
 ## [0.9.4] - 2026-09-25
 
 ### Changed

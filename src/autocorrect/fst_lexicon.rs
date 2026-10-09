@@ -473,6 +473,8 @@ pub enum FstCandidateSource {
     RomanRepairExact,
     EnglishLoanwordExact,
     EnglishLoanwordFuzzy,
+    /// Exact emoticon alternative; never scored as a spelling correction.
+    EmoticonExact,
 }
 
 impl FstCandidateSource {
@@ -489,6 +491,7 @@ impl FstCandidateSource {
             Self::RomanRepairExact => "fst_roman_repair_exact",
             Self::EnglishLoanwordExact => "fst_english_loanword_exact",
             Self::EnglishLoanwordFuzzy => "fst_english_loanword_fuzzy",
+            Self::EmoticonExact => "emoticon_exact",
         }
     }
 
@@ -512,6 +515,7 @@ impl FstCandidateSource {
             Self::RomanRepairExact => 8,
             Self::EnglishLoanwordExact => 9,
             Self::EnglishLoanwordFuzzy => 10,
+            Self::EmoticonExact => 11,
         }
     }
 
@@ -556,6 +560,7 @@ impl FstCandidateSource {
             Self::RomanRepairExact => 0,
             Self::EnglishLoanwordExact => ENGLISH_LOANWORD_EXACT_PRIOR,
             Self::EnglishLoanwordFuzzy => ENGLISH_LOANWORD_FUZZY_PRIOR,
+            Self::EmoticonExact => 0,
         }
     }
 }
@@ -1741,6 +1746,7 @@ mod tests {
             (RomanRepairExact, 8),
             (EnglishLoanwordExact, 9),
             (EnglishLoanwordFuzzy, 10),
+            (EmoticonExact, 11),
         ] {
             assert_eq!(source.stable_code(), code, "{source:?}");
         }

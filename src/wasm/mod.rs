@@ -9,8 +9,7 @@ use crate::autosuggest::{
 };
 use crate::{
     key_slip_repaired_outputs, roman_repaired_outputs, AutocorrectConfig, AutocorrectDecision,
-    AutocorrectEngine,
-    AutosuggestArtifactError, AutosuggestCandidateId, AutosuggestCandidatePrior,
+    AutocorrectEngine, AutosuggestArtifactError, AutosuggestCandidateId, AutosuggestCandidatePrior,
     AutosuggestContext, AutosuggestContextPriorOptions, AutosuggestLm, AutosuggestMetadata,
     AutosuggestOptions, AutosuggestSource, CandidateFeatures, CorrectionCandidate,
     CorrectionSource, FstCandidate, FstLexicon, FstLoanwordMatch, FstRepairedBaseline,
@@ -231,6 +230,12 @@ impl ObadhaWasm {
         }
 
         self.engine.transliterate(text)
+    }
+
+    /// Exact lookup for intact ASCII emoticons; does not alter transliteration.
+    #[wasm_bindgen(js_name = emoticonEmoji)]
+    pub fn emoticon_emoji(&self, input: &str) -> Option<String> {
+        crate::emoticon_emoji(input).map(str::to_owned)
     }
 
     /// Transliterate text after dropping unsupported characters
@@ -828,6 +833,36 @@ impl ObadhAutocorrectWasm {
     #[wasm_bindgen]
     pub fn suggest(&self, roman_input: &str) -> Result<JsValue, JsValue> {
         let start = now();
+        if let Some(result) = crate::emoticon_suggestions(roman_input, 1) {
+            let literal = AutocorrectCandidateInfo {
+                text: result.baseline.clone(),
+                source: "literal",
+                edit_cost: 0,
+                frequency: 0,
+                score: 0,
+                roman_repair: None,
+                roman_repair_kind: None,
+                roman_repair_cost: None,
+                features: [0; crate::AUTOCORRECT_FEATURE_DIM],
+            };
+            let mut candidates = vec![literal];
+            candidates.extend(
+                result
+                    .candidates
+                    .into_iter()
+                    .map(fst_autocorrect_candidate_info),
+            );
+            let result = AutocorrectLabResult {
+                roman_input: roman_input.to_owned(),
+                obadh_output: result.baseline.clone(),
+                input: result.baseline,
+                elapsed_ms: now() - start,
+                replacement: None,
+                candidates,
+                lexicon: self.stats,
+            };
+            return to_value(&result).map_err(|error| JsValue::from_str(&error.to_string()));
+        }
         if roman_input.trim().is_empty() {
             let empty_result = AutocorrectLabResult {
                 roman_input: String::new(),
