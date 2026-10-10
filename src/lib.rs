@@ -29,6 +29,7 @@ pub mod cabi;
 pub mod definitions;
 pub mod engine;
 pub mod fingerprint;
+pub mod gesture;
 #[cfg(feature = "wasm")]
 pub mod wasm;
 
